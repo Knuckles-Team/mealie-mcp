@@ -1,0 +1,206 @@
+---
+name: mealie-explore
+description: "Generated skill for explore operations. Contains 15 tools."
+---
+
+### Overview
+This skill handles operations related to explore.
+
+### Available Tools
+- `get_explore_groups_group_slug_foods`: Get All
+  - **Parameters**:
+    - `group_slug` (str)
+    - `search` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_foods_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `group_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_households`: Get All
+  - **Parameters**:
+    - `group_slug` (str)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_household`: Get Household
+  - **Parameters**:
+    - `household_slug` (str)
+    - `group_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_organizers_categories`: Get All
+  - **Parameters**:
+    - `group_slug` (str)
+    - `search` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_organizers_categories_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `group_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_organizers_tags`: Get All
+  - **Parameters**:
+    - `group_slug` (str)
+    - `search` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_organizers_tags_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `group_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_organizers_tools`: Get All
+  - **Parameters**:
+    - `group_slug` (str)
+    - `search` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_organizers_tools_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `group_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_cookbooks`: Get All
+  - **Parameters**:
+    - `group_slug` (str)
+    - `search` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_cookbooks_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (Any)
+    - `group_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_recipes`: Get All
+  - **Parameters**:
+    - `group_slug` (str)
+    - `categories` (Any)
+    - `tags` (Any)
+    - `tools` (Any)
+    - `foods` (Any)
+    - `households` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `cookbook` (Any)
+    - `require_all_categories` (bool)
+    - `require_all_tags` (bool)
+    - `require_all_tools` (bool)
+    - `require_all_foods` (bool)
+    - `search` (Any)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_explore_groups_group_slug_recipes_suggestions`: Suggest Recipes
+  - **Parameters**:
+    - `group_slug` (str)
+    - `foods` (Any)
+    - `tools` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `limit` (int)
+    - `max_missing_foods` (int)
+    - `max_missing_tools` (int)
+    - `include_foods_on_hand` (bool)
+    - `include_tools_on_hand` (bool)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipe`: Get Recipe
+  - **Parameters**:
+    - `recipe_slug` (str)
+    - `group_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+
+### Usage Instructions
+1. Review the tool available in this skill.
+2. Call the tool with the required parameters.
+
+### Error Handling
+- Ensure all required parameters are provided.
+- Check return values for error messages.

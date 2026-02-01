@@ -1,0 +1,531 @@
+---
+name: mealie-households
+description: "Generated skill for households operations. Contains 64 tools."
+---
+
+### Overview
+This skill handles operations related to households.
+
+### Available Tools
+- `get_households_cookbooks`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_cookbooks`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_cookbooks`: Update Many
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_cookbooks_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (Any)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_cookbooks_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_cookbooks_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_events_notifications`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_events_notifications`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_events_notifications_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_events_notifications_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_events_notifications_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `test_notification`: Test Notification
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_recipe_actions`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_recipe_actions`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_recipe_actions_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_recipe_actions_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_recipe_actions_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `trigger_action`: Trigger Action
+  - **Parameters**:
+    - `item_id` (str)
+    - `recipe_slug` (str)
+    - `accept_language` (Any)
+    - `data` (Dict)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_logged_in_user_household`: Get Logged In User Household
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_household_recipe`: Get Household Recipe
+  - **Parameters**:
+    - `recipe_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_household_members`: Get Household Members
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_household_preferences`: Get Household Preferences
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `update_household_preferences`: Update Household Preferences
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `set_member_permissions`: Set Member Permissions
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_statistics`: Get Statistics
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_invite_tokens`: Get Invite Tokens
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `create_invite_token`: Create Invite Token
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `email_invitation`: Email Invitation
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_shopping_lists`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_shopping_lists`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_shopping_lists_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_shopping_lists_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_shopping_lists_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `update_label_settings`: Update Label Settings
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `add_recipe_ingredients_to_list`: Add Recipe Ingredients To List
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `add_single_recipe_ingredients_to_list`: Add Single Recipe Ingredients To List
+  - **Parameters**:
+    - `item_id` (str)
+    - `recipe_id` (str)
+    - `accept_language` (Any)
+    - `data` (Dict)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `remove_recipe_ingredients_from_list`: Remove Recipe Ingredients From List
+  - **Parameters**:
+    - `item_id` (str)
+    - `recipe_id` (str)
+    - `accept_language` (Any)
+    - `data` (Dict)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_shopping_items`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_shopping_items`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_shopping_items`: Update Many
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_shopping_items`: Delete Many
+  - **Parameters**:
+    - `ids` (List)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_shopping_items_create_bulk`: Create Many
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_shopping_items_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_shopping_items_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_shopping_items_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_webhooks`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_webhooks`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `rerun_webhooks`: Rerun Webhooks
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_webhooks_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_webhooks_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_webhooks_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `test_one`: Test One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_mealplans_rules`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_mealplans_rules`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_mealplans_rules_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_mealplans_rules_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_mealplans_rules_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_mealplans`: Get All
+  - **Parameters**:
+    - `start_date` (Any)
+    - `end_date` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_households_mealplans`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_todays_meals`: Get Todays Meals
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `create_random_meal`: Create Random Meal
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_households_mealplans_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_households_mealplans_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (int)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_households_mealplans_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+
+### Usage Instructions
+1. Review the tool available in this skill.
+2. Call the tool with the required parameters.
+
+### Error Handling
+- Ensure all required parameters are provided.
+- Check return values for error messages.

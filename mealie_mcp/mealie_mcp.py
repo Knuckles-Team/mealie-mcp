@@ -53,6 +53,18 @@ DEFAULT_HOST = os.getenv("HOST", "0.0.0.0")
 DEFAULT_PORT = to_integer(string=os.getenv("PORT", "8000"))
 
 
+def register_prompts(mcp: FastMCP):
+    @mcp.prompt(name="find_recipe", description="Find a recipe in your cookbook.")
+    def find_recipe(query: str) -> str:
+        """Find a recipe."""
+        return f"Please find the recipe '{query}'"
+
+    @mcp.prompt(name="random_meal", description="Suggest a random meal.")
+    def random_meal() -> str:
+        """Suggest a random meal."""
+        return "Please suggest a random meal."
+
+
 def register_tools(mcp: FastMCP):
     @mcp.custom_route("/health", methods=["GET"])
     async def health_check() -> Dict:
@@ -7979,6 +7991,7 @@ def mealie_mcp() -> None:
 
     mcp = FastMCP("Mealie", auth=auth)
     register_tools(mcp)
+    register_prompts(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)

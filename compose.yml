@@ -1,0 +1,66 @@
+---
+services:
+  mealie-mcp:
+    image: mealie-mcp:latest
+    build: .
+    container_name: mealie-mcp
+    hostname: mealie-mcp
+    command: [ "mealie-mcp" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    environment:
+      - "HOST=0.0.0.0"
+      - "PORT=8013"
+      - "TRANSPORT=streamable-http"
+      - "MEALIE_BASE_URL=${MEALIE_BASE_URL}"
+      - "MEALIE_TOKEN=${MEALIE_TOKEN}"
+      - "MEALIE_VERIFY=${MEALIE_VERIFY:-True}"
+    ports:
+      - "8013:8013"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8013/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  mealie-agent:
+    image: mealie-mcp:latest
+    build: .
+    container_name: mealie-agent
+    hostname: mealie-agent
+    command: [ "mealie-agent" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - mealie-mcp
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    environment:
+      - "HOST=0.0.0.0"
+      - "PORT=9013"
+      - "MCP_URL=http://mealie-mcp:8013/mcp"
+      - "PROVIDER=openai"
+      - "OPENAI_BASE_URL=http://host.docker.internal:1234/v1"
+      - "OPENAI_API_KEY=llama"
+      - "MODEL_ID=qwen/qwen3-4b-2507"
+      - "DEBUG=False"
+      - "ENABLE_WEB_UI=True"
+    ports:
+      - "9013:9013"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9013/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

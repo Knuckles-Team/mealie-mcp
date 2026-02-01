@@ -1,0 +1,472 @@
+#!/usr/bin/python
+# coding: utf-8
+
+import json
+import os
+import argparse
+import logging
+import uvicorn
+from typing import Optional, Any
+from contextlib import asynccontextmanager
+
+from pydantic_ai import Agent, ModelSettings, RunContext
+from pydantic_ai.mcp import load_mcp_servers, MCPServerStreamableHTTP, MCPServerSSE
+from pydantic_ai_skills import SkillsToolset
+from fasta2a import Skill
+from mealie_mcp.utils import (
+    to_integer,
+    to_boolean,
+    to_float,
+    to_list,
+    to_dict,
+    get_mcp_config_path,
+    get_skills_path,
+    load_skills_from_directory,
+    create_model,
+    tool_in_tag,
+    prune_large_messages,
+)
+
+from fastapi import FastAPI, Request
+from starlette.responses import Response, StreamingResponse
+from pydantic import ValidationError
+from pydantic_ai.ui import SSE_CONTENT_TYPE
+from pydantic_ai.ui.ag_ui import AGUIAdapter
+
+__version__ = "0.1.1"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+logging.getLogger("pydantic_ai").setLevel(logging.INFO)
+logging.getLogger("fastmcp").setLevel(logging.INFO)
+logging.getLogger("httpx").setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
+
+DEFAULT_HOST = os.getenv("HOST", "0.0.0.0")
+DEFAULT_PORT = to_integer(string=os.getenv("PORT", "9000"))
+DEFAULT_DEBUG = to_boolean(string=os.getenv("DEBUG", "False"))
+DEFAULT_PROVIDER = os.getenv("PROVIDER", "openai")
+DEFAULT_MODEL_ID = os.getenv("MODEL_ID", "qwen/qwen3-4b-2507")
+DEFAULT_OPENAI_BASE_URL = os.getenv(
+    "OPENAI_BASE_URL", "http://host.docker.internal:1234/v1"
+)
+DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
+DEFAULT_MCP_URL = os.getenv("MCP_URL", None)
+DEFAULT_MCP_CONFIG = os.getenv("MCP_CONFIG", get_mcp_config_path())
+DEFAULT_SKILLS_DIRECTORY = os.getenv("SKILLS_DIRECTORY", get_skills_path())
+DEFAULT_ENABLE_WEB_UI = to_boolean(os.getenv("ENABLE_WEB_UI", "False"))
+
+# Model Settings
+DEFAULT_MAX_TOKENS = to_integer(os.getenv("MAX_TOKENS", "8192"))
+DEFAULT_TEMPERATURE = to_float(os.getenv("TEMPERATURE", "0.7"))
+DEFAULT_TOP_P = to_float(os.getenv("TOP_P", "1.0"))
+DEFAULT_TIMEOUT = to_float(os.getenv("TIMEOUT", "32400.0"))
+DEFAULT_TOOL_TIMEOUT = to_float(os.getenv("TOOL_TIMEOUT", "32400.0"))
+DEFAULT_PARALLEL_TOOL_CALLS = to_boolean(os.getenv("PARALLEL_TOOL_CALLS", "True"))
+DEFAULT_SEED = to_integer(os.getenv("SEED", None))
+DEFAULT_PRESENCE_PENALTY = to_float(os.getenv("PRESENCE_PENALTY", "0.0"))
+DEFAULT_FREQUENCY_PENALTY = to_float(os.getenv("FREQUENCY_PENALTY", "0.0"))
+DEFAULT_LOGIT_BIAS = to_dict(os.getenv("LOGIT_BIAS", None))
+DEFAULT_STOP_SEQUENCES = to_list(os.getenv("STOP_SEQUENCES", None))
+DEFAULT_EXTRA_HEADERS = to_dict(os.getenv("EXTRA_HEADERS", None))
+DEFAULT_EXTRA_BODY = to_dict(os.getenv("EXTRA_BODY", None))
+
+AGENT_NAME = "MealieAgent"
+AGENT_DESCRIPTION = (
+    "A multi-agent system for managing Mealie resources via delegated specialists."
+)
+
+# -------------------------------------------------------------------------
+# 1. System Prompts
+# -------------------------------------------------------------------------
+
+SUPERVISOR_SYSTEM_PROMPT = os.environ.get(
+    "SUPERVISOR_SYSTEM_PROMPT",
+    default=(
+        "You are the Mealie Supervisor Agent.\\n"
+        "Your goal is to assist the user by assigning tasks to specialized child agents through your available toolset.\\n"
+        "Analyze the user's request and determine which domain(s) it falls into (e.g., recipes, users, households, etc.).\\n"
+        "Then, call the appropriate tool(s) to delegate the task.\\n"
+        "Synthesize the results from the child agents into a final helpful response.\\n"
+        "Always be warm, professional, and helpful."
+    ),
+)
+
+ADMIN_AGENT_PROMPT = "You are the Mealie Admin Agent. Manage administrative tasks."
+APP_AGENT_PROMPT = "You are the Mealie App Agent. Manage application settings and info."
+EXPLORE_AGENT_PROMPT = "You are the Mealie Explore Agent. Explore recipes and content."
+GROUPS_AGENT_PROMPT = "You are the Mealie Groups Agent. Manage recipe groups."
+HOUSEHOLDS_AGENT_PROMPT = "You are the Mealie Households Agent. Manage households."
+ORGANIZER_AGENT_PROMPT = "You are the Mealie Organizer Agent. Organize meals and plans."
+RECIPE_AGENT_PROMPT = "You are the Mealie Recipe Agent. Manage individual recipes."
+RECIPES_AGENT_PROMPT = "You are the Mealie Recipes Agent. Manage recipe collections."
+SHARED_AGENT_PROMPT = "You are the Mealie Shared Agent. Manage shared content."
+USERS_AGENT_PROMPT = "You are the Mealie Users Agent. Manage users."
+UTILS_AGENT_PROMPT = "You are the Mealie Utils Agent. Utility functions."
+
+
+# -------------------------------------------------------------------------
+# 2. Agent Creation Logic
+# -------------------------------------------------------------------------
+
+
+def create_agent(
+    provider: str = DEFAULT_PROVIDER,
+    model_id: str = DEFAULT_MODEL_ID,
+    base_url: Optional[str] = None,
+    api_key: Optional[str] = None,
+    mcp_url: str = DEFAULT_MCP_URL,
+    mcp_config: str = DEFAULT_MCP_CONFIG,
+    skills_directory: Optional[str] = DEFAULT_SKILLS_DIRECTORY,
+) -> Agent:
+    logger.info("Initializing Multi-Agent System for Mealie...")
+
+    model = create_model(provider, model_id, base_url, api_key)
+    settings = ModelSettings(
+        max_tokens=DEFAULT_MAX_TOKENS,
+        temperature=DEFAULT_TEMPERATURE,
+        top_p=DEFAULT_TOP_P,
+        timeout=DEFAULT_TIMEOUT,
+        parallel_tool_calls=DEFAULT_PARALLEL_TOOL_CALLS,
+        seed=DEFAULT_SEED,
+        presence_penalty=DEFAULT_PRESENCE_PENALTY,
+        frequency_penalty=DEFAULT_FREQUENCY_PENALTY,
+        logit_bias=DEFAULT_LOGIT_BIAS,
+        stop_sequences=DEFAULT_STOP_SEQUENCES,
+        extra_headers=DEFAULT_EXTRA_HEADERS,
+        extra_body=DEFAULT_EXTRA_BODY,
+    )
+
+    # Load master toolsets
+    master_toolsets = []
+    if mcp_config:
+        mcp_toolset = load_mcp_servers(mcp_config)
+        master_toolsets.extend(mcp_toolset)
+        logger.info(f"Connected to MCP Config JSON: {mcp_toolset}")
+    elif mcp_url:
+        if "sse" in mcp_url.lower():
+            server = MCPServerSSE(mcp_url)
+        else:
+            server = MCPServerStreamableHTTP(mcp_url)
+        master_toolsets.append(server)
+        logger.info(f"Connected to MCP Server: {mcp_url}")
+
+    if skills_directory and os.path.exists(skills_directory):
+        master_toolsets.append(SkillsToolset(directories=[str(skills_directory)]))
+
+    # Define Tag -> Prompt map
+    agent_defs = {
+        "admin": (ADMIN_AGENT_PROMPT, "Mealie_Admin_Agent"),
+        "app": (APP_AGENT_PROMPT, "Mealie_App_Agent"),
+        "explore": (EXPLORE_AGENT_PROMPT, "Mealie_Explore_Agent"),
+        "groups": (GROUPS_AGENT_PROMPT, "Mealie_Groups_Agent"),
+        "households": (HOUSEHOLDS_AGENT_PROMPT, "Mealie_Households_Agent"),
+        "organizer": (ORGANIZER_AGENT_PROMPT, "Mealie_Organizer_Agent"),
+        "recipe": (RECIPE_AGENT_PROMPT, "Mealie_Recipe_Agent"),
+        "recipes": (RECIPES_AGENT_PROMPT, "Mealie_Recipes_Agent"),
+        "shared": (SHARED_AGENT_PROMPT, "Mealie_Shared_Agent"),
+        "users": (USERS_AGENT_PROMPT, "Mealie_Users_Agent"),
+        "utils": (UTILS_AGENT_PROMPT, "Mealie_Utils_Agent"),
+    }
+
+    child_agents = {}
+
+    for tag, (system_prompt, agent_name) in agent_defs.items():
+        tag_toolsets = []
+        for ts in master_toolsets:
+
+            def filter_func(ctx, tool_def, t=tag):
+                return tool_in_tag(tool_def, t)
+
+            if hasattr(ts, "filtered"):
+                filtered_ts = ts.filtered(filter_func)
+                tag_toolsets.append(filtered_ts)
+            else:
+                pass
+
+        agent = Agent(
+            name=agent_name,
+            system_prompt=system_prompt,
+            model=model,
+            model_settings=settings,
+            toolsets=tag_toolsets,
+            tool_timeout=DEFAULT_TOOL_TIMEOUT,
+        )
+        child_agents[tag] = agent
+
+    # Create Supervisor
+    supervisor = Agent(
+        name=AGENT_NAME,
+        system_prompt=SUPERVISOR_SYSTEM_PROMPT,
+        model=model,
+        model_settings=settings,
+        deps_type=Any,
+    )
+
+    # Define delegation tools
+
+    @supervisor.tool
+    async def assign_task_to_admin_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["admin"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_app_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["app"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_explore_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["explore"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_groups_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["groups"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_households_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["households"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_organizer_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["organizer"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_recipe_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["recipe"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_recipes_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["recipes"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_shared_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["shared"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_users_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["users"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_utils_agent(ctx: RunContext[Any], task: str) -> str:
+        return (
+            await child_agents["utils"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    return supervisor
+
+
+def create_agent_server(
+    provider: str = DEFAULT_PROVIDER,
+    model_id: str = DEFAULT_MODEL_ID,
+    base_url: Optional[str] = None,
+    api_key: Optional[str] = None,
+    mcp_url: str = DEFAULT_MCP_URL,
+    mcp_config: str = DEFAULT_MCP_CONFIG,
+    skills_directory: Optional[str] = DEFAULT_SKILLS_DIRECTORY,
+    debug: Optional[bool] = DEFAULT_DEBUG,
+    host: Optional[str] = DEFAULT_HOST,
+    port: Optional[int] = DEFAULT_PORT,
+    enable_web_ui: bool = DEFAULT_ENABLE_WEB_UI,
+):
+    print(
+        f"Starting {AGENT_NAME} with provider={provider}, model={model_id}, mcp={mcp_url} | {mcp_config}"
+    )
+    agent = create_agent(
+        provider=provider,
+        model_id=model_id,
+        base_url=base_url,
+        api_key=api_key,
+        mcp_url=mcp_url,
+        mcp_config=mcp_config,
+        skills_directory=skills_directory,
+    )
+
+    if skills_directory and os.path.exists(skills_directory):
+        skills = load_skills_from_directory(skills_directory)
+        logger.info(f"Loaded {len(skills)} skills from {skills_directory}")
+    else:
+        skills = [
+            Skill(
+                id="mealie_agent",
+                name="Mealie Agent",
+                description="General access to Mealie tools",
+                tags=["mealie"],
+                input_modes=["text"],
+                output_modes=["text"],
+            )
+        ]
+
+    a2a_app = agent.to_a2a(
+        name=AGENT_NAME,
+        description=AGENT_DESCRIPTION,
+        version=__version__,
+        skills=skills,
+        debug=debug,
+    )
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        if hasattr(a2a_app, "router"):
+            async with a2a_app.router.lifespan_context(a2a_app):
+                yield
+        else:
+            yield
+
+    app = FastAPI(
+        title=f"{AGENT_NAME} - A2A + AG-UI Server",
+        description=AGENT_DESCRIPTION,
+        debug=debug,
+        lifespan=lifespan,
+    )
+
+    @app.get("/health")
+    async def health_check():
+        return {"status": "OK"}
+
+    app.mount("/a2a", a2a_app)
+
+    @app.post("/ag-ui")
+    async def ag_ui_endpoint(request: Request) -> Response:
+        accept = request.headers.get("accept", SSE_CONTENT_TYPE)
+        try:
+            run_input = AGUIAdapter.build_run_input(await request.body())
+        except ValidationError as e:
+            return Response(
+                content=json.dumps(e.json()),
+                media_type="application/json",
+                status_code=422,
+            )
+
+        # Prune large messages from history
+        if hasattr(run_input, "messages"):
+            run_input.messages = prune_large_messages(run_input.messages)
+
+        adapter = AGUIAdapter(agent=agent, run_input=run_input, accept=accept)
+        event_stream = adapter.run_stream()
+        sse_stream = adapter.encode_stream(event_stream)
+
+        return StreamingResponse(
+            sse_stream,
+            media_type=accept,
+        )
+
+    if enable_web_ui:
+        web_ui = agent.to_web(instructions=SUPERVISOR_SYSTEM_PROMPT)
+        app.mount("/", web_ui)
+        logger.info(
+            "Starting server on %s:%s (A2A at /a2a, AG-UI at /ag-ui, Web UI: %s)",
+            host,
+            port,
+            "Enabled at /" if enable_web_ui else "Disabled",
+        )
+
+    uvicorn.run(
+        app,
+        host=host,
+        port=port,
+        timeout_keep_alive=1800,
+        timeout_graceful_shutdown=60,
+        log_level="debug" if debug else "info",
+    )
+
+
+def agent_server():
+    print(f"mealie_agent v{__version__}")
+    parser = argparse.ArgumentParser(
+        description=f"Run the {AGENT_NAME} A2A + AG-UI Server"
+    )
+    parser.add_argument(
+        "--host", default=DEFAULT_HOST, help="Host to bind the server to"
+    )
+    parser.add_argument(
+        "--port", type=int, default=DEFAULT_PORT, help="Port to bind the server to"
+    )
+    parser.add_argument("--debug", type=bool, default=DEFAULT_DEBUG, help="Debug mode")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
+
+    parser.add_argument(
+        "--provider",
+        default=DEFAULT_PROVIDER,
+        choices=["openai", "anthropic", "google", "huggingface"],
+        help="LLM Provider",
+    )
+    parser.add_argument("--model-id", default=DEFAULT_MODEL_ID, help="LLM Model ID")
+    parser.add_argument(
+        "--base-url",
+        default=DEFAULT_OPENAI_BASE_URL,
+        help="LLM Base URL (for OpenAI compatible providers)",
+    )
+    parser.add_argument("--api-key", default=DEFAULT_OPENAI_API_KEY, help="LLM API Key")
+    parser.add_argument("--mcp-url", default=DEFAULT_MCP_URL, help="MCP Server URL")
+    parser.add_argument(
+        "--mcp-config", default=DEFAULT_MCP_CONFIG, help="MCP Server Config"
+    )
+    parser.add_argument(
+        "--skills-directory",
+        default=DEFAULT_SKILLS_DIRECTORY,
+        help="Directory containing agent skills",
+    )
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        default=DEFAULT_ENABLE_WEB_UI,
+        help="Enable Pydantic AI Web UI",
+    )
+    args = parser.parse_args()
+
+    if args.debug:
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
+
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[logging.StreamHandler()],
+            force=True,
+        )
+        logging.getLogger("pydantic_ai").setLevel(logging.DEBUG)
+        logging.getLogger("fastmcp").setLevel(logging.DEBUG)
+        logging.getLogger("httpcore").setLevel(logging.DEBUG)
+        logging.getLogger("httpx").setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
+        logger.debug("Debug mode enabled")
+
+    create_agent_server(
+        provider=args.provider,
+        model_id=args.model_id,
+        base_url=args.base_url,
+        api_key=args.api_key,
+        mcp_url=args.mcp_url,
+        mcp_config=args.mcp_config,
+        skills_directory=args.skills_directory,
+        debug=args.debug,
+        host=args.host,
+        port=args.port,
+        enable_web_ui=args.web,
+    )
+
+
+if __name__ == "__main__":
+    agent_server()

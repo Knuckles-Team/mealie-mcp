@@ -1,0 +1,179 @@
+---
+name: mealie-organizer
+description: "Generated skill for organizer operations. Contains 20 tools."
+---
+
+### Overview
+This skill handles operations related to organizer.
+
+### Available Tools
+- `get_organizers_categories`: Get All
+  - **Parameters**:
+    - `search` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_organizers_categories`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_all_empty`: Get All Empty
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_organizers_categories_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_organizers_categories_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_organizers_categories_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_organizers_categories_slug_category_slug`: Get One By Slug
+  - **Parameters**:
+    - `category_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_organizers_tags`: Get All
+  - **Parameters**:
+    - `search` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_organizers_tags`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_empty_tags`: Get Empty Tags
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_organizers_tags_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_organizers_tags_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_recipe_tag`: Delete Recipe Tag
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_organizers_tags_slug_tag_slug`: Get One By Slug
+  - **Parameters**:
+    - `tag_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_organizers_tools`: Get All
+  - **Parameters**:
+    - `search` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_organizers_tools`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_organizers_tools_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_organizers_tools_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_organizers_tools_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_organizers_tools_slug_tool_slug`: Get One By Slug
+  - **Parameters**:
+    - `tool_slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+
+### Usage Instructions
+1. Review the tool available in this skill.
+2. Call the tool with the required parameters.
+
+### Error Handling
+- Ensure all required parameters are provided.
+- Check return values for error messages.

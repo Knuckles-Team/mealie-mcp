@@ -1,0 +1,165 @@
+---
+name: mealie-users
+description: "Generated skill for users operations. Contains 22 tools."
+---
+
+### Overview
+This skill handles operations related to users.
+
+### Available Tools
+- `get_token`: Get Token
+  - **Parameters**:
+    - `data` (Dict)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `oauth_login`: Oauth Login
+  - **Parameters**:
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `oauth_callback`: Oauth Callback
+  - **Parameters**:
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `refresh_token`: Refresh Token
+  - **Parameters**:
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `logout`: Logout
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `register_new_user`: Register New User
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_logged_in_user`: Get Logged In User
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_logged_in_user_ratings`: Get Logged In User Ratings
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_logged_in_user_rating_for_recipe`: Get Logged In User Rating For Recipe
+  - **Parameters**:
+    - `recipe_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_logged_in_user_favorites`: Get Logged In User Favorites
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `update_password`: Update Password
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `update_user`: Update User
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `forgot_password`: Forgot Password
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `reset_password`: Reset Password
+  - **Parameters**:
+    - `data` (Dict)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `update_user_image`: Update User Image
+  - **Parameters**:
+    - `id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `create`: Create Api Token
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete`: Delete Api Token
+  - **Parameters**:
+    - `token_id` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_ratings`: Get Ratings
+  - **Parameters**:
+    - `id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_favorites`: Get Favorites
+  - **Parameters**:
+    - `id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `set_rating`: Set Rating
+  - **Parameters**:
+    - `id` (str)
+    - `slug` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `add_favorite`: Add Favorite
+  - **Parameters**:
+    - `id` (str)
+    - `slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `remove_favorite`: Remove Favorite
+  - **Parameters**:
+    - `id` (str)
+    - `slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+
+### Usage Instructions
+1. Review the tool available in this skill.
+2. Call the tool with the required parameters.
+
+### Error Handling
+- Ensure all required parameters are provided.
+- Check return values for error messages.

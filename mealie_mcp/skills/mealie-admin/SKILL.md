@@ -1,0 +1,265 @@
+---
+name: mealie-admin
+description: "Generated skill for admin operations. Contains 34 tools."
+---
+
+### Overview
+This skill handles operations related to admin.
+
+### Available Tools
+- `get_app_info`: Get App Info
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_app_statistics`: Get App Statistics
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `check_app_config`: Check App Config
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_admin_users`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_admin_users`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `unlock_users`: Unlock Users
+  - **Parameters**:
+    - `force` (bool)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_admin_users_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_admin_users_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_admin_users_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `generate_token`: Generate Token
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_admin_households`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_admin_households`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_admin_households_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_admin_households_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_admin_households_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_admin_groups`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_admin_groups`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_admin_groups_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_admin_groups_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_admin_groups_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `check_email_config`: Check Email Config
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `send_test_email`: Send Test Email
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_admin_backups`: Get All
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_admin_backups`: Create One
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_admin_backups_file_name`: Get One
+  - **Parameters**:
+    - `file_name` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_admin_backups_file_name`: Delete One
+  - **Parameters**:
+    - `file_name` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `upload_one`: Upload One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `import_one`: Import One
+  - **Parameters**:
+    - `file_name` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_maintenance_summary`: Get Maintenance Summary
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_storage_details`: Get Storage Details
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `clean_images`: Clean Images
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `clean_temp`: Clean Temp
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `clean_recipe_folders`: Clean Recipe Folders
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `debug_openai`: Debug Openai
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `data` (Dict)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+
+### Usage Instructions
+1. Review the tool available in this skill.
+2. Call the tool with the required parameters.
+
+### Error Handling
+- Ensure all required parameters are provided.
+- Check return values for error messages.

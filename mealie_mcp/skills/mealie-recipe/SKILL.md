@@ -1,0 +1,427 @@
+---
+name: mealie-recipe
+description: "Generated skill for recipe operations. Contains 52 tools."
+---
+
+### Overview
+This skill handles operations related to recipe.
+
+### Available Tools
+- `get_recipe_formats_and_templates`: Get Recipe Formats And Templates
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipe_as_format`: Get Recipe As Format
+  - **Parameters**:
+    - `slug` (str)
+    - `template_name` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `test_parse_recipe_url`: Test Parse Recipe Url
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `create_recipe_from_html_or_json`: Create Recipe From Html Or Json
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `parse_recipe_url`: Parse Recipe Url
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `parse_recipe_url_bulk`: Parse Recipe Url Bulk
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `create_recipe_from_zip`: Create Recipe From Zip
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `create_recipe_from_image`: Create Recipe From Image
+  - **Parameters**:
+    - `data` (Dict)
+    - `translate_language` (Any)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipes`: Get All
+  - **Parameters**:
+    - `categories` (Any)
+    - `tags` (Any)
+    - `tools` (Any)
+    - `foods` (Any)
+    - `households` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `cookbook` (Any)
+    - `require_all_categories` (bool)
+    - `require_all_tags` (bool)
+    - `require_all_tools` (bool)
+    - `require_all_foods` (bool)
+    - `search` (Any)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_recipes`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_recipes`: Update Many
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `patch_many`: Patch Many
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipes_suggestions`: Suggest Recipes
+  - **Parameters**:
+    - `foods` (Any)
+    - `tools` (Any)
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `limit` (int)
+    - `max_missing_foods` (int)
+    - `max_missing_tools` (int)
+    - `include_foods_on_hand` (bool)
+    - `include_tools_on_hand` (bool)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipes_slug`: Get One
+  - **Parameters**:
+    - `slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_recipes_slug`: Update One
+  - **Parameters**:
+    - `slug` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `patch_one`: Patch One
+  - **Parameters**:
+    - `slug` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_recipes_slug`: Delete One
+  - **Parameters**:
+    - `slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `duplicate_one`: Duplicate One
+  - **Parameters**:
+    - `slug` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `update_last_made`: Update Last Made
+  - **Parameters**:
+    - `slug` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `scrape_image_url`: Scrape Image Url
+  - **Parameters**:
+    - `slug` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `update_recipe_image`: Update Recipe Image
+  - **Parameters**:
+    - `slug` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_recipe_image`: Delete Recipe Image
+  - **Parameters**:
+    - `slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `upload_recipe_asset`: Upload Recipe Asset
+  - **Parameters**:
+    - `slug` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipe_comments`: Get Recipe Comments
+  - **Parameters**:
+    - `slug` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `bulk_tag_recipes`: Bulk Tag Recipes
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `bulk_settings_recipes`: Bulk Settings Recipes
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `bulk_categorize_recipes`: Bulk Categorize Recipes
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `bulk_delete_recipes`: Bulk Delete Recipes
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `bulk_export_recipes`: Bulk Export Recipes
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_exported_data`: Get Exported Data
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_exported_data_token`: Get Exported Data Token
+  - **Parameters**:
+    - `export_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `purge_export_data`: Purge Export Data
+  - **Parameters**:
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_shared_recipe`: Get Shared Recipe
+  - **Parameters**:
+    - `token_id` (str)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_shared_recipe_as_zip`: Get Shared Recipe As Zip
+  - **Parameters**:
+    - `token_id` (str)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipes_timeline_events`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_recipes_timeline_events`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipes_timeline_events_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_recipes_timeline_events_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `delete_recipes_timeline_events_item_id`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `update_event_image`: Update Event Image
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_comments`: Get All
+  - **Parameters**:
+    - `order_by` (Any)
+    - `order_by_null_position` (Any)
+    - `order_direction` (Any)
+    - `query_filter` (Any)
+    - `pagination_seed` (Any)
+    - `page` (int)
+    - `per_page` (int)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_comments`: Create One
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_comments_item_id`: Get One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `put_comments_item_id`: Update One
+  - **Parameters**:
+    - `item_id` (str)
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `post_parser_ingredient`: Delete One
+  - **Parameters**:
+    - `item_id` (str)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `parse_ingredient`: Parse Ingredient
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `parse_ingredients`: Parse Ingredients
+  - **Parameters**:
+    - `data` (Dict)
+    - `accept_language` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipe_img`: Get Recipe Img
+  - **Parameters**:
+    - `recipe_id` (str)
+    - `file_name` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipe_timeline_event_img`: Get Recipe Timeline Event Img
+  - **Parameters**:
+    - `recipe_id` (str)
+    - `timeline_event_id` (str)
+    - `file_name` (Any)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_recipe_asset`: Get Recipe Asset
+  - **Parameters**:
+    - `recipe_id` (str)
+    - `file_name` (str)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_user_image`: Get User Image
+  - **Parameters**:
+    - `user_id` (str)
+    - `file_name` (str)
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+- `get_validation_text`: Get Validation Text
+  - **Parameters**:
+    - `mealie_base_url` (str)
+    - `mealie_token` (Optional[str])
+    - `mealie_verify` (bool)
+
+### Usage Instructions
+1. Review the tool available in this skill.
+2. Call the tool with the required parameters.
+
+### Error Handling
+- Ensure all required parameters are provided.
+- Check return values for error messages.

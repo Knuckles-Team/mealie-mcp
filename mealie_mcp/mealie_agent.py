@@ -1,4 +1,6 @@
 #!/usr/bin/python
+import sys
+
 # coding: utf-8
 
 import json
@@ -395,7 +397,7 @@ def create_agent_server(
 def agent_server():
     print(f"mealie_agent v{__version__}")
     parser = argparse.ArgumentParser(
-        description=f"Run the {AGENT_NAME} A2A + AG-UI Server"
+        add_help=False, description=f"Run the {AGENT_NAME} A2A + AG-UI Server"
     )
     parser.add_argument(
         "--host", default=DEFAULT_HOST, help="Host to bind the server to"
@@ -434,7 +436,15 @@ def agent_server():
         default=DEFAULT_ENABLE_WEB_UI,
         help="Enable Pydantic AI Web UI",
     )
+    parser.add_argument("--help", action="store_true", help="Show usage")
+
     args = parser.parse_args()
+
+    if hasattr(args, "help") and args.help:
+
+        usage()
+
+        sys.exit(0)
 
     if args.debug:
         for handler in logging.root.handlers[:]:
@@ -465,6 +475,29 @@ def agent_server():
         host=args.host,
         port=args.port,
         enable_web_ui=args.web,
+    )
+
+
+def usage():
+    print(
+        f"Mealie Mcp ({__version__}): CLI Tool\n\n"
+        "Usage:\n"
+        "--host                [ Host to bind the server to ]\n"
+        "--port                [ Port to bind the server to ]\n"
+        "--debug               [ Debug mode ]\n"
+        "--reload              [ Enable auto-reload ]\n"
+        "--provider            [ LLM Provider ]\n"
+        "--model-id            [ LLM Model ID ]\n"
+        "--base-url            [ LLM Base URL (for OpenAI compatible providers) ]\n"
+        "--api-key             [ LLM API Key ]\n"
+        "--mcp-url             [ MCP Server URL ]\n"
+        "--mcp-config          [ MCP Server Config ]\n"
+        "--skills-directory    [ Directory containing agent skills ]\n"
+        "--web                 [ Enable Pydantic AI Web UI ]\n"
+        "\n"
+        "Examples:\n"
+        "  [Simple]  mealie-agent \n"
+        '  [Complex] mealie-agent --host "value" --port "value" --debug "value" --reload --provider "value" --model-id "value" --base-url "value" --api-key "value" --mcp-url "value" --mcp-config "value" --skills-directory "value" --web\n'
     )
 
 

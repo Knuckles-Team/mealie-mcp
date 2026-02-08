@@ -1,8 +1,10 @@
 ---
 services:
   mealie-mcp:
-    image: mealie-mcp:latest
-    build: .
+    image: docker.io/knucklessg1/mealie:latest
+    #    build:
+    #      context: . # Debug
+    #      dockerfile: debug.Dockerfile
     container_name: mealie-mcp
     hostname: mealie-mcp
     command: [ "mealie-mcp" ]
@@ -31,8 +33,10 @@ services:
       start_period: 10s
 
   mealie-agent:
-    image: mealie-mcp:latest
-    build: .
+    image: docker.io/knucklessg1/mealie:latest
+    #    build:
+    #      context: . # Debug
+    #      dockerfile: debug.Dockerfile
     container_name: mealie-agent
     hostname: mealie-agent
     command: [ "mealie-agent" ]

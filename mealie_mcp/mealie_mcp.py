@@ -26,7 +26,7 @@ from mealie_mcp.middlewares import (
 from mealie_mcp.mealie_api import Api
 from mealie_mcp.utils import to_boolean, to_integer
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 print(f"Mealie MCP v{__version__}")
 
 logger = get_logger(name="TokenMiddleware")

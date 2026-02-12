@@ -42,7 +42,6 @@ class Api:
         if response.status_code >= 400:
             raise Exception(f"API error: {response.status_code} - {response.text}")
 
-        # Try to parse JSON, fallback to text/success
         if response.status_code == 204:
             return {"status": "success"}
 
@@ -66,7 +65,6 @@ class Api:
     def get_token(self, data: Dict = None) -> Any:
         """Get Token"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/auth/token", params=params, data=data)
 
     def oauth_login(self) -> Any:
@@ -92,7 +90,6 @@ class Api:
     def register_new_user(self, data: Dict, accept_language: Any = None) -> Any:
         """Register New User"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/users/register", params=params, data=data)
 
     def get_logged_in_user(self, accept_language: Any = None) -> Any:
@@ -124,19 +121,16 @@ class Api:
     def update_password(self, data: Dict, accept_language: Any = None) -> Any:
         """Update Password"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", "/api/users/password", params=params, data=data)
 
     def update_user(self, item_id: str, data: Dict, accept_language: Any = None) -> Any:
         """Update User"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", f"/api/users/{item_id}", params=params, data=data)
 
     def forgot_password(self, data: Dict, accept_language: Any = None) -> Any:
         """Forgot Password"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/users/forgot-password", params=params, data=data
         )
@@ -144,7 +138,6 @@ class Api:
     def reset_password(self, data: Dict) -> Any:
         """Reset Password"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/users/reset-password", params=params, data=data
         )
@@ -154,13 +147,11 @@ class Api:
     ) -> Any:
         """Update User Image"""
         params = None
-        # Body data is passed directly
         return self.request("POST", f"/api/users/{id}/image", params=params, data=data)
 
     def create(self, data: Dict, accept_language: Any = None) -> Any:
         """Create Api Token"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/users/api-tokens", params=params, data=data)
 
     def delete(self, token_id: int, accept_language: Any = None) -> Any:
@@ -187,7 +178,6 @@ class Api:
     ) -> Any:
         """Set Rating"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", f"/api/users/{id}/ratings/{slug}", params=params, data=data
         )
@@ -240,7 +230,6 @@ class Api:
     def post_households_cookbooks(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/cookbooks", params=params, data=data
         )
@@ -248,7 +237,6 @@ class Api:
     def put_households_cookbooks(self, data: Dict, accept_language: Any = None) -> Any:
         """Update Many"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", "/api/households/cookbooks", params=params, data=data
         )
@@ -267,7 +255,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/households/cookbooks/{item_id}", params=params, data=data
         )
@@ -317,7 +304,6 @@ class Api:
     ) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/events/notifications", params=params, data=data
         )
@@ -339,7 +325,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT",
             f"/api/households/events/notifications/{item_id}",
@@ -405,7 +390,6 @@ class Api:
     ) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/recipe-actions", params=params, data=data
         )
@@ -424,7 +408,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/households/recipe-actions/{item_id}", params=params, data=data
         )
@@ -450,7 +433,6 @@ class Api:
     ) -> Any:
         """Trigger Action"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST",
             f"/api/households/recipe-actions/{item_id}/trigger/{recipe_slug}",
@@ -516,7 +498,6 @@ class Api:
     ) -> Any:
         """Update Household Preferences"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", "/api/households/preferences", params=params, data=data
         )
@@ -524,7 +505,6 @@ class Api:
     def set_member_permissions(self, data: Dict, accept_language: Any = None) -> Any:
         """Set Member Permissions"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", "/api/households/permissions", params=params, data=data
         )
@@ -546,7 +526,6 @@ class Api:
     def create_invite_token(self, data: Dict, accept_language: Any = None) -> Any:
         """Create Invite Token"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/invitations", params=params, data=data
         )
@@ -554,7 +533,6 @@ class Api:
     def email_invitation(self, data: Dict, accept_language: Any = None) -> Any:
         """Email Invitation"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/invitations/email", params=params, data=data
         )
@@ -595,7 +573,6 @@ class Api:
     ) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/shopping/lists", params=params, data=data
         )
@@ -614,7 +591,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/households/shopping/lists/{item_id}", params=params, data=data
         )
@@ -636,7 +612,6 @@ class Api:
     ) -> Any:
         """Update Label Settings"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT",
             f"/api/households/shopping/lists/{item_id}/label-settings",
@@ -649,7 +624,6 @@ class Api:
     ) -> Any:
         """Add Recipe Ingredients To List"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST",
             f"/api/households/shopping/lists/{item_id}/recipe",
@@ -666,7 +640,6 @@ class Api:
     ) -> Any:
         """Add Single Recipe Ingredients To List"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST",
             f"/api/households/shopping/lists/{item_id}/recipe/{recipe_id}",
@@ -683,7 +656,6 @@ class Api:
     ) -> Any:
         """Remove Recipe Ingredients From List"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST",
             f"/api/households/shopping/lists/{item_id}/recipe/{recipe_id}/delete",
@@ -727,7 +699,6 @@ class Api:
     ) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/shopping/items", params=params, data=data
         )
@@ -737,7 +708,6 @@ class Api:
     ) -> Any:
         """Update Many"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", "/api/households/shopping/items", params=params, data=data
         )
@@ -758,7 +728,6 @@ class Api:
     ) -> Any:
         """Create Many"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST",
             "/api/households/shopping/items/create-bulk",
@@ -780,7 +749,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/households/shopping/items/{item_id}", params=params, data=data
         )
@@ -829,7 +797,6 @@ class Api:
     def post_households_webhooks(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/webhooks", params=params, data=data
         )
@@ -855,7 +822,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/households/webhooks/{item_id}", params=params, data=data
         )
@@ -912,7 +878,6 @@ class Api:
     ) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/mealplans/rules", params=params, data=data
         )
@@ -934,7 +899,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT",
             f"/api/households/mealplans/rules/{item_id}",
@@ -994,7 +958,6 @@ class Api:
     def post_households_mealplans(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/mealplans", params=params, data=data
         )
@@ -1009,7 +972,6 @@ class Api:
     def create_random_meal(self, data: Dict, accept_language: Any = None) -> Any:
         """Create Random Meal"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/households/mealplans/random", params=params, data=data
         )
@@ -1028,7 +990,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/households/mealplans/{item_id}", params=params, data=data
         )
@@ -1129,7 +1090,6 @@ class Api:
     def update_group_preferences(self, data: Dict, accept_language: Any = None) -> Any:
         """Update Group Preferences"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", "/api/groups/preferences", params=params, data=data)
 
     def get_storage(self, accept_language: Any = None) -> Any:
@@ -1140,7 +1100,6 @@ class Api:
     def start_data_migration(self, data: Dict, accept_language: Any = None) -> Any:
         """Start Data Migration"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/groups/migrations", params=params, data=data)
 
     def get_groups_reports(
@@ -1205,7 +1164,6 @@ class Api:
     def post_groups_labels(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/groups/labels", params=params, data=data)
 
     def get_groups_labels_item_id(
@@ -1222,7 +1180,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/groups/labels/{item_id}", params=params, data=data
         )
@@ -1239,7 +1196,6 @@ class Api:
     def seed_foods(self, data: Dict, accept_language: Any = None) -> Any:
         """Seed Foods"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/groups/seeders/foods", params=params, data=data
         )
@@ -1247,7 +1203,6 @@ class Api:
     def seed_labels(self, data: Dict, accept_language: Any = None) -> Any:
         """Seed Labels"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/groups/seeders/labels", params=params, data=data
         )
@@ -1255,7 +1210,6 @@ class Api:
     def seed_units(self, data: Dict, accept_language: Any = None) -> Any:
         """Seed Units"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/groups/seeders/units", params=params, data=data
         )
@@ -1279,7 +1233,6 @@ class Api:
     def test_parse_recipe_url(self, data: Dict, accept_language: Any = None) -> Any:
         """Test Parse Recipe Url"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/test-scrape-url", params=params, data=data
         )
@@ -1289,7 +1242,6 @@ class Api:
     ) -> Any:
         """Create Recipe From Html Or Json"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/create/html-or-json", params=params, data=data
         )
@@ -1297,13 +1249,11 @@ class Api:
     def parse_recipe_url(self, data: Dict, accept_language: Any = None) -> Any:
         """Parse Recipe Url"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/recipes/create/url", params=params, data=data)
 
     def parse_recipe_url_bulk(self, data: Dict, accept_language: Any = None) -> Any:
         """Parse Recipe Url Bulk"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/create/url/bulk", params=params, data=data
         )
@@ -1311,7 +1261,6 @@ class Api:
     def create_recipe_from_zip(self, data: Dict, accept_language: Any = None) -> Any:
         """Create Recipe From Zip"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/recipes/create/zip", params=params, data=data)
 
     def create_recipe_from_image(
@@ -1321,7 +1270,6 @@ class Api:
         params = {}
         if translate_language is not None:
             params["translateLanguage"] = translate_language
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/create/image", params=params, data=data
         )
@@ -1391,19 +1339,16 @@ class Api:
     def post_recipes(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/recipes", params=params, data=data)
 
     def put_recipes(self, data: Dict, accept_language: Any = None) -> Any:
         """Update Many"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", "/api/recipes", params=params, data=data)
 
     def patch_many(self, data: Dict, accept_language: Any = None) -> Any:
         """Patch Many"""
         params = None
-        # Body data is passed directly
         return self.request("PATCH", "/api/recipes", params=params, data=data)
 
     def get_recipes_suggestions(
@@ -1460,13 +1405,11 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", f"/api/recipes/{slug}", params=params, data=data)
 
     def patch_one(self, slug: str, data: Dict, accept_language: Any = None) -> Any:
         """Patch One"""
         params = None
-        # Body data is passed directly
         return self.request("PATCH", f"/api/recipes/{slug}", params=params, data=data)
 
     def delete_recipes_slug(self, slug: str, accept_language: Any = None) -> Any:
@@ -1477,7 +1420,6 @@ class Api:
     def duplicate_one(self, slug: str, data: Dict, accept_language: Any = None) -> Any:
         """Duplicate One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", f"/api/recipes/{slug}/duplicate", params=params, data=data
         )
@@ -1487,7 +1429,6 @@ class Api:
     ) -> Any:
         """Update Last Made"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PATCH", f"/api/recipes/{slug}/last-made", params=params, data=data
         )
@@ -1497,7 +1438,6 @@ class Api:
     ) -> Any:
         """Scrape Image Url"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", f"/api/recipes/{slug}/image", params=params, data=data
         )
@@ -1507,7 +1447,6 @@ class Api:
     ) -> Any:
         """Update Recipe Image"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/recipes/{slug}/image", params=params, data=data
         )
@@ -1524,7 +1463,6 @@ class Api:
     ) -> Any:
         """Upload Recipe Asset"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", f"/api/recipes/{slug}/assets", params=params, data=data
         )
@@ -1539,7 +1477,6 @@ class Api:
     def bulk_tag_recipes(self, data: Dict, accept_language: Any = None) -> Any:
         """Bulk Tag Recipes"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/bulk-actions/tag", params=params, data=data
         )
@@ -1547,7 +1484,6 @@ class Api:
     def bulk_settings_recipes(self, data: Dict, accept_language: Any = None) -> Any:
         """Bulk Settings Recipes"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/bulk-actions/settings", params=params, data=data
         )
@@ -1555,7 +1491,6 @@ class Api:
     def bulk_categorize_recipes(self, data: Dict, accept_language: Any = None) -> Any:
         """Bulk Categorize Recipes"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/bulk-actions/categorize", params=params, data=data
         )
@@ -1563,7 +1498,6 @@ class Api:
     def bulk_delete_recipes(self, data: Dict, accept_language: Any = None) -> Any:
         """Bulk Delete Recipes"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/bulk-actions/delete", params=params, data=data
         )
@@ -1571,7 +1505,6 @@ class Api:
     def bulk_export_recipes(self, data: Dict, accept_language: Any = None) -> Any:
         """Bulk Export Recipes"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/bulk-actions/export", params=params, data=data
         )
@@ -1655,7 +1588,6 @@ class Api:
     ) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/recipes/timeline/events", params=params, data=data
         )
@@ -1674,7 +1606,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/recipes/timeline/events/{item_id}", params=params, data=data
         )
@@ -1696,7 +1627,6 @@ class Api:
     ) -> Any:
         """Update Event Image"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT",
             f"/api/recipes/timeline/events/{item_id}/image",
@@ -1743,7 +1673,6 @@ class Api:
     ) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/organizers/categories", params=params, data=data
         )
@@ -1769,7 +1698,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/organizers/categories/{item_id}", params=params, data=data
         )
@@ -1830,7 +1758,6 @@ class Api:
     def post_organizers_tags(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/organizers/tags", params=params, data=data)
 
     def get_empty_tags(self, accept_language: Any = None) -> Any:
@@ -1854,7 +1781,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/organizers/tags/{item_id}", params=params, data=data
         )
@@ -1910,7 +1836,6 @@ class Api:
     def post_organizers_tools(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/organizers/tools", params=params, data=data)
 
     def get_organizers_tools_item_id(
@@ -1927,7 +1852,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/organizers/tools/{item_id}", params=params, data=data
         )
@@ -1962,7 +1886,6 @@ class Api:
     def post_shared_recipes(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/shared/recipes", params=params, data=data)
 
     def get_shared_recipes_item_id(
@@ -2015,7 +1938,6 @@ class Api:
     def post_comments(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/comments", params=params, data=data)
 
     def get_comments_item_id(self, item_id: str, accept_language: Any = None) -> Any:
@@ -2028,7 +1950,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", f"/api/comments/{item_id}", params=params, data=data)
 
     def post_parser_ingredient(self, item_id: str, accept_language: Any = None) -> Any:
@@ -2041,13 +1962,11 @@ class Api:
     def parse_ingredient(self, data: Dict, accept_language: Any = None) -> Any:
         """Parse Ingredient"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/parser/ingredient", params=params, data=data)
 
     def parse_ingredients(self, data: Dict, accept_language: Any = None) -> Any:
         """Parse Ingredients"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/parser/ingredients", params=params, data=data)
 
     def get_foods(
@@ -2085,13 +2004,11 @@ class Api:
     def post_foods(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/foods", params=params, data=data)
 
     def put_foods_merge(self, data: Dict, accept_language: Any = None) -> Any:
         """Merge One"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", "/api/foods/merge", params=params, data=data)
 
     def get_foods_item_id(self, item_id: str, accept_language: Any = None) -> Any:
@@ -2104,7 +2021,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", f"/api/foods/{item_id}", params=params, data=data)
 
     def delete_foods_item_id(self, item_id: str, accept_language: Any = None) -> Any:
@@ -2147,13 +2063,11 @@ class Api:
     def post_units(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/units", params=params, data=data)
 
     def put_units_merge(self, data: Dict, accept_language: Any = None) -> Any:
         """Merge One"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", "/api/units/merge", params=params, data=data)
 
     def get_units_item_id(self, item_id: str, accept_language: Any = None) -> Any:
@@ -2166,7 +2080,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request("PUT", f"/api/units/{item_id}", params=params, data=data)
 
     def delete_units_item_id(self, item_id: str, accept_language: Any = None) -> Any:
@@ -2223,7 +2136,6 @@ class Api:
     def post_admin_users(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/admin/users", params=params, data=data)
 
     def unlock_users(self, force: bool = None, accept_language: Any = None) -> Any:
@@ -2245,7 +2157,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/admin/users/{item_id}", params=params, data=data
         )
@@ -2253,7 +2164,6 @@ class Api:
     def generate_token(self, data: Dict, accept_language: Any = None) -> Any:
         """Generate Token"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/admin/users/password-reset-token", params=params, data=data
         )
@@ -2299,7 +2209,6 @@ class Api:
     def post_admin_households(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/admin/households", params=params, data=data)
 
     def get_admin_households_item_id(
@@ -2316,7 +2225,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/admin/households/{item_id}", params=params, data=data
         )
@@ -2362,7 +2270,6 @@ class Api:
     def post_admin_groups(self, data: Dict, accept_language: Any = None) -> Any:
         """Create One"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/admin/groups", params=params, data=data)
 
     def get_admin_groups_item_id(
@@ -2379,7 +2286,6 @@ class Api:
     ) -> Any:
         """Update One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "PUT", f"/api/admin/groups/{item_id}", params=params, data=data
         )
@@ -2401,7 +2307,6 @@ class Api:
     def send_test_email(self, data: Dict, accept_language: Any = None) -> Any:
         """Send Test Email"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/admin/email", params=params, data=data)
 
     def get_admin_backups(self, accept_language: Any = None) -> Any:
@@ -2435,7 +2340,6 @@ class Api:
     def upload_one(self, data: Dict, accept_language: Any = None) -> Any:
         """Upload One"""
         params = None
-        # Body data is passed directly
         return self.request(
             "POST", "/api/admin/backups/upload", params=params, data=data
         )
@@ -2486,7 +2390,6 @@ class Api:
     def debug_openai(self, accept_language: Any = None, data: Dict = None) -> Any:
         """Debug Openai"""
         params = None
-        # Body data is passed directly
         return self.request("POST", "/api/admin/debug/openai", params=params, data=data)
 
     def get_explore_groups_group_slug_foods(

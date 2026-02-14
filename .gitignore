@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+/.ruff_cache/
+/mcp/
 # Distribution / packaging
 .Python
 build/

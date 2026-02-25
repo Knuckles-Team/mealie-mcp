@@ -1,6 +1,7 @@
 ---
 name: mealie-explore
 description: "Generated skill for explore operations. Contains 15 tools."
+tags: [explore]
 ---
 
 ### Overview

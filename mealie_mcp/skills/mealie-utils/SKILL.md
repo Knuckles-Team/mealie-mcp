@@ -1,6 +1,7 @@
 ---
 name: mealie-utils
 description: "Generated skill for utils operations. Contains 1 tools."
+tags: [utils]
 ---
 
 ### Overview

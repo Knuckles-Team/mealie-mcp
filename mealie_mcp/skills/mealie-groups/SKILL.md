@@ -1,6 +1,7 @@
 ---
 name: mealie-groups
 description: "Generated skill for groups operations. Contains 20 tools."
+tags: [groups]
 ---
 
 ### Overview

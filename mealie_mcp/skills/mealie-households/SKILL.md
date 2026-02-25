@@ -1,6 +1,7 @@
 ---
 name: mealie-households
 description: "Generated skill for households operations. Contains 64 tools."
+tags: [households]
 ---
 
 ### Overview

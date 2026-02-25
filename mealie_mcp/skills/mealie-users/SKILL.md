@@ -1,6 +1,7 @@
 ---
 name: mealie-users
 description: "Generated skill for users operations. Contains 22 tools."
+tags: [users]
 ---
 
 ### Overview

@@ -1,6 +1,7 @@
 ---
 name: mealie-recipes
 description: "Generated skill for recipes operations. Contains 12 tools."
+tags: [recipes]
 ---
 
 ### Overview

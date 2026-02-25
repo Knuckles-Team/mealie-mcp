@@ -1,6 +1,7 @@
 ---
 name: mealie-admin
 description: "Generated skill for admin operations. Contains 34 tools."
+tags: [admin]
 ---
 
 ### Overview

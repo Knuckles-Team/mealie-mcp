@@ -1,6 +1,7 @@
 ---
 name: mealie-shared
 description: "Generated skill for shared operations. Contains 4 tools."
+tags: [shared]
 ---
 
 ### Overview

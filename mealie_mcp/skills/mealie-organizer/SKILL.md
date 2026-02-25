@@ -1,6 +1,7 @@
 ---
 name: mealie-organizer
 description: "Generated skill for organizer operations. Contains 20 tools."
+tags: [organizer]
 ---
 
 ### Overview

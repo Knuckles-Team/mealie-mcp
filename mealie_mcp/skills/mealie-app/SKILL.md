@@ -1,6 +1,7 @@
 ---
 name: mealie-app
 description: "Generated skill for app operations. Contains 2 tools."
+tags: [app]
 ---
 
 ### Overview

@@ -29,7 +29,7 @@ from agent_utilities.middlewares import (
 )
 from mcp_server.mealie_api import Api
 
-__version__ = "0.2.16"
+__version__ = "0.2.17"
 print(f"Mealie MCP v{__version__}")
 
 logger = get_logger(name="TokenMiddleware")
@@ -3264,7 +3264,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipe_formats_and_templates(
         accept_language: Any = Field(default=None, description="accept-language"),
@@ -3286,7 +3286,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipe_as_format(
         slug: str = Field(default=..., description="slug"),
@@ -3312,7 +3312,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def test_parse_recipe_url(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3341,7 +3341,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def create_recipe_from_html_or_json(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3372,7 +3372,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def parse_recipe_url(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3401,7 +3401,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def parse_recipe_url_bulk(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3430,7 +3430,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def create_recipe_from_zip(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3459,7 +3459,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def create_recipe_from_image(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3493,7 +3493,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipes(
         categories: Any = Field(default=None, description="categories"),
@@ -3557,7 +3557,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def post_recipes(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3586,7 +3586,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def put_recipes(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3615,7 +3615,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def patch_many(
         data: Dict = Field(default=..., description="Request body data"),
@@ -3644,7 +3644,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipes_suggestions(
         foods: Any = Field(default=None, description="foods"),
@@ -3698,7 +3698,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipes_slug(
         slug: str = Field(default=..., description="A recipe's slug or id"),
@@ -3721,7 +3721,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def put_recipes_slug(
         slug: str = Field(default=..., description="slug"),
@@ -3753,7 +3753,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def patch_one(
         slug: str = Field(default=..., description="slug"),
@@ -3783,7 +3783,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def delete_recipes_slug(
         slug: str = Field(default=..., description="slug"),
@@ -3812,7 +3812,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def duplicate_one(
         slug: str = Field(default=..., description="slug"),
@@ -3844,7 +3844,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def update_last_made(
         slug: str = Field(default=..., description="slug"),
@@ -3876,7 +3876,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def scrape_image_url(
         slug: str = Field(default=..., description="slug"),
@@ -3908,7 +3908,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def update_recipe_image(
         slug: str = Field(default=..., description="slug"),
@@ -3940,7 +3940,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def delete_recipe_image(
         slug: str = Field(default=..., description="slug"),
@@ -3969,7 +3969,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def upload_recipe_asset(
         slug: str = Field(default=..., description="slug"),
@@ -4001,7 +4001,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipe_comments(
         slug: str = Field(default=..., description="slug"),
@@ -4024,7 +4024,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def bulk_tag_recipes(
         data: Dict = Field(default=..., description="Request body data"),
@@ -4053,7 +4053,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def bulk_settings_recipes(
         data: Dict = Field(default=..., description="Request body data"),
@@ -4084,7 +4084,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def bulk_categorize_recipes(
         data: Dict = Field(default=..., description="Request body data"),
@@ -4117,7 +4117,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def bulk_delete_recipes(
         data: Dict = Field(default=..., description="Request body data"),
@@ -4146,7 +4146,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def bulk_export_recipes(
         data: Dict = Field(default=..., description="Request body data"),
@@ -4175,7 +4175,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_exported_data(
         accept_language: Any = Field(default=None, description="accept-language"),
@@ -4197,7 +4197,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_exported_data_token(
         export_id: str = Field(default=..., description="export_id"),
@@ -4222,7 +4222,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def purge_export_data(
         accept_language: Any = Field(default=None, description="accept-language"),
@@ -4250,7 +4250,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_shared_recipe(
         token_id: str = Field(default=..., description="token_id"),
@@ -4272,7 +4272,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_shared_recipe_as_zip(
         token_id: str = Field(default=..., description="token_id"),
@@ -4294,7 +4294,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipes_timeline_events(
         order_by: Any = Field(default=None, description="orderBy"),
@@ -4334,7 +4334,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def post_recipes_timeline_events(
         data: Dict = Field(default=..., description="Request body data"),
@@ -4365,7 +4365,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipes_timeline_events_item_id(
         item_id: str = Field(default=..., description="item_id"),
@@ -4390,7 +4390,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def put_recipes_timeline_events_item_id(
         item_id: str = Field(default=..., description="item_id"),
@@ -4424,7 +4424,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def delete_recipes_timeline_events_item_id(
         item_id: str = Field(default=..., description="item_id"),
@@ -4455,7 +4455,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def update_event_image(
         item_id: str = Field(default=..., description="item_id"),
@@ -5201,7 +5201,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_comments(
         order_by: Any = Field(default=None, description="orderBy"),
@@ -5241,7 +5241,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def post_comments(
         data: Dict = Field(default=..., description="Request body data"),
@@ -5270,7 +5270,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_comments_item_id(
         item_id: str = Field(default=..., description="item_id"),
@@ -5295,7 +5295,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def put_comments_item_id(
         item_id: str = Field(default=..., description="item_id"),
@@ -5327,7 +5327,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def post_parser_ingredient(
         item_id: str = Field(default=..., description="item_id"),
@@ -5358,7 +5358,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def parse_ingredient(
         data: Dict = Field(default=..., description="Request body data"),
@@ -5387,7 +5387,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def parse_ingredients(
         data: Dict = Field(default=..., description="Request body data"),
@@ -7337,7 +7337,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipe_img(
         recipe_id: str = Field(default=..., description="recipe_id"),
@@ -7360,7 +7360,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipe_timeline_event_img(
         recipe_id: str = Field(default=..., description="recipe_id"),
@@ -7388,7 +7388,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_recipe_asset(
         recipe_id: str = Field(default=..., description="recipe_id"),
@@ -7411,7 +7411,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_user_image(
         user_id: str = Field(default=..., description="user_id"),
@@ -7434,7 +7434,7 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipe"},
+        tags={"recipes"},
     )
     async def get_validation_text(
         mealie_base_url: str = Field(

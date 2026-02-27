@@ -29,7 +29,7 @@ from agent_utilities.middlewares import (
 )
 from mcp_server.mealie_api import Api
 
-__version__ = "0.2.18"
+__version__ = "0.2.19"
 print(f"Mealie MCP v{__version__}")
 
 logger = get_logger(name="TokenMiddleware")

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
+from dotenv import load_dotenv, find_dotenv
 import os
 import sys
 import logging
@@ -29,7 +30,7 @@ from agent_utilities.middlewares import (
 )
 from mcp_server.mealie_api import Api
 
-__version__ = "0.2.25"
+__version__ = "0.2.26"
 print(f"Mealie MCP v{__version__}")
 
 logger = get_logger(name="TokenMiddleware")
@@ -48,11 +49,12 @@ def register_prompts(mcp: FastMCP):
         return "Please suggest a random meal."
 
 
-def register_tools(mcp: FastMCP):
-    @mcp.custom_route("/health", methods=["GET"])
+def register_misc_tools(mcp: FastMCP):
     async def health_check() -> Dict:
         return {"status": "OK"}
 
+
+def register_app_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"], tags={"app"}
     )
@@ -93,6 +95,8 @@ def register_tools(mcp: FastMCP):
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_app_theme()
 
+
+def register_users_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"users"},
@@ -683,6 +687,8 @@ def register_tools(mcp: FastMCP):
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.remove_favorite(id=id, slug=slug, accept_language=accept_language)
 
+
+def register_households_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"households"},
@@ -2679,6 +2685,8 @@ def register_tools(mcp: FastMCP):
             item_id=item_id, accept_language=accept_language
         )
 
+
+def register_groups_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"groups"},
@@ -3262,6 +3270,8 @@ def register_tools(mcp: FastMCP):
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.seed_units(data=data, accept_language=accept_language)
 
+
+def register_recipes_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"recipes"},
@@ -4487,6 +4497,717 @@ def register_tools(mcp: FastMCP):
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_comments(
+        order_by: Any = Field(default=None, description="orderBy"),
+        order_by_null_position: Any = Field(
+            default=None, description="orderByNullPosition"
+        ),
+        order_direction: Any = Field(default=None, description="orderDirection"),
+        query_filter: Any = Field(default=None, description="queryFilter"),
+        pagination_seed: Any = Field(default=None, description="paginationSeed"),
+        page: int = Field(default=None, description="page"),
+        per_page: int = Field(default=None, description="perPage"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get All"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_comments(
+            order_by=order_by,
+            order_by_null_position=order_by_null_position,
+            order_direction=order_direction,
+            query_filter=query_filter,
+            pagination_seed=pagination_seed,
+            page=page,
+            per_page=per_page,
+            accept_language=accept_language,
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def post_comments(
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Create One"""
+        if ctx:
+            message = "Are you sure you want to POST /api/comments?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.post_comments(data=data, accept_language=accept_language)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_comments_item_id(
+        item_id: str = Field(default=..., description="item_id"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get One"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_comments_item_id(
+            item_id=item_id, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def put_comments_item_id(
+        item_id: str = Field(default=..., description="item_id"),
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Update One"""
+        if ctx:
+            message = f"Are you sure you want to PUT /api/comments/{item_id}?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.put_comments_item_id(
+            item_id=item_id, data=data, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def post_parser_ingredient(
+        item_id: str = Field(default=..., description="item_id"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Delete One"""
+        if ctx:
+            message = f"Are you sure you want to DELETE /api/comments/{item_id}?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.post_parser_ingredient(
+            item_id=item_id, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def parse_ingredient(
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Parse Ingredient"""
+        if ctx:
+            message = "Are you sure you want to POST /api/parser/ingredient?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.parse_ingredient(data=data, accept_language=accept_language)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def parse_ingredients(
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Parse Ingredients"""
+        if ctx:
+            message = "Are you sure you want to POST /api/parser/ingredients?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.parse_ingredients(data=data, accept_language=accept_language)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_foods(
+        search: Any = Field(default=None, description="search"),
+        order_by: Any = Field(default=None, description="orderBy"),
+        order_by_null_position: Any = Field(
+            default=None, description="orderByNullPosition"
+        ),
+        order_direction: Any = Field(default=None, description="orderDirection"),
+        query_filter: Any = Field(default=None, description="queryFilter"),
+        pagination_seed: Any = Field(default=None, description="paginationSeed"),
+        page: int = Field(default=None, description="page"),
+        per_page: int = Field(default=None, description="perPage"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get All"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_foods(
+            search=search,
+            order_by=order_by,
+            order_by_null_position=order_by_null_position,
+            order_direction=order_direction,
+            query_filter=query_filter,
+            pagination_seed=pagination_seed,
+            page=page,
+            per_page=per_page,
+            accept_language=accept_language,
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def post_foods(
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Create One"""
+        if ctx:
+            message = "Are you sure you want to POST /api/foods?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.post_foods(data=data, accept_language=accept_language)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def put_foods_merge(
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Merge One"""
+        if ctx:
+            message = "Are you sure you want to PUT /api/foods/merge?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.put_foods_merge(data=data, accept_language=accept_language)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_foods_item_id(
+        item_id: str = Field(default=..., description="item_id"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get One"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_foods_item_id(
+            item_id=item_id, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def put_foods_item_id(
+        item_id: str = Field(default=..., description="item_id"),
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Update One"""
+        if ctx:
+            message = f"Are you sure you want to PUT /api/foods/{item_id}?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.put_foods_item_id(
+            item_id=item_id, data=data, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def delete_foods_item_id(
+        item_id: str = Field(default=..., description="item_id"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Delete One"""
+        if ctx:
+            message = f"Are you sure you want to DELETE /api/foods/{item_id}?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.delete_foods_item_id(
+            item_id=item_id, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_units(
+        search: Any = Field(default=None, description="search"),
+        order_by: Any = Field(default=None, description="orderBy"),
+        order_by_null_position: Any = Field(
+            default=None, description="orderByNullPosition"
+        ),
+        order_direction: Any = Field(default=None, description="orderDirection"),
+        query_filter: Any = Field(default=None, description="queryFilter"),
+        pagination_seed: Any = Field(default=None, description="paginationSeed"),
+        page: int = Field(default=None, description="page"),
+        per_page: int = Field(default=None, description="perPage"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get All"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_units(
+            search=search,
+            order_by=order_by,
+            order_by_null_position=order_by_null_position,
+            order_direction=order_direction,
+            query_filter=query_filter,
+            pagination_seed=pagination_seed,
+            page=page,
+            per_page=per_page,
+            accept_language=accept_language,
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def post_units(
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Create One"""
+        if ctx:
+            message = "Are you sure you want to POST /api/units?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.post_units(data=data, accept_language=accept_language)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def put_units_merge(
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Merge One"""
+        if ctx:
+            message = "Are you sure you want to PUT /api/units/merge?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.put_units_merge(data=data, accept_language=accept_language)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_units_item_id(
+        item_id: str = Field(default=..., description="item_id"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get One"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_units_item_id(
+            item_id=item_id, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def put_units_item_id(
+        item_id: str = Field(default=..., description="item_id"),
+        data: Dict = Field(default=..., description="Request body data"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Update One"""
+        if ctx:
+            message = f"Are you sure you want to PUT /api/units/{item_id}?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.put_units_item_id(
+            item_id=item_id, data=data, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def delete_units_item_id(
+        item_id: str = Field(default=..., description="item_id"),
+        accept_language: Any = Field(default=None, description="accept-language"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+        ctx: Context = None,
+    ) -> Dict:
+        """Delete One"""
+        if ctx:
+            message = f"Are you sure you want to DELETE /api/units/{item_id}?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return {"status": "cancelled", "message": "User cancelled"}
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.delete_units_item_id(
+            item_id=item_id, accept_language=accept_language
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_recipe_img(
+        recipe_id: str = Field(default=..., description="recipe_id"),
+        file_name: Any = Field(default=..., description="file_name"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get Recipe Img"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_recipe_img(recipe_id=recipe_id, file_name=file_name)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_recipe_timeline_event_img(
+        recipe_id: str = Field(default=..., description="recipe_id"),
+        timeline_event_id: str = Field(default=..., description="timeline_event_id"),
+        file_name: Any = Field(default=..., description="file_name"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get Recipe Timeline Event Img"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_recipe_timeline_event_img(
+            recipe_id=recipe_id,
+            timeline_event_id=timeline_event_id,
+            file_name=file_name,
+        )
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_recipe_asset(
+        recipe_id: str = Field(default=..., description="recipe_id"),
+        file_name: str = Field(default=..., description="file_name"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get Recipe Asset"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_recipe_asset(recipe_id=recipe_id, file_name=file_name)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_user_image(
+        user_id: str = Field(default=..., description="user_id"),
+        file_name: str = Field(default=..., description="file_name"),
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get User Image"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_user_image(user_id=user_id, file_name=file_name)
+
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
+        tags={"recipes"},
+    )
+    async def get_validation_text(
+        mealie_base_url: str = Field(
+            default=os.environ.get("MEALIE_BASE_URL", None),
+            description="Mealie Base URL",
+        ),
+        mealie_token: Optional[str] = Field(
+            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        ),
+        mealie_verify: bool = Field(
+            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
+            description="Verify SSL",
+        ),
+    ) -> Dict:
+        """Get Validation Text"""
+        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        return client.get_validation_text()
+
+
+def register_organizer_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"organizer"},
     )
     async def get_organizers_categories(
@@ -5089,6 +5810,8 @@ def register_tools(mcp: FastMCP):
             tool_slug=tool_slug, accept_language=accept_language
         )
 
+
+def register_shared_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"shared"},
@@ -5199,597 +5922,8 @@ def register_tools(mcp: FastMCP):
             item_id=item_id, accept_language=accept_language
         )
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_comments(
-        order_by: Any = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_comments(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_comments(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/comments?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_comments(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_comments_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_comments_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_comments_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/comments/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_comments_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_parser_ingredient(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/comments/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_parser_ingredient(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def parse_ingredient(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Parse Ingredient"""
-        if ctx:
-            message = "Are you sure you want to POST /api/parser/ingredient?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.parse_ingredient(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def parse_ingredients(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Parse Ingredients"""
-        if ctx:
-            message = "Are you sure you want to POST /api/parser/ingredients?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.parse_ingredients(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_foods(
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_foods(
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_foods(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/foods?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_foods(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_foods_merge(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Merge One"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/foods/merge?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_foods_merge(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_foods_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_foods_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_foods_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/foods/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_foods_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def delete_foods_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/foods/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_foods_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_units(
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_units(
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_units(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/units?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_units(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_units_merge(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Merge One"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/units/merge?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_units_merge(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_units_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_units_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_units_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/units/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_units_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def delete_units_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context = None,
-    ) -> Dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/units/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_units_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
+def register_admin_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"admin"},
@@ -6765,6 +6899,8 @@ def register_tools(mcp: FastMCP):
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.debug_openai(accept_language=accept_language, data=data)
 
+
+def register_explore_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"explore"},
@@ -7335,124 +7471,8 @@ def register_tools(mcp: FastMCP):
             accept_language=accept_language,
         )
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_img(
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        file_name: Any = Field(default=..., description="file_name"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get Recipe Img"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_img(recipe_id=recipe_id, file_name=file_name)
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_timeline_event_img(
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        timeline_event_id: str = Field(default=..., description="timeline_event_id"),
-        file_name: Any = Field(default=..., description="file_name"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get Recipe Timeline Event Img"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_timeline_event_img(
-            recipe_id=recipe_id,
-            timeline_event_id=timeline_event_id,
-            file_name=file_name,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_asset(
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        file_name: str = Field(default=..., description="file_name"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get Recipe Asset"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_asset(recipe_id=recipe_id, file_name=file_name)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_user_image(
-        user_id: str = Field(default=..., description="user_id"),
-        file_name: str = Field(default=..., description="file_name"),
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get User Image"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_user_image(user_id=user_id, file_name=file_name)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_validation_text(
-        mealie_base_url: str = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: Optional[str] = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-    ) -> Dict:
-        """Get Validation Text"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_validation_text()
-
+def register_utils_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
         tags={"utils"},
@@ -7483,6 +7503,7 @@ def mcp_server() -> None:
     It supports stdio or TCP transport modes and exits on invalid arguments or help requests.
 
     """
+    load_dotenv(find_dotenv())
     parser = create_mcp_parser()
 
     args = parser.parse_args()
@@ -7785,7 +7806,39 @@ def mcp_server() -> None:
             sys.exit(1)
 
     mcp = FastMCP("Mealie", auth=auth)
-    register_tools(mcp)
+    DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
+    if DEFAULT_MISCTOOL:
+        register_misc_tools(mcp)
+    DEFAULT_APPTOOL = to_boolean(os.getenv("APPTOOL", "True"))
+    if DEFAULT_APPTOOL:
+        register_app_tools(mcp)
+    DEFAULT_USERSTOOL = to_boolean(os.getenv("USERSTOOL", "True"))
+    if DEFAULT_USERSTOOL:
+        register_users_tools(mcp)
+    DEFAULT_HOUSEHOLDSTOOL = to_boolean(os.getenv("HOUSEHOLDSTOOL", "True"))
+    if DEFAULT_HOUSEHOLDSTOOL:
+        register_households_tools(mcp)
+    DEFAULT_GROUPSTOOL = to_boolean(os.getenv("GROUPSTOOL", "True"))
+    if DEFAULT_GROUPSTOOL:
+        register_groups_tools(mcp)
+    DEFAULT_RECIPESTOOL = to_boolean(os.getenv("RECIPESTOOL", "True"))
+    if DEFAULT_RECIPESTOOL:
+        register_recipes_tools(mcp)
+    DEFAULT_ORGANIZERTOOL = to_boolean(os.getenv("ORGANIZERTOOL", "True"))
+    if DEFAULT_ORGANIZERTOOL:
+        register_organizer_tools(mcp)
+    DEFAULT_SHAREDTOOL = to_boolean(os.getenv("SHAREDTOOL", "True"))
+    if DEFAULT_SHAREDTOOL:
+        register_shared_tools(mcp)
+    DEFAULT_ADMINTOOL = to_boolean(os.getenv("ADMINTOOL", "True"))
+    if DEFAULT_ADMINTOOL:
+        register_admin_tools(mcp)
+    DEFAULT_EXPLORETOOL = to_boolean(os.getenv("EXPLORETOOL", "True"))
+    if DEFAULT_EXPLORETOOL:
+        register_explore_tools(mcp)
+    DEFAULT_UTILSTOOL = to_boolean(os.getenv("UTILSTOOL", "True"))
+    if DEFAULT_UTILSTOOL:
+        register_utils_tools(mcp)
     register_prompts(mcp)
 
     for mw in middlewares:

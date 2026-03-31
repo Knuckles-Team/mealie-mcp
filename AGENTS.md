@@ -5,7 +5,7 @@
 - Core Libraries: `agent-utilities`, `fastmcp`, `pydantic-ai`
 - Key principles: Functional patterns, Pydantic for data validation, asynchronous tool execution.
 - Architecture:
-    - `mcp.py`: Main MCP server entry point and tool registration.
+    - `mcp_server.py`: Main MCP server entry point and tool registration.
     - `agent.py`: Pydantic AI agent definition and logic.
     - `skills/`: Directory containing modular agent skills (if applicable).
     - `agent/`: Internal agent logic and prompt templates.
@@ -51,14 +51,14 @@ pre-commit run --all-files
 # mealie-mcp\nmealie_mcp.mcp:mcp_server\n# mealie-agent\nmealie_mcp.agent:agent_server
 
 ## Project Structure Quick Reference
-- MCP Entry Point → `mcp.py`
+- MCP Entry Point → `mcp_server.py`
 - Agent Entry Point → `agent.py`
 - Source Code → `mealie_mcp/`
 - Skills → `skills/` (if exists)
 
 ### File Tree
 ```text
-├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .github\n│   └── workflows\n│       └── pipeline.yml\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── mcp.compose.yml\n├── mealie_mcp\n│   ├── __init__.py\n│   ├── agent\n│   │   ├── AGENTS.md\n│   │   ├── CRON.md\n│   │   ├── HEARTBEAT.md\n│   │   ├── IDENTITY.md\n│   │   ├── MEMORY.md\n│   │   ├── USER.md\n│   │   └── templates.py\n│   ├── agent.py\n│   ├── mcp.py\n│   └── api_wrapper.py\n├── pyproject.toml\n├── requirements.txt\n└── scripts\n    └── validate_a2a_agent.py
+├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .github\n│   └── workflows\n│       └── pipeline.yml\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── mcp.compose.yml\n├── mealie_mcp\n│   ├── __init__.py\n│   ├── agent\n│   │   ├── AGENTS.md\n│   │   ├── CRON.md\n│   │   ├── HEARTBEAT.md\n│   │   ├── IDENTITY.md\n│   │   ├── MEMORY.md\n│   │   ├── USER.md\n│   │   └── templates.py\n│   ├── agent.py\n│   ├── mcp_server.py\n│   └── api_wrapper.py\n├── pyproject.toml\n├── requirements.txt\n└── scripts\n    └── validate_a2a_agent.py
 ```
 
 ## Code Style & Conventions
@@ -98,7 +98,7 @@ async def my_tool(param: str) -> str:
 - Use `agent-utilities` base classes.
 
 **Ask first:**
-- Major refactors of `mcp.py` or `agent.py`.
+- Major refactors of `mcp_server.py` or `agent.py`.
 - Deleting or renaming public tool functions.
 
 **Never do:**
@@ -125,5 +125,5 @@ stateDiagram-v2
   DomainNode --> [*]: Domain Result
 ```
 
-- **RouterNode**: A fast, lightweight LLM (e.g., `gpt-4o-mini`) that classifies the user's query into one of the specialized domains.
+- **RouterNode**: A fast, lightweight LLM (e.g., `nvidia/nemotron-3-super`) that classifies the user's query into one of the specialized domains.
 - **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.

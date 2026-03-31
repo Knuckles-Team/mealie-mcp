@@ -22,7 +22,7 @@ services:
       - "TRANSPORT=streamable-http"
       - "MEALIE_BASE_URL=${MEALIE_BASE_URL}"
       - "MEALIE_TOKEN=${MEALIE_TOKEN}"
-      - "MEALIE_VERIFY=${MEALIE_VERIFY:-True}"
+      - "MEALIE_SSL_VERIFY=${MEALIE_SSL_VERIFY:-True}"
     ports:
       - "8013:8013"
     healthcheck:

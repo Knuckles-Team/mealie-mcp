@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mealie": {
+      "command": "mealie-mcp",
+      "args": ["--transport", "stdio"],
+      "env": {
+        "MEALIE_URL": "${MEALIE_URL:-http://localhost:8080}",
+        "MEALIE_TOKEN": "${MEALIE_TOKEN}"
+      }
+    }
+  }
+}

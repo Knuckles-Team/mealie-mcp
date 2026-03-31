@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# coding: utf-8
+
 
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -16,7 +16,7 @@ from agent_utilities.mcp_utilities import (
 )
 from mealie_mcp.api_wrapper import Api
 
-__version__ = "0.2.48"
+__version__ = "0.2.49"
 print(f"Mealie MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="TokenMiddleware")

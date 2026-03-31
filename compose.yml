@@ -24,7 +24,7 @@ services:
       - "TRANSPORT=stdio"
       - "MEALIE_BASE_URL=${MEALIE_BASE_URL}"
       - "MEALIE_TOKEN=${MEALIE_TOKEN}"
-      - "MEALIE_VERIFY=${MEALIE_VERIFY:-True}"
+      - "MEALIE_SSL_VERIFY=${MEALIE_SSL_VERIFY:-True}"
       - "PROVIDER=openai"
       - "LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
       - "LLM_API_KEY=${LLM_API_KEY:-llama}"

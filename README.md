@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/mealie-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/mealie-mcp)
 
-*Version: 0.2.48*
+*Version: 0.2.49*
 
 ## Overview
 
@@ -160,7 +160,7 @@ stateDiagram-v2
   DomainNode --> [*]: Domain Result
 ```
 
-- **RouterNode**: A fast, lightweight LLM (e.g., `gpt-4o-mini`) that classifies the user's query into one of the specialized domains.
+- **RouterNode**: A fast, lightweight LLM (e.g., `nvidia/nemotron-3-super`) that classifies the user's query into one of the specialized domains.
 - **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.
 
 ## Usage
@@ -312,7 +312,7 @@ docker run -d \
   -e EUNOMIA_TYPE=none \
   -e MEALIE_BASE_URL=https://mealie.example.com \
   -e MEALIE_TOKEN=your-token \
-  -e MEALIE_VERIFY=true \
+  -e MEALIE_SSL_VERIFY=true \
   knucklessg1/mealie-mcp:latest
 ```
 
@@ -335,7 +335,7 @@ docker run -d \
   -e EUNOMIA_POLICY_FILE=/app/mcp_policies.json \
   -e MEALIE_BASE_URL=https://mealie.example.com \
   -e MEALIE_TOKEN=your-token \
-  -e MEALIE_VERIFY=true \
+  -e MEALIE_SSL_VERIFY=true \
   knucklessg1/mealie-mcp:latest
 ```
 
@@ -355,7 +355,7 @@ services:
       - EUNOMIA_TYPE=none
       - MEALIE_BASE_URL=https://mealie.example.com
       - MEALIE_TOKEN=your-token
-      - MEALIE_VERIFY=true
+      - MEALIE_SSL_VERIFY=true
     ports:
       - 8004:8004
 ```
@@ -380,7 +380,7 @@ services:
       - EUNOMIA_POLICY_FILE=/app/mcp_policies.json
       - MEALIE_BASE_URL=https://mealie.example.com
       - MEALIE_TOKEN=your-token
-      - MEALIE_VERIFY=true
+      - MEALIE_SSL_VERIFY=true
     ports:
       - 8004:8004
     volumes:
@@ -409,7 +409,7 @@ docker-compose up -d
       "env": {
         "MEALIE_BASE_URL": "https://mealie.example.com",
         "MEALIE_TOKEN": "your-token",
-        "MEALIE_VERIFY": "true"
+        "MEALIE_SSL_VERIFY": "true"
       },
       "timeout": 300000
     }

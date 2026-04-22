@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 
-import requests
-from typing import Dict, List, Optional, Any
+from typing import Any
 from urllib.parse import urljoin
+
+import requests
 import urllib3
 
 
@@ -11,7 +12,7 @@ class Api:
     def __init__(
         self,
         base_url: str,
-        token: Optional[str] = None,
+        token: str | None = None,
         verify: bool = False,
     ):
         self.base_url = base_url
@@ -29,9 +30,9 @@ class Api:
         self,
         method: str,
         endpoint: str,
-        params: Dict = None,
-        data: Dict = None,
-        files: Dict = None,
+        params: dict | None = None,
+        data: dict | None = None,
+        files: dict | None = None,
     ) -> Any:
         url = urljoin(self.base_url, endpoint)
 
@@ -62,7 +63,7 @@ class Api:
         params = None
         return self.request("GET", "/api/app/about/theme", params=params, data=None)
 
-    def get_token(self, data: Dict = None) -> Any:
+    def get_token(self, data: dict | None = None) -> Any:
         """Get Token"""
         params = None
         return self.request("POST", "/api/auth/token", params=params, data=data)
@@ -82,28 +83,28 @@ class Api:
         params = None
         return self.request("GET", "/api/auth/refresh", params=params, data=None)
 
-    def logout(self, accept_language: Any = None) -> Any:
+    def logout(self, accept_language: Any | None = None) -> Any:
         """Logout"""
         params = None
         return self.request("POST", "/api/auth/logout", params=params, data=None)
 
-    def register_new_user(self, data: Dict, accept_language: Any = None) -> Any:
+    def register_new_user(self, data: dict, accept_language: Any | None = None) -> Any:
         """Register New User"""
         params = None
         return self.request("POST", "/api/users/register", params=params, data=data)
 
-    def get_logged_in_user(self, accept_language: Any = None) -> Any:
+    def get_logged_in_user(self, accept_language: Any | None = None) -> Any:
         """Get Logged In User"""
         params = None
         return self.request("GET", "/api/users/self", params=params, data=None)
 
-    def get_logged_in_user_ratings(self, accept_language: Any = None) -> Any:
+    def get_logged_in_user_ratings(self, accept_language: Any | None = None) -> Any:
         """Get Logged In User Ratings"""
         params = None
         return self.request("GET", "/api/users/self/ratings", params=params, data=None)
 
     def get_logged_in_user_rating_for_recipe(
-        self, recipe_id: str, accept_language: Any = None
+        self, recipe_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get Logged In User Rating For Recipe"""
         params = None
@@ -111,31 +112,33 @@ class Api:
             "GET", f"/api/users/self/ratings/{recipe_id}", params=params, data=None
         )
 
-    def get_logged_in_user_favorites(self, accept_language: Any = None) -> Any:
+    def get_logged_in_user_favorites(self, accept_language: Any | None = None) -> Any:
         """Get Logged In User Favorites"""
         params = None
         return self.request(
             "GET", "/api/users/self/favorites", params=params, data=None
         )
 
-    def update_password(self, data: Dict, accept_language: Any = None) -> Any:
+    def update_password(self, data: dict, accept_language: Any | None = None) -> Any:
         """Update Password"""
         params = None
         return self.request("PUT", "/api/users/password", params=params, data=data)
 
-    def update_user(self, item_id: str, data: Dict, accept_language: Any = None) -> Any:
+    def update_user(
+        self, item_id: str, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Update User"""
         params = None
         return self.request("PUT", f"/api/users/{item_id}", params=params, data=data)
 
-    def forgot_password(self, data: Dict, accept_language: Any = None) -> Any:
+    def forgot_password(self, data: dict, accept_language: Any | None = None) -> Any:
         """Forgot Password"""
         params = None
         return self.request(
             "POST", "/api/users/forgot-password", params=params, data=data
         )
 
-    def reset_password(self, data: Dict) -> Any:
+    def reset_password(self, data: dict) -> Any:
         """Reset Password"""
         params = None
         return self.request(
@@ -143,30 +146,30 @@ class Api:
         )
 
     def update_user_image(
-        self, id: str, data: Dict, accept_language: Any = None
+        self, id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update User Image"""
         params = None
         return self.request("POST", f"/api/users/{id}/image", params=params, data=data)
 
-    def create(self, data: Dict, accept_language: Any = None) -> Any:
+    def create(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create Api Token"""
         params = None
         return self.request("POST", "/api/users/api-tokens", params=params, data=data)
 
-    def delete(self, token_id: int, accept_language: Any = None) -> Any:
+    def delete(self, token_id: int, accept_language: Any | None = None) -> Any:
         """Delete Api Token"""
         params = None
         return self.request(
             "DELETE", f"/api/users/api-tokens/{token_id}", params=params, data=None
         )
 
-    def get_ratings(self, id: str, accept_language: Any = None) -> Any:
+    def get_ratings(self, id: str, accept_language: Any | None = None) -> Any:
         """Get Ratings"""
         params = None
         return self.request("GET", f"/api/users/{id}/ratings", params=params, data=None)
 
-    def get_favorites(self, id: str, accept_language: Any = None) -> Any:
+    def get_favorites(self, id: str, accept_language: Any | None = None) -> Any:
         """Get Favorites"""
         params = None
         return self.request(
@@ -174,7 +177,7 @@ class Api:
         )
 
     def set_rating(
-        self, id: str, slug: str, data: Dict, accept_language: Any = None
+        self, id: str, slug: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Set Rating"""
         params = None
@@ -182,14 +185,18 @@ class Api:
             "POST", f"/api/users/{id}/ratings/{slug}", params=params, data=data
         )
 
-    def add_favorite(self, id: str, slug: str, accept_language: Any = None) -> Any:
+    def add_favorite(
+        self, id: str, slug: str, accept_language: Any | None = None
+    ) -> Any:
         """Add Favorite"""
         params = None
         return self.request(
             "POST", f"/api/users/{id}/favorites/{slug}", params=params, data=None
         )
 
-    def remove_favorite(self, id: str, slug: str, accept_language: Any = None) -> Any:
+    def remove_favorite(
+        self, id: str, slug: str, accept_language: Any | None = None
+    ) -> Any:
         """Remove Favorite"""
         params = None
         return self.request(
@@ -198,17 +205,17 @@ class Api:
 
     def get_households_cookbooks(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -227,14 +234,18 @@ class Api:
             "GET", "/api/households/cookbooks", params=params, data=None
         )
 
-    def post_households_cookbooks(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_households_cookbooks(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create One"""
         params = None
         return self.request(
             "POST", "/api/households/cookbooks", params=params, data=data
         )
 
-    def put_households_cookbooks(self, data: Dict, accept_language: Any = None) -> Any:
+    def put_households_cookbooks(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Update Many"""
         params = None
         return self.request(
@@ -242,7 +253,7 @@ class Api:
         )
 
     def get_households_cookbooks_item_id(
-        self, item_id: Any, accept_language: Any = None
+        self, item_id: Any, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -251,7 +262,7 @@ class Api:
         )
 
     def put_households_cookbooks_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -260,7 +271,7 @@ class Api:
         )
 
     def delete_households_cookbooks_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -270,17 +281,17 @@ class Api:
 
     def get_households_events_notifications(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -300,7 +311,7 @@ class Api:
         )
 
     def post_households_events_notifications(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create One"""
         params = None
@@ -309,7 +320,7 @@ class Api:
         )
 
     def get_households_events_notifications_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -321,7 +332,7 @@ class Api:
         )
 
     def put_households_events_notifications_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -333,7 +344,7 @@ class Api:
         )
 
     def delete_households_events_notifications_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -344,7 +355,9 @@ class Api:
             data=None,
         )
 
-    def test_notification(self, item_id: str, accept_language: Any = None) -> Any:
+    def test_notification(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Test Notification"""
         params = None
         return self.request(
@@ -356,17 +369,17 @@ class Api:
 
     def get_households_recipe_actions(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -386,7 +399,7 @@ class Api:
         )
 
     def post_households_recipe_actions(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create One"""
         params = None
@@ -395,7 +408,7 @@ class Api:
         )
 
     def get_households_recipe_actions_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -404,7 +417,7 @@ class Api:
         )
 
     def put_households_recipe_actions_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -413,7 +426,7 @@ class Api:
         )
 
     def delete_households_recipe_actions_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -428,8 +441,8 @@ class Api:
         self,
         item_id: str,
         recipe_slug: str,
-        accept_language: Any = None,
-        data: Dict = None,
+        accept_language: Any | None = None,
+        data: dict | None = None,
     ) -> Any:
         """Trigger Action"""
         params = None
@@ -440,13 +453,13 @@ class Api:
             data=data,
         )
 
-    def get_logged_in_user_household(self, accept_language: Any = None) -> Any:
+    def get_logged_in_user_household(self, accept_language: Any | None = None) -> Any:
         """Get Logged In User Household"""
         params = None
         return self.request("GET", "/api/households/self", params=params, data=None)
 
     def get_household_recipe(
-        self, recipe_slug: str, accept_language: Any = None
+        self, recipe_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get Household Recipe"""
         params = None
@@ -459,17 +472,17 @@ class Api:
 
     def get_household_members(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get Household Members"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -486,7 +499,7 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/households/members", params=params, data=None)
 
-    def get_household_preferences(self, accept_language: Any = None) -> Any:
+    def get_household_preferences(self, accept_language: Any | None = None) -> Any:
         """Get Household Preferences"""
         params = None
         return self.request(
@@ -494,7 +507,7 @@ class Api:
         )
 
     def update_household_preferences(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update Household Preferences"""
         params = None
@@ -502,35 +515,39 @@ class Api:
             "PUT", "/api/households/preferences", params=params, data=data
         )
 
-    def set_member_permissions(self, data: Dict, accept_language: Any = None) -> Any:
+    def set_member_permissions(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Set Member Permissions"""
         params = None
         return self.request(
             "PUT", "/api/households/permissions", params=params, data=data
         )
 
-    def get_statistics(self, accept_language: Any = None) -> Any:
+    def get_statistics(self, accept_language: Any | None = None) -> Any:
         """Get Statistics"""
         params = None
         return self.request(
             "GET", "/api/households/statistics", params=params, data=None
         )
 
-    def get_invite_tokens(self, accept_language: Any = None) -> Any:
+    def get_invite_tokens(self, accept_language: Any | None = None) -> Any:
         """Get Invite Tokens"""
         params = None
         return self.request(
             "GET", "/api/households/invitations", params=params, data=None
         )
 
-    def create_invite_token(self, data: Dict, accept_language: Any = None) -> Any:
+    def create_invite_token(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create Invite Token"""
         params = None
         return self.request(
             "POST", "/api/households/invitations", params=params, data=data
         )
 
-    def email_invitation(self, data: Dict, accept_language: Any = None) -> Any:
+    def email_invitation(self, data: dict, accept_language: Any | None = None) -> Any:
         """Email Invitation"""
         params = None
         return self.request(
@@ -539,17 +556,17 @@ class Api:
 
     def get_households_shopping_lists(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -569,7 +586,7 @@ class Api:
         )
 
     def post_households_shopping_lists(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create One"""
         params = None
@@ -578,7 +595,7 @@ class Api:
         )
 
     def get_households_shopping_lists_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -587,7 +604,7 @@ class Api:
         )
 
     def put_households_shopping_lists_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -596,7 +613,7 @@ class Api:
         )
 
     def delete_households_shopping_lists_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -608,7 +625,7 @@ class Api:
         )
 
     def update_label_settings(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update Label Settings"""
         params = None
@@ -620,7 +637,7 @@ class Api:
         )
 
     def add_recipe_ingredients_to_list(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Add Recipe Ingredients To List"""
         params = None
@@ -635,8 +652,8 @@ class Api:
         self,
         item_id: str,
         recipe_id: str,
-        accept_language: Any = None,
-        data: Dict = None,
+        accept_language: Any | None = None,
+        data: dict | None = None,
     ) -> Any:
         """Add Single Recipe Ingredients To List"""
         params = None
@@ -651,8 +668,8 @@ class Api:
         self,
         item_id: str,
         recipe_id: str,
-        accept_language: Any = None,
-        data: Dict = None,
+        accept_language: Any | None = None,
+        data: dict | None = None,
     ) -> Any:
         """Remove Recipe Ingredients From List"""
         params = None
@@ -665,17 +682,17 @@ class Api:
 
     def get_households_shopping_items(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -695,7 +712,7 @@ class Api:
         )
 
     def post_households_shopping_items(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create One"""
         params = None
@@ -704,7 +721,7 @@ class Api:
         )
 
     def put_households_shopping_items(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update Many"""
         params = None
@@ -713,10 +730,10 @@ class Api:
         )
 
     def delete_households_shopping_items(
-        self, ids: List = None, accept_language: Any = None
+        self, ids: list | None = None, accept_language: Any | None = None
     ) -> Any:
         """Delete Many"""
-        params = {}
+        params: dict[str, Any] = {}
         if ids is not None:
             params["ids"] = ids
         return self.request(
@@ -724,7 +741,7 @@ class Api:
         )
 
     def post_households_shopping_items_create_bulk(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create Many"""
         params = None
@@ -736,7 +753,7 @@ class Api:
         )
 
     def get_households_shopping_items_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -745,7 +762,7 @@ class Api:
         )
 
     def put_households_shopping_items_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -754,7 +771,7 @@ class Api:
         )
 
     def delete_households_shopping_items_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -767,17 +784,17 @@ class Api:
 
     def get_households_webhooks(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -794,14 +811,16 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/households/webhooks", params=params, data=None)
 
-    def post_households_webhooks(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_households_webhooks(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create One"""
         params = None
         return self.request(
             "POST", "/api/households/webhooks", params=params, data=data
         )
 
-    def rerun_webhooks(self, accept_language: Any = None) -> Any:
+    def rerun_webhooks(self, accept_language: Any | None = None) -> Any:
         """Rerun Webhooks"""
         params = None
         return self.request(
@@ -809,7 +828,7 @@ class Api:
         )
 
     def get_households_webhooks_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -818,7 +837,7 @@ class Api:
         )
 
     def put_households_webhooks_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -827,7 +846,7 @@ class Api:
         )
 
     def delete_households_webhooks_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -835,7 +854,7 @@ class Api:
             "DELETE", f"/api/households/webhooks/{item_id}", params=params, data=None
         )
 
-    def test_one(self, item_id: str, accept_language: Any = None) -> Any:
+    def test_one(self, item_id: str, accept_language: Any | None = None) -> Any:
         """Test One"""
         params = None
         return self.request(
@@ -844,17 +863,17 @@ class Api:
 
     def get_households_mealplans_rules(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -874,7 +893,7 @@ class Api:
         )
 
     def post_households_mealplans_rules(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create One"""
         params = None
@@ -883,7 +902,7 @@ class Api:
         )
 
     def get_households_mealplans_rules_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -895,7 +914,7 @@ class Api:
         )
 
     def put_households_mealplans_rules_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -907,7 +926,7 @@ class Api:
         )
 
     def delete_households_mealplans_rules_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -920,19 +939,19 @@ class Api:
 
     def get_households_mealplans(
         self,
-        start_date: Any = None,
-        end_date: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        start_date: Any | None = None,
+        end_date: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if start_date is not None:
             params["start_date"] = start_date
         if end_date is not None:
@@ -955,21 +974,23 @@ class Api:
             "GET", "/api/households/mealplans", params=params, data=None
         )
 
-    def post_households_mealplans(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_households_mealplans(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create One"""
         params = None
         return self.request(
             "POST", "/api/households/mealplans", params=params, data=data
         )
 
-    def get_todays_meals(self, accept_language: Any = None) -> Any:
+    def get_todays_meals(self, accept_language: Any | None = None) -> Any:
         """Get Todays Meals"""
         params = None
         return self.request(
             "GET", "/api/households/mealplans/today", params=params, data=None
         )
 
-    def create_random_meal(self, data: Dict, accept_language: Any = None) -> Any:
+    def create_random_meal(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create Random Meal"""
         params = None
         return self.request(
@@ -977,7 +998,7 @@ class Api:
         )
 
     def get_households_mealplans_item_id(
-        self, item_id: int, accept_language: Any = None
+        self, item_id: int, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -986,7 +1007,7 @@ class Api:
         )
 
     def put_households_mealplans_item_id(
-        self, item_id: int, data: Dict, accept_language: Any = None
+        self, item_id: int, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -995,7 +1016,7 @@ class Api:
         )
 
     def delete_households_mealplans_item_id(
-        self, item_id: int, accept_language: Any = None
+        self, item_id: int, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -1005,17 +1026,17 @@ class Api:
 
     def get_all_households(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All Households"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -1033,7 +1054,7 @@ class Api:
         return self.request("GET", "/api/groups/households", params=params, data=None)
 
     def get_one_household(
-        self, household_slug: str, accept_language: Any = None
+        self, household_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One Household"""
         params = None
@@ -1041,24 +1062,24 @@ class Api:
             "GET", f"/api/groups/households/{household_slug}", params=params, data=None
         )
 
-    def get_logged_in_user_group(self, accept_language: Any = None) -> Any:
+    def get_logged_in_user_group(self, accept_language: Any | None = None) -> Any:
         """Get Logged In User Group"""
         params = None
         return self.request("GET", "/api/groups/self", params=params, data=None)
 
     def get_group_members(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get Group Members"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -1075,44 +1096,50 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/groups/members", params=params, data=None)
 
-    def get_group_member(self, username_or_id: Any, accept_language: Any = None) -> Any:
+    def get_group_member(
+        self, username_or_id: Any, accept_language: Any | None = None
+    ) -> Any:
         """Get Group Member"""
         params = None
         return self.request(
             "GET", f"/api/groups/members/{username_or_id}", params=params, data=None
         )
 
-    def get_group_preferences(self, accept_language: Any = None) -> Any:
+    def get_group_preferences(self, accept_language: Any | None = None) -> Any:
         """Get Group Preferences"""
         params = None
         return self.request("GET", "/api/groups/preferences", params=params, data=None)
 
-    def update_group_preferences(self, data: Dict, accept_language: Any = None) -> Any:
+    def update_group_preferences(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Update Group Preferences"""
         params = None
         return self.request("PUT", "/api/groups/preferences", params=params, data=data)
 
-    def get_storage(self, accept_language: Any = None) -> Any:
+    def get_storage(self, accept_language: Any | None = None) -> Any:
         """Get Storage"""
         params = None
         return self.request("GET", "/api/groups/storage", params=params, data=None)
 
-    def start_data_migration(self, data: Dict, accept_language: Any = None) -> Any:
+    def start_data_migration(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Start Data Migration"""
         params = None
         return self.request("POST", "/api/groups/migrations", params=params, data=data)
 
     def get_groups_reports(
-        self, report_type: Any = None, accept_language: Any = None
+        self, report_type: Any | None = None, accept_language: Any | None = None
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if report_type is not None:
             params["report_type"] = report_type
         return self.request("GET", "/api/groups/reports", params=params, data=None)
 
     def get_groups_reports_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -1121,7 +1148,7 @@ class Api:
         )
 
     def delete_groups_reports_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -1131,18 +1158,18 @@ class Api:
 
     def get_groups_labels(
         self,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -1161,13 +1188,13 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/groups/labels", params=params, data=None)
 
-    def post_groups_labels(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_groups_labels(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/groups/labels", params=params, data=data)
 
     def get_groups_labels_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -1176,7 +1203,7 @@ class Api:
         )
 
     def put_groups_labels_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -1185,7 +1212,7 @@ class Api:
         )
 
     def delete_groups_labels_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -1193,44 +1220,48 @@ class Api:
             "DELETE", f"/api/groups/labels/{item_id}", params=params, data=None
         )
 
-    def seed_foods(self, data: Dict, accept_language: Any = None) -> Any:
+    def seed_foods(self, data: dict, accept_language: Any | None = None) -> Any:
         """Seed Foods"""
         params = None
         return self.request(
             "POST", "/api/groups/seeders/foods", params=params, data=data
         )
 
-    def seed_labels(self, data: Dict, accept_language: Any = None) -> Any:
+    def seed_labels(self, data: dict, accept_language: Any | None = None) -> Any:
         """Seed Labels"""
         params = None
         return self.request(
             "POST", "/api/groups/seeders/labels", params=params, data=data
         )
 
-    def seed_units(self, data: Dict, accept_language: Any = None) -> Any:
+    def seed_units(self, data: dict, accept_language: Any | None = None) -> Any:
         """Seed Units"""
         params = None
         return self.request(
             "POST", "/api/groups/seeders/units", params=params, data=data
         )
 
-    def get_recipe_formats_and_templates(self, accept_language: Any = None) -> Any:
+    def get_recipe_formats_and_templates(
+        self, accept_language: Any | None = None
+    ) -> Any:
         """Get Recipe Formats And Templates"""
         params = None
         return self.request("GET", "/api/recipes/exports", params=params, data=None)
 
     def get_recipe_as_format(
-        self, slug: str, template_name: str, accept_language: Any = None
+        self, slug: str, template_name: str, accept_language: Any | None = None
     ) -> Any:
         """Get Recipe As Format"""
-        params = {}
+        params: dict[str, Any] = {}
         if template_name is not None:
             params["template_name"] = template_name
         return self.request(
             "GET", f"/api/recipes/{slug}/exports", params=params, data=None
         )
 
-    def test_parse_recipe_url(self, data: Dict, accept_language: Any = None) -> Any:
+    def test_parse_recipe_url(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Test Parse Recipe Url"""
         params = None
         return self.request(
@@ -1238,7 +1269,7 @@ class Api:
         )
 
     def create_recipe_from_html_or_json(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create Recipe From Html Or Json"""
         params = None
@@ -1246,28 +1277,35 @@ class Api:
             "POST", "/api/recipes/create/html-or-json", params=params, data=data
         )
 
-    def parse_recipe_url(self, data: Dict, accept_language: Any = None) -> Any:
+    def parse_recipe_url(self, data: dict, accept_language: Any | None = None) -> Any:
         """Parse Recipe Url"""
         params = None
         return self.request("POST", "/api/recipes/create/url", params=params, data=data)
 
-    def parse_recipe_url_bulk(self, data: Dict, accept_language: Any = None) -> Any:
+    def parse_recipe_url_bulk(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Parse Recipe Url Bulk"""
         params = None
         return self.request(
             "POST", "/api/recipes/create/url/bulk", params=params, data=data
         )
 
-    def create_recipe_from_zip(self, data: Dict, accept_language: Any = None) -> Any:
+    def create_recipe_from_zip(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create Recipe From Zip"""
         params = None
         return self.request("POST", "/api/recipes/create/zip", params=params, data=data)
 
     def create_recipe_from_image(
-        self, data: Dict, translate_language: Any = None, accept_language: Any = None
+        self,
+        data: dict,
+        translate_language: Any | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Create Recipe From Image"""
-        params = {}
+        params: dict[str, Any] = {}
         if translate_language is not None:
             params["translateLanguage"] = translate_language
         return self.request(
@@ -1276,28 +1314,28 @@ class Api:
 
     def get_recipes(
         self,
-        categories: Any = None,
-        tags: Any = None,
-        tools: Any = None,
-        foods: Any = None,
-        households: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        cookbook: Any = None,
-        require_all_categories: bool = None,
-        require_all_tags: bool = None,
-        require_all_tools: bool = None,
-        require_all_foods: bool = None,
-        search: Any = None,
-        accept_language: Any = None,
+        categories: Any | None = None,
+        tags: Any | None = None,
+        tools: Any | None = None,
+        foods: Any | None = None,
+        households: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        cookbook: Any | None = None,
+        require_all_categories: bool | None = None,
+        require_all_tags: bool | None = None,
+        require_all_tools: bool | None = None,
+        require_all_foods: bool | None = None,
+        search: Any | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if categories is not None:
             params["categories"] = categories
         if tags is not None:
@@ -1336,39 +1374,39 @@ class Api:
             params["search"] = search
         return self.request("GET", "/api/recipes", params=params, data=None)
 
-    def post_recipes(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_recipes(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/recipes", params=params, data=data)
 
-    def put_recipes(self, data: Dict, accept_language: Any = None) -> Any:
+    def put_recipes(self, data: dict, accept_language: Any | None = None) -> Any:
         """Update Many"""
         params = None
         return self.request("PUT", "/api/recipes", params=params, data=data)
 
-    def patch_many(self, data: Dict, accept_language: Any = None) -> Any:
+    def patch_many(self, data: dict, accept_language: Any | None = None) -> Any:
         """Patch Many"""
         params = None
         return self.request("PATCH", "/api/recipes", params=params, data=data)
 
     def get_recipes_suggestions(
         self,
-        foods: Any = None,
-        tools: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        limit: int = None,
-        max_missing_foods: int = None,
-        max_missing_tools: int = None,
-        include_foods_on_hand: bool = None,
-        include_tools_on_hand: bool = None,
-        accept_language: Any = None,
+        foods: Any | None = None,
+        tools: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        limit: int | None = None,
+        max_missing_foods: int | None = None,
+        max_missing_tools: int | None = None,
+        include_foods_on_hand: bool | None = None,
+        include_tools_on_hand: bool | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Suggest Recipes"""
-        params = {}
+        params: dict[str, Any] = {}
         if foods is not None:
             params["foods"] = foods
         if tools is not None:
@@ -1395,29 +1433,33 @@ class Api:
             params["includeToolsOnHand"] = include_tools_on_hand
         return self.request("GET", "/api/recipes/suggestions", params=params, data=None)
 
-    def get_recipes_slug(self, slug: str, accept_language: Any = None) -> Any:
+    def get_recipes_slug(self, slug: str, accept_language: Any | None = None) -> Any:
         """Get One"""
         params = None
         return self.request("GET", f"/api/recipes/{slug}", params=params, data=None)
 
     def put_recipes_slug(
-        self, slug: str, data: Dict, accept_language: Any = None
+        self, slug: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
         return self.request("PUT", f"/api/recipes/{slug}", params=params, data=data)
 
-    def patch_one(self, slug: str, data: Dict, accept_language: Any = None) -> Any:
+    def patch_one(
+        self, slug: str, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Patch One"""
         params = None
         return self.request("PATCH", f"/api/recipes/{slug}", params=params, data=data)
 
-    def delete_recipes_slug(self, slug: str, accept_language: Any = None) -> Any:
+    def delete_recipes_slug(self, slug: str, accept_language: Any | None = None) -> Any:
         """Delete One"""
         params = None
         return self.request("DELETE", f"/api/recipes/{slug}", params=params, data=None)
 
-    def duplicate_one(self, slug: str, data: Dict, accept_language: Any = None) -> Any:
+    def duplicate_one(
+        self, slug: str, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Duplicate One"""
         params = None
         return self.request(
@@ -1425,7 +1467,7 @@ class Api:
         )
 
     def update_last_made(
-        self, slug: str, data: Dict, accept_language: Any = None
+        self, slug: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update Last Made"""
         params = None
@@ -1434,7 +1476,7 @@ class Api:
         )
 
     def scrape_image_url(
-        self, slug: str, data: Dict, accept_language: Any = None
+        self, slug: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Scrape Image Url"""
         params = None
@@ -1443,7 +1485,7 @@ class Api:
         )
 
     def update_recipe_image(
-        self, slug: str, data: Dict, accept_language: Any = None
+        self, slug: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update Recipe Image"""
         params = None
@@ -1451,7 +1493,7 @@ class Api:
             "PUT", f"/api/recipes/{slug}/image", params=params, data=data
         )
 
-    def delete_recipe_image(self, slug: str, accept_language: Any = None) -> Any:
+    def delete_recipe_image(self, slug: str, accept_language: Any | None = None) -> Any:
         """Delete Recipe Image"""
         params = None
         return self.request(
@@ -1459,7 +1501,7 @@ class Api:
         )
 
     def upload_recipe_asset(
-        self, slug: str, data: Dict, accept_language: Any = None
+        self, slug: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Upload Recipe Asset"""
         params = None
@@ -1467,49 +1509,57 @@ class Api:
             "POST", f"/api/recipes/{slug}/assets", params=params, data=data
         )
 
-    def get_recipe_comments(self, slug: str, accept_language: Any = None) -> Any:
+    def get_recipe_comments(self, slug: str, accept_language: Any | None = None) -> Any:
         """Get Recipe Comments"""
         params = None
         return self.request(
             "GET", f"/api/recipes/{slug}/comments", params=params, data=None
         )
 
-    def bulk_tag_recipes(self, data: Dict, accept_language: Any = None) -> Any:
+    def bulk_tag_recipes(self, data: dict, accept_language: Any | None = None) -> Any:
         """Bulk Tag Recipes"""
         params = None
         return self.request(
             "POST", "/api/recipes/bulk-actions/tag", params=params, data=data
         )
 
-    def bulk_settings_recipes(self, data: Dict, accept_language: Any = None) -> Any:
+    def bulk_settings_recipes(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Bulk Settings Recipes"""
         params = None
         return self.request(
             "POST", "/api/recipes/bulk-actions/settings", params=params, data=data
         )
 
-    def bulk_categorize_recipes(self, data: Dict, accept_language: Any = None) -> Any:
+    def bulk_categorize_recipes(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Bulk Categorize Recipes"""
         params = None
         return self.request(
             "POST", "/api/recipes/bulk-actions/categorize", params=params, data=data
         )
 
-    def bulk_delete_recipes(self, data: Dict, accept_language: Any = None) -> Any:
+    def bulk_delete_recipes(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Bulk Delete Recipes"""
         params = None
         return self.request(
             "POST", "/api/recipes/bulk-actions/delete", params=params, data=data
         )
 
-    def bulk_export_recipes(self, data: Dict, accept_language: Any = None) -> Any:
+    def bulk_export_recipes(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Bulk Export Recipes"""
         params = None
         return self.request(
             "POST", "/api/recipes/bulk-actions/export", params=params, data=data
         )
 
-    def get_exported_data(self, accept_language: Any = None) -> Any:
+    def get_exported_data(self, accept_language: Any | None = None) -> Any:
         """Get Exported Data"""
         params = None
         return self.request(
@@ -1517,7 +1567,7 @@ class Api:
         )
 
     def get_exported_data_token(
-        self, export_id: str, accept_language: Any = None
+        self, export_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get Exported Data Token"""
         params = None
@@ -1528,7 +1578,7 @@ class Api:
             data=None,
         )
 
-    def purge_export_data(self, accept_language: Any = None) -> Any:
+    def purge_export_data(self, accept_language: Any | None = None) -> Any:
         """Purge Export Data"""
         params = None
         return self.request(
@@ -1554,17 +1604,17 @@ class Api:
 
     def get_recipes_timeline_events(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -1584,7 +1634,7 @@ class Api:
         )
 
     def post_recipes_timeline_events(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create One"""
         params = None
@@ -1593,7 +1643,7 @@ class Api:
         )
 
     def get_recipes_timeline_events_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -1602,7 +1652,7 @@ class Api:
         )
 
     def put_recipes_timeline_events_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -1611,7 +1661,7 @@ class Api:
         )
 
     def delete_recipes_timeline_events_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -1623,7 +1673,7 @@ class Api:
         )
 
     def update_event_image(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update Event Image"""
         params = None
@@ -1636,18 +1686,18 @@ class Api:
 
     def get_organizers_categories(
         self,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -1669,7 +1719,7 @@ class Api:
         )
 
     def post_organizers_categories(
-        self, data: Dict, accept_language: Any = None
+        self, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Create One"""
         params = None
@@ -1677,7 +1727,7 @@ class Api:
             "POST", "/api/organizers/categories", params=params, data=data
         )
 
-    def get_all_empty(self, accept_language: Any = None) -> Any:
+    def get_all_empty(self, accept_language: Any | None = None) -> Any:
         """Get All Empty"""
         params = None
         return self.request(
@@ -1685,7 +1735,7 @@ class Api:
         )
 
     def get_organizers_categories_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -1694,7 +1744,7 @@ class Api:
         )
 
     def put_organizers_categories_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -1703,7 +1753,7 @@ class Api:
         )
 
     def delete_organizers_categories_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -1712,7 +1762,7 @@ class Api:
         )
 
     def get_organizers_categories_slug_category_slug(
-        self, category_slug: str, accept_language: Any = None
+        self, category_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One By Slug"""
         params = None
@@ -1725,18 +1775,18 @@ class Api:
 
     def get_organizers_tags(
         self,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -1755,12 +1805,14 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/organizers/tags", params=params, data=None)
 
-    def post_organizers_tags(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_organizers_tags(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/organizers/tags", params=params, data=data)
 
-    def get_empty_tags(self, accept_language: Any = None) -> Any:
+    def get_empty_tags(self, accept_language: Any | None = None) -> Any:
         """Get Empty Tags"""
         params = None
         return self.request(
@@ -1768,7 +1820,7 @@ class Api:
         )
 
     def get_organizers_tags_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -1777,7 +1829,7 @@ class Api:
         )
 
     def put_organizers_tags_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -1785,7 +1837,9 @@ class Api:
             "PUT", f"/api/organizers/tags/{item_id}", params=params, data=data
         )
 
-    def delete_recipe_tag(self, item_id: str, accept_language: Any = None) -> Any:
+    def delete_recipe_tag(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Delete Recipe Tag"""
         params = None
         return self.request(
@@ -1793,7 +1847,7 @@ class Api:
         )
 
     def get_organizers_tags_slug_tag_slug(
-        self, tag_slug: str, accept_language: Any = None
+        self, tag_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One By Slug"""
         params = None
@@ -1803,18 +1857,18 @@ class Api:
 
     def get_organizers_tools(
         self,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -1833,13 +1887,15 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/organizers/tools", params=params, data=None)
 
-    def post_organizers_tools(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_organizers_tools(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/organizers/tools", params=params, data=data)
 
     def get_organizers_tools_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -1848,7 +1904,7 @@ class Api:
         )
 
     def put_organizers_tools_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -1857,7 +1913,7 @@ class Api:
         )
 
     def delete_organizers_tools_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -1866,7 +1922,7 @@ class Api:
         )
 
     def get_organizers_tools_slug_tool_slug(
-        self, tool_slug: str, accept_language: Any = None
+        self, tool_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One By Slug"""
         params = None
@@ -1875,21 +1931,23 @@ class Api:
         )
 
     def get_shared_recipes(
-        self, recipe_id: Any = None, accept_language: Any = None
+        self, recipe_id: Any | None = None, accept_language: Any | None = None
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if recipe_id is not None:
             params["recipe_id"] = recipe_id
         return self.request("GET", "/api/shared/recipes", params=params, data=None)
 
-    def post_shared_recipes(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_shared_recipes(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/shared/recipes", params=params, data=data)
 
     def get_shared_recipes_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -1898,7 +1956,7 @@ class Api:
         )
 
     def delete_shared_recipes_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -1908,17 +1966,17 @@ class Api:
 
     def get_comments(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -1935,54 +1993,58 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/comments", params=params, data=None)
 
-    def post_comments(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_comments(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/comments", params=params, data=data)
 
-    def get_comments_item_id(self, item_id: str, accept_language: Any = None) -> Any:
+    def get_comments_item_id(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Get One"""
         params = None
         return self.request("GET", f"/api/comments/{item_id}", params=params, data=None)
 
     def put_comments_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
         return self.request("PUT", f"/api/comments/{item_id}", params=params, data=data)
 
-    def post_parser_ingredient(self, item_id: str, accept_language: Any = None) -> Any:
+    def post_parser_ingredient(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Delete One"""
         params = None
         return self.request(
             "DELETE", f"/api/comments/{item_id}", params=params, data=None
         )
 
-    def parse_ingredient(self, data: Dict, accept_language: Any = None) -> Any:
+    def parse_ingredient(self, data: dict, accept_language: Any | None = None) -> Any:
         """Parse Ingredient"""
         params = None
         return self.request("POST", "/api/parser/ingredient", params=params, data=data)
 
-    def parse_ingredients(self, data: Dict, accept_language: Any = None) -> Any:
+    def parse_ingredients(self, data: dict, accept_language: Any | None = None) -> Any:
         """Parse Ingredients"""
         params = None
         return self.request("POST", "/api/parser/ingredients", params=params, data=data)
 
     def get_foods(
         self,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -2001,47 +2063,51 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/foods", params=params, data=None)
 
-    def post_foods(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_foods(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/foods", params=params, data=data)
 
-    def put_foods_merge(self, data: Dict, accept_language: Any = None) -> Any:
+    def put_foods_merge(self, data: dict, accept_language: Any | None = None) -> Any:
         """Merge One"""
         params = None
         return self.request("PUT", "/api/foods/merge", params=params, data=data)
 
-    def get_foods_item_id(self, item_id: str, accept_language: Any = None) -> Any:
+    def get_foods_item_id(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Get One"""
         params = None
         return self.request("GET", f"/api/foods/{item_id}", params=params, data=None)
 
     def put_foods_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
         return self.request("PUT", f"/api/foods/{item_id}", params=params, data=data)
 
-    def delete_foods_item_id(self, item_id: str, accept_language: Any = None) -> Any:
+    def delete_foods_item_id(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Delete One"""
         params = None
         return self.request("DELETE", f"/api/foods/{item_id}", params=params, data=None)
 
     def get_units(
         self,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -2060,63 +2126,67 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/units", params=params, data=None)
 
-    def post_units(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_units(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/units", params=params, data=data)
 
-    def put_units_merge(self, data: Dict, accept_language: Any = None) -> Any:
+    def put_units_merge(self, data: dict, accept_language: Any | None = None) -> Any:
         """Merge One"""
         params = None
         return self.request("PUT", "/api/units/merge", params=params, data=data)
 
-    def get_units_item_id(self, item_id: str, accept_language: Any = None) -> Any:
+    def get_units_item_id(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Get One"""
         params = None
         return self.request("GET", f"/api/units/{item_id}", params=params, data=None)
 
     def put_units_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
         return self.request("PUT", f"/api/units/{item_id}", params=params, data=data)
 
-    def delete_units_item_id(self, item_id: str, accept_language: Any = None) -> Any:
+    def delete_units_item_id(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Delete One"""
         params = None
         return self.request("DELETE", f"/api/units/{item_id}", params=params, data=None)
 
-    def get_app_info(self, accept_language: Any = None) -> Any:
+    def get_app_info(self, accept_language: Any | None = None) -> Any:
         """Get App Info"""
         params = None
         return self.request("GET", "/api/admin/about", params=params, data=None)
 
-    def get_app_statistics(self, accept_language: Any = None) -> Any:
+    def get_app_statistics(self, accept_language: Any | None = None) -> Any:
         """Get App Statistics"""
         params = None
         return self.request(
             "GET", "/api/admin/about/statistics", params=params, data=None
         )
 
-    def check_app_config(self, accept_language: Any = None) -> Any:
+    def check_app_config(self, accept_language: Any | None = None) -> Any:
         """Check App Config"""
         params = None
         return self.request("GET", "/api/admin/about/check", params=params, data=None)
 
     def get_admin_users(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -2133,19 +2203,23 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/admin/users", params=params, data=None)
 
-    def post_admin_users(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_admin_users(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/admin/users", params=params, data=data)
 
-    def unlock_users(self, force: bool = None, accept_language: Any = None) -> Any:
+    def unlock_users(
+        self, force: bool | None = None, accept_language: Any | None = None
+    ) -> Any:
         """Unlock Users"""
-        params = {}
+        params: dict[str, Any] = {}
         if force is not None:
             params["force"] = force
         return self.request("POST", "/api/admin/users/unlock", params=params, data=None)
 
-    def get_admin_users_item_id(self, item_id: str, accept_language: Any = None) -> Any:
+    def get_admin_users_item_id(
+        self, item_id: str, accept_language: Any | None = None
+    ) -> Any:
         """Get One"""
         params = None
         return self.request(
@@ -2153,7 +2227,7 @@ class Api:
         )
 
     def put_admin_users_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -2161,7 +2235,7 @@ class Api:
             "PUT", f"/api/admin/users/{item_id}", params=params, data=data
         )
 
-    def generate_token(self, data: Dict, accept_language: Any = None) -> Any:
+    def generate_token(self, data: dict, accept_language: Any | None = None) -> Any:
         """Generate Token"""
         params = None
         return self.request(
@@ -2169,7 +2243,7 @@ class Api:
         )
 
     def delete_admin_users_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -2179,17 +2253,17 @@ class Api:
 
     def get_admin_households(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -2206,13 +2280,15 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/admin/households", params=params, data=None)
 
-    def post_admin_households(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_admin_households(
+        self, data: dict, accept_language: Any | None = None
+    ) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/admin/households", params=params, data=data)
 
     def get_admin_households_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -2221,7 +2297,7 @@ class Api:
         )
 
     def put_admin_households_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -2230,7 +2306,7 @@ class Api:
         )
 
     def delete_admin_households_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -2240,17 +2316,17 @@ class Api:
 
     def get_admin_groups(
         self,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -2267,13 +2343,13 @@ class Api:
             params["perPage"] = per_page
         return self.request("GET", "/api/admin/groups", params=params, data=None)
 
-    def post_admin_groups(self, data: Dict, accept_language: Any = None) -> Any:
+    def post_admin_groups(self, data: dict, accept_language: Any | None = None) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/admin/groups", params=params, data=data)
 
     def get_admin_groups_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -2282,7 +2358,7 @@ class Api:
         )
 
     def put_admin_groups_item_id(
-        self, item_id: str, data: Dict, accept_language: Any = None
+        self, item_id: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
@@ -2291,7 +2367,7 @@ class Api:
         )
 
     def delete_admin_groups_item_id(
-        self, item_id: str, accept_language: Any = None
+        self, item_id: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -2299,28 +2375,28 @@ class Api:
             "DELETE", f"/api/admin/groups/{item_id}", params=params, data=None
         )
 
-    def check_email_config(self, accept_language: Any = None) -> Any:
+    def check_email_config(self, accept_language: Any | None = None) -> Any:
         """Check Email Config"""
         params = None
         return self.request("GET", "/api/admin/email", params=params, data=None)
 
-    def send_test_email(self, data: Dict, accept_language: Any = None) -> Any:
+    def send_test_email(self, data: dict, accept_language: Any | None = None) -> Any:
         """Send Test Email"""
         params = None
         return self.request("POST", "/api/admin/email", params=params, data=data)
 
-    def get_admin_backups(self, accept_language: Any = None) -> Any:
+    def get_admin_backups(self, accept_language: Any | None = None) -> Any:
         """Get All"""
         params = None
         return self.request("GET", "/api/admin/backups", params=params, data=None)
 
-    def post_admin_backups(self, accept_language: Any = None) -> Any:
+    def post_admin_backups(self, accept_language: Any | None = None) -> Any:
         """Create One"""
         params = None
         return self.request("POST", "/api/admin/backups", params=params, data=None)
 
     def get_admin_backups_file_name(
-        self, file_name: str, accept_language: Any = None
+        self, file_name: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -2329,7 +2405,7 @@ class Api:
         )
 
     def delete_admin_backups_file_name(
-        self, file_name: str, accept_language: Any = None
+        self, file_name: str, accept_language: Any | None = None
     ) -> Any:
         """Delete One"""
         params = None
@@ -2337,47 +2413,47 @@ class Api:
             "DELETE", f"/api/admin/backups/{file_name}", params=params, data=None
         )
 
-    def upload_one(self, data: Dict, accept_language: Any = None) -> Any:
+    def upload_one(self, data: dict, accept_language: Any | None = None) -> Any:
         """Upload One"""
         params = None
         return self.request(
             "POST", "/api/admin/backups/upload", params=params, data=data
         )
 
-    def import_one(self, file_name: str, accept_language: Any = None) -> Any:
+    def import_one(self, file_name: str, accept_language: Any | None = None) -> Any:
         """Import One"""
         params = None
         return self.request(
             "POST", f"/api/admin/backups/{file_name}/restore", params=params, data=None
         )
 
-    def get_maintenance_summary(self, accept_language: Any = None) -> Any:
+    def get_maintenance_summary(self, accept_language: Any | None = None) -> Any:
         """Get Maintenance Summary"""
         params = None
         return self.request("GET", "/api/admin/maintenance", params=params, data=None)
 
-    def get_storage_details(self, accept_language: Any = None) -> Any:
+    def get_storage_details(self, accept_language: Any | None = None) -> Any:
         """Get Storage Details"""
         params = None
         return self.request(
             "GET", "/api/admin/maintenance/storage", params=params, data=None
         )
 
-    def clean_images(self, accept_language: Any = None) -> Any:
+    def clean_images(self, accept_language: Any | None = None) -> Any:
         """Clean Images"""
         params = None
         return self.request(
             "POST", "/api/admin/maintenance/clean/images", params=params, data=None
         )
 
-    def clean_temp(self, accept_language: Any = None) -> Any:
+    def clean_temp(self, accept_language: Any | None = None) -> Any:
         """Clean Temp"""
         params = None
         return self.request(
             "POST", "/api/admin/maintenance/clean/temp", params=params, data=None
         )
 
-    def clean_recipe_folders(self, accept_language: Any = None) -> Any:
+    def clean_recipe_folders(self, accept_language: Any | None = None) -> Any:
         """Clean Recipe Folders"""
         params = None
         return self.request(
@@ -2387,7 +2463,9 @@ class Api:
             data=None,
         )
 
-    def debug_openai(self, accept_language: Any = None, data: Dict = None) -> Any:
+    def debug_openai(
+        self, accept_language: Any | None = None, data: dict | None = None
+    ) -> Any:
         """Debug Openai"""
         params = None
         return self.request("POST", "/api/admin/debug/openai", params=params, data=data)
@@ -2395,18 +2473,18 @@ class Api:
     def get_explore_groups_group_slug_foods(
         self,
         group_slug: str,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -2428,7 +2506,7 @@ class Api:
         )
 
     def get_explore_groups_group_slug_foods_item_id(
-        self, item_id: str, group_slug: str, accept_language: Any = None
+        self, item_id: str, group_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -2442,17 +2520,17 @@ class Api:
     def get_explore_groups_group_slug_households(
         self,
         group_slug: str,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if order_by is not None:
             params["orderBy"] = order_by
         if order_by_null_position is not None:
@@ -2475,7 +2553,7 @@ class Api:
         )
 
     def get_household(
-        self, household_slug: str, group_slug: str, accept_language: Any = None
+        self, household_slug: str, group_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get Household"""
         params = None
@@ -2489,18 +2567,18 @@ class Api:
     def get_explore_groups_group_slug_organizers_categories(
         self,
         group_slug: str,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -2525,7 +2603,7 @@ class Api:
         )
 
     def get_explore_groups_group_slug_organizers_categories_item_id(
-        self, item_id: str, group_slug: str, accept_language: Any = None
+        self, item_id: str, group_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -2539,18 +2617,18 @@ class Api:
     def get_explore_groups_group_slug_organizers_tags(
         self,
         group_slug: str,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -2575,7 +2653,7 @@ class Api:
         )
 
     def get_explore_groups_group_slug_organizers_tags_item_id(
-        self, item_id: str, group_slug: str, accept_language: Any = None
+        self, item_id: str, group_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -2589,18 +2667,18 @@ class Api:
     def get_explore_groups_group_slug_organizers_tools(
         self,
         group_slug: str,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -2625,7 +2703,7 @@ class Api:
         )
 
     def get_explore_groups_group_slug_organizers_tools_item_id(
-        self, item_id: str, group_slug: str, accept_language: Any = None
+        self, item_id: str, group_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -2639,18 +2717,18 @@ class Api:
     def get_explore_groups_group_slug_cookbooks(
         self,
         group_slug: str,
-        search: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        accept_language: Any = None,
+        search: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if search is not None:
             params["search"] = search
         if order_by is not None:
@@ -2675,7 +2753,7 @@ class Api:
         )
 
     def get_explore_groups_group_slug_cookbooks_item_id(
-        self, item_id: Any, group_slug: str, accept_language: Any = None
+        self, item_id: Any, group_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get One"""
         params = None
@@ -2689,28 +2767,28 @@ class Api:
     def get_explore_groups_group_slug_recipes(
         self,
         group_slug: str,
-        categories: Any = None,
-        tags: Any = None,
-        tools: Any = None,
-        foods: Any = None,
-        households: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        page: int = None,
-        per_page: int = None,
-        cookbook: Any = None,
-        require_all_categories: bool = None,
-        require_all_tags: bool = None,
-        require_all_tools: bool = None,
-        require_all_foods: bool = None,
-        search: Any = None,
-        accept_language: Any = None,
+        categories: Any | None = None,
+        tags: Any | None = None,
+        tools: Any | None = None,
+        foods: Any | None = None,
+        households: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        cookbook: Any | None = None,
+        require_all_categories: bool | None = None,
+        require_all_tags: bool | None = None,
+        require_all_tools: bool | None = None,
+        require_all_foods: bool | None = None,
+        search: Any | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Get All"""
-        params = {}
+        params: dict[str, Any] = {}
         if categories is not None:
             params["categories"] = categories
         if tags is not None:
@@ -2754,22 +2832,22 @@ class Api:
     def get_explore_groups_group_slug_recipes_suggestions(
         self,
         group_slug: str,
-        foods: Any = None,
-        tools: Any = None,
-        order_by: Any = None,
-        order_by_null_position: Any = None,
-        order_direction: Any = None,
-        query_filter: Any = None,
-        pagination_seed: Any = None,
-        limit: int = None,
-        max_missing_foods: int = None,
-        max_missing_tools: int = None,
-        include_foods_on_hand: bool = None,
-        include_tools_on_hand: bool = None,
-        accept_language: Any = None,
+        foods: Any | None = None,
+        tools: Any | None = None,
+        order_by: Any | None = None,
+        order_by_null_position: Any | None = None,
+        order_direction: Any | None = None,
+        query_filter: Any | None = None,
+        pagination_seed: Any | None = None,
+        limit: int | None = None,
+        max_missing_foods: int | None = None,
+        max_missing_tools: int | None = None,
+        include_foods_on_hand: bool | None = None,
+        include_tools_on_hand: bool | None = None,
+        accept_language: Any | None = None,
     ) -> Any:
         """Suggest Recipes"""
-        params = {}
+        params: dict[str, Any] = {}
         if foods is not None:
             params["foods"] = foods
         if tools is not None:
@@ -2802,7 +2880,7 @@ class Api:
         )
 
     def get_recipe(
-        self, recipe_slug: str, group_slug: str, accept_language: Any = None
+        self, recipe_slug: str, group_slug: str, accept_language: Any | None = None
     ) -> Any:
         """Get Recipe"""
         params = None
@@ -2859,9 +2937,9 @@ class Api:
             "GET", "/api/media/docker/validate.txt", params=params, data=None
         )
 
-    def download_file(self, token: Any = None) -> Any:
+    def download_file(self, token: Any | None = None) -> Any:
         """Download File"""
-        params = {}
+        params: dict[str, Any] = {}
         if token is not None:
             params["token"] = token
         return self.request("GET", "/api/utils/download", params=params, data=None)

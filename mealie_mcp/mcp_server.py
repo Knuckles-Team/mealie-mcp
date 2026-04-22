@@ -15,19 +15,20 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
-from dotenv import load_dotenv, find_dotenv
+import logging
 import os
 import sys
-import logging
-from typing import Optional, List, Dict, Any
+from typing import Any
 
-from pydantic import Field
-from fastmcp import FastMCP, Context
-from fastmcp.utilities.logging import get_logger
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
 )
+from dotenv import find_dotenv, load_dotenv
+from fastmcp import Context, FastMCP
+from fastmcp.utilities.logging import get_logger
+from pydantic import Field
+
 from mealie_mcp.api_wrapper import Api
 
 __version__ = "0.2.55"
@@ -53,7 +54,7 @@ def register_misc_tools(mcp: FastMCP):
     pass
     pass
 
-    async def health_check() -> Dict:
+    async def health_check() -> dict:
         return {"status": "OK"}
 
 
@@ -66,14 +67,14 @@ def register_app_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Startup Info"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_startup_info()
@@ -86,14 +87,14 @@ def register_app_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get App Theme"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_app_theme()
@@ -105,20 +106,20 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def get_token(
-        data: Dict = Field(default=None, description="Request body data"),
+        data: dict | None = Field(default=None, description="Request body data"),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Get Token"""
         if ctx:
             message = "Are you sure you want to POST /api/auth/token?"
@@ -137,14 +138,14 @@ def register_users_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Oauth Login"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.oauth_login()
@@ -158,14 +159,14 @@ def register_users_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Oauth Callback"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.oauth_callback()
@@ -179,14 +180,14 @@ def register_users_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Refresh Token"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.refresh_token()
@@ -196,20 +197,22 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def logout(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Logout"""
         if ctx:
             message = "Are you sure you want to POST /api/auth/logout?"
@@ -224,21 +227,23 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def register_new_user(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Register New User"""
         if ctx:
             message = "Are you sure you want to POST /api/users/register?"
@@ -253,19 +258,21 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def get_logged_in_user(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Logged In User"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_logged_in_user(accept_language=accept_language)
@@ -275,19 +282,21 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def get_logged_in_user_ratings(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Logged In User Ratings"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_logged_in_user_ratings(accept_language=accept_language)
@@ -298,19 +307,21 @@ def register_users_tools(mcp: FastMCP):
     )
     async def get_logged_in_user_rating_for_recipe(
         recipe_id: str = Field(default=..., description="recipe_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Logged In User Rating For Recipe"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_logged_in_user_rating_for_recipe(
@@ -322,19 +333,21 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def get_logged_in_user_favorites(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Logged In User Favorites"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_logged_in_user_favorites(accept_language=accept_language)
@@ -344,21 +357,23 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def update_password(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Password"""
         if ctx:
             message = "Are you sure you want to PUT /api/users/password?"
@@ -374,21 +389,23 @@ def register_users_tools(mcp: FastMCP):
     )
     async def update_user(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update User"""
         if ctx:
             message = f"Are you sure you want to PUT /api/users/{item_id}?"
@@ -405,21 +422,23 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def forgot_password(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Forgot Password"""
         if ctx:
             message = "Are you sure you want to POST /api/users/forgot-password?"
@@ -434,20 +453,20 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def reset_password(
-        data: Dict = Field(default=..., description="Request body data"),
+        data: dict = Field(default=..., description="Request body data"),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Reset Password"""
         if ctx:
             message = "Are you sure you want to POST /api/users/reset-password?"
@@ -463,21 +482,23 @@ def register_users_tools(mcp: FastMCP):
     )
     async def update_user_image(
         id: str = Field(default=..., description="id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update User Image"""
         if ctx:
             message = f"Are you sure you want to POST /api/users/{id}/image?"
@@ -494,21 +515,23 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def create(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create Api Token"""
         if ctx:
             message = "Are you sure you want to POST /api/users/api-tokens?"
@@ -524,20 +547,22 @@ def register_users_tools(mcp: FastMCP):
     )
     async def delete(
         token_id: int = Field(default=..., description="token_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete Api Token"""
         if ctx:
             message = (
@@ -555,19 +580,21 @@ def register_users_tools(mcp: FastMCP):
     )
     async def get_ratings(
         id: str = Field(default=..., description="id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Ratings"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_ratings(id=id, accept_language=accept_language)
@@ -578,19 +605,21 @@ def register_users_tools(mcp: FastMCP):
     )
     async def get_favorites(
         id: str = Field(default=..., description="id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Favorites"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_favorites(id=id, accept_language=accept_language)
@@ -602,21 +631,23 @@ def register_users_tools(mcp: FastMCP):
     async def set_rating(
         id: str = Field(default=..., description="id"),
         slug: str = Field(default=..., description="slug"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Set Rating"""
         if ctx:
             message = f"Are you sure you want to POST /api/users/{id}/ratings/{slug}?"
@@ -635,20 +666,22 @@ def register_users_tools(mcp: FastMCP):
     async def add_favorite(
         id: str = Field(default=..., description="id"),
         slug: str = Field(default=..., description="slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Add Favorite"""
         if ctx:
             message = f"Are you sure you want to POST /api/users/{id}/favorites/{slug}?"
@@ -665,20 +698,22 @@ def register_users_tools(mcp: FastMCP):
     async def remove_favorite(
         id: str = Field(default=..., description="id"),
         slug: str = Field(default=..., description="slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Remove Favorite"""
         if ctx:
             message = (
@@ -697,28 +732,30 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_households_cookbooks(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_cookbooks(
@@ -737,21 +774,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_cookbooks(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/cookbooks?"
@@ -768,21 +807,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def put_households_cookbooks(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Many"""
         if ctx:
             message = "Are you sure you want to PUT /api/households/cookbooks?"
@@ -800,19 +841,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_households_cookbooks_item_id(
         item_id: Any = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_cookbooks_item_id(
@@ -825,21 +868,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def put_households_cookbooks_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = (
@@ -859,20 +904,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def delete_households_cookbooks_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = (
@@ -891,28 +938,30 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_households_events_notifications(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_events_notifications(
@@ -931,21 +980,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_events_notifications(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = (
@@ -965,19 +1016,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_households_events_notifications_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_events_notifications_item_id(
@@ -990,21 +1043,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def put_households_events_notifications_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/events/notifications/{item_id}?"
@@ -1022,20 +1077,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def delete_households_events_notifications_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/events/notifications/{item_id}?"
@@ -1053,20 +1110,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def test_notification(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Test Notification"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/events/notifications/{item_id}/test?"
@@ -1083,28 +1142,30 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_households_recipe_actions(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_recipe_actions(
@@ -1123,21 +1184,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_recipe_actions(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/recipe-actions?"
@@ -1155,19 +1218,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_households_recipe_actions_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_recipe_actions_item_id(
@@ -1180,21 +1245,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def put_households_recipe_actions_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/recipe-actions/{item_id}?"
@@ -1212,20 +1279,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def delete_households_recipe_actions_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/recipe-actions/{item_id}?"
@@ -1244,21 +1313,23 @@ def register_households_tools(mcp: FastMCP):
     async def trigger_action(
         item_id: str = Field(default=..., description="item_id"),
         recipe_slug: str = Field(default=..., description="recipe_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        data: Dict = Field(default=None, description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
+        data: dict | None = Field(default=None, description="Request body data"),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Trigger Action"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/recipe-actions/{item_id}/trigger/{recipe_slug}?"
@@ -1278,19 +1349,21 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_logged_in_user_household(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Logged In User Household"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_logged_in_user_household(accept_language=accept_language)
@@ -1301,19 +1374,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_household_recipe(
         recipe_slug: str = Field(default=..., description="recipe_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Household Recipe"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_household_recipe(
@@ -1325,28 +1400,30 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_household_members(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Household Members"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_household_members(
@@ -1365,19 +1442,21 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_household_preferences(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Household Preferences"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_household_preferences(accept_language=accept_language)
@@ -1387,21 +1466,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def update_household_preferences(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Household Preferences"""
         if ctx:
             message = "Are you sure you want to PUT /api/households/preferences?"
@@ -1418,21 +1499,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def set_member_permissions(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Set Member Permissions"""
         if ctx:
             message = "Are you sure you want to PUT /api/households/permissions?"
@@ -1447,19 +1530,21 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_statistics(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Statistics"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_statistics(accept_language=accept_language)
@@ -1469,19 +1554,21 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_invite_tokens(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Invite Tokens"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_invite_tokens(accept_language=accept_language)
@@ -1491,21 +1578,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def create_invite_token(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create Invite Token"""
         if ctx:
             message = "Are you sure you want to POST /api/households/invitations?"
@@ -1520,21 +1609,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def email_invitation(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Email Invitation"""
         if ctx:
             message = "Are you sure you want to POST /api/households/invitations/email?"
@@ -1549,28 +1640,30 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_households_shopping_lists(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_shopping_lists(
@@ -1589,21 +1682,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_shopping_lists(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/shopping/lists?"
@@ -1621,19 +1716,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_households_shopping_lists_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_shopping_lists_item_id(
@@ -1646,21 +1743,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def put_households_shopping_lists_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/shopping/lists/{item_id}?"
@@ -1678,20 +1777,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def delete_households_shopping_lists_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/shopping/lists/{item_id}?"
@@ -1709,21 +1810,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def update_label_settings(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Label Settings"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/shopping/lists/{item_id}/label-settings?"
@@ -1741,21 +1844,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def add_recipe_ingredients_to_list(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Add Recipe Ingredients To List"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe?"
@@ -1774,21 +1879,23 @@ def register_households_tools(mcp: FastMCP):
     async def add_single_recipe_ingredients_to_list(
         item_id: str = Field(default=..., description="item_id"),
         recipe_id: str = Field(default=..., description="recipe_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        data: Dict = Field(default=None, description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
+        data: dict | None = Field(default=None, description="Request body data"),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Add Single Recipe Ingredients To List"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe/{recipe_id}?"
@@ -1810,21 +1917,23 @@ def register_households_tools(mcp: FastMCP):
     async def remove_recipe_ingredients_from_list(
         item_id: str = Field(default=..., description="item_id"),
         recipe_id: str = Field(default=..., description="recipe_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
-        data: Dict = Field(default=None, description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
+        data: dict | None = Field(default=None, description="Request body data"),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Remove Recipe Ingredients From List"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe/{recipe_id}/delete?"
@@ -1844,28 +1953,30 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_households_shopping_items(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_shopping_items(
@@ -1884,21 +1995,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_shopping_items(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/shopping/items?"
@@ -1915,21 +2028,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def put_households_shopping_items(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Many"""
         if ctx:
             message = "Are you sure you want to PUT /api/households/shopping/items?"
@@ -1946,21 +2061,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def delete_households_shopping_items(
-        ids: List = Field(default=None, description="ids"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        ids: list | None = Field(default=None, description="ids"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete Many"""
         if ctx:
             message = "Are you sure you want to DELETE /api/households/shopping/items?"
@@ -1977,21 +2094,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_shopping_items_create_bulk(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create Many"""
         if ctx:
             message = "Are you sure you want to POST /api/households/shopping/items/create-bulk?"
@@ -2009,19 +2128,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_households_shopping_items_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_shopping_items_item_id(
@@ -2034,21 +2155,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def put_households_shopping_items_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/shopping/items/{item_id}?"
@@ -2066,20 +2189,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def delete_households_shopping_items_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/shopping/items/{item_id}?"
@@ -2096,28 +2221,30 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_households_webhooks(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_webhooks(
@@ -2136,21 +2263,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_webhooks(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/webhooks?"
@@ -2167,20 +2296,22 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def rerun_webhooks(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Rerun Webhooks"""
         if ctx:
             message = "Are you sure you want to POST /api/households/webhooks/rerun?"
@@ -2196,19 +2327,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_households_webhooks_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_webhooks_item_id(
@@ -2221,21 +2354,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def put_households_webhooks_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = (
@@ -2255,20 +2390,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def delete_households_webhooks_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = (
@@ -2288,20 +2425,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def test_one(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Test One"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/webhooks/{item_id}/test?"
@@ -2316,28 +2455,30 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_households_mealplans_rules(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_mealplans_rules(
@@ -2356,21 +2497,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_mealplans_rules(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/mealplans/rules?"
@@ -2388,19 +2531,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_households_mealplans_rules_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_mealplans_rules_item_id(
@@ -2413,21 +2558,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def put_households_mealplans_rules_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/mealplans/rules/{item_id}?"
@@ -2445,20 +2592,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def delete_households_mealplans_rules_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/mealplans/rules/{item_id}?"
@@ -2475,30 +2624,32 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_households_mealplans(
-        start_date: Any = Field(default=None, description="start_date"),
-        end_date: Any = Field(default=None, description="end_date"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        start_date: Any | None = Field(default=None, description="start_date"),
+        end_date: Any | None = Field(default=None, description="end_date"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_mealplans(
@@ -2519,21 +2670,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def post_households_mealplans(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/mealplans?"
@@ -2550,19 +2703,21 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def get_todays_meals(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Todays Meals"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_todays_meals(accept_language=accept_language)
@@ -2572,21 +2727,23 @@ def register_households_tools(mcp: FastMCP):
         tags={"households"},
     )
     async def create_random_meal(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create Random Meal"""
         if ctx:
             message = "Are you sure you want to POST /api/households/mealplans/random?"
@@ -2602,19 +2759,21 @@ def register_households_tools(mcp: FastMCP):
     )
     async def get_households_mealplans_item_id(
         item_id: int = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_households_mealplans_item_id(
@@ -2627,21 +2786,23 @@ def register_households_tools(mcp: FastMCP):
     )
     async def put_households_mealplans_item_id(
         item_id: int = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = (
@@ -2661,20 +2822,22 @@ def register_households_tools(mcp: FastMCP):
     )
     async def delete_households_mealplans_item_id(
         item_id: int = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = (
@@ -2695,28 +2858,30 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def get_all_households(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All Households"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_all_households(
@@ -2736,19 +2901,21 @@ def register_groups_tools(mcp: FastMCP):
     )
     async def get_one_household(
         household_slug: str = Field(default=..., description="household_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One Household"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_one_household(
@@ -2760,19 +2927,21 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def get_logged_in_user_group(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Logged In User Group"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_logged_in_user_group(accept_language=accept_language)
@@ -2782,28 +2951,30 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def get_group_members(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Group Members"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_group_members(
@@ -2823,19 +2994,21 @@ def register_groups_tools(mcp: FastMCP):
     )
     async def get_group_member(
         username_or_id: Any = Field(default=..., description="username_or_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Group Member"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_group_member(
@@ -2847,19 +3020,21 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def get_group_preferences(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Group Preferences"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_group_preferences(accept_language=accept_language)
@@ -2869,21 +3044,23 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def update_group_preferences(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Group Preferences"""
         if ctx:
             message = "Are you sure you want to PUT /api/groups/preferences?"
@@ -2900,19 +3077,21 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def get_storage(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Storage"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_storage(accept_language=accept_language)
@@ -2922,21 +3101,23 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def start_data_migration(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Start Data Migration"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/migrations?"
@@ -2951,20 +3132,22 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def get_groups_reports(
-        report_type: Any = Field(default=None, description="report_type"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        report_type: Any | None = Field(default=None, description="report_type"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_groups_reports(
@@ -2977,19 +3160,21 @@ def register_groups_tools(mcp: FastMCP):
     )
     async def get_groups_reports_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_groups_reports_item_id(
@@ -3002,20 +3187,22 @@ def register_groups_tools(mcp: FastMCP):
     )
     async def delete_groups_reports_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/groups/reports/{item_id}?"
@@ -3032,29 +3219,31 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def get_groups_labels(
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_groups_labels(
@@ -3074,21 +3263,23 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def post_groups_labels(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/labels?"
@@ -3104,19 +3295,21 @@ def register_groups_tools(mcp: FastMCP):
     )
     async def get_groups_labels_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_groups_labels_item_id(
@@ -3129,21 +3322,23 @@ def register_groups_tools(mcp: FastMCP):
     )
     async def put_groups_labels_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/groups/labels/{item_id}?"
@@ -3161,20 +3356,22 @@ def register_groups_tools(mcp: FastMCP):
     )
     async def delete_groups_labels_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/groups/labels/{item_id}?"
@@ -3191,21 +3388,23 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def seed_foods(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Seed Foods"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/seeders/foods?"
@@ -3220,21 +3419,23 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def seed_labels(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Seed Labels"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/seeders/labels?"
@@ -3249,21 +3450,23 @@ def register_groups_tools(mcp: FastMCP):
         tags={"groups"},
     )
     async def seed_units(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Seed Units"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/seeders/units?"
@@ -3280,19 +3483,21 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_recipe_formats_and_templates(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Recipe Formats And Templates"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipe_formats_and_templates(accept_language=accept_language)
@@ -3304,19 +3509,21 @@ def register_recipes_tools(mcp: FastMCP):
     async def get_recipe_as_format(
         slug: str = Field(default=..., description="slug"),
         template_name: str = Field(default=..., description="template_name"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Recipe As Format"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipe_as_format(
@@ -3328,21 +3535,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def test_parse_recipe_url(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Test Parse Recipe Url"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/test-scrape-url?"
@@ -3357,21 +3566,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def create_recipe_from_html_or_json(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create Recipe From Html Or Json"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/html-or-json?"
@@ -3388,21 +3599,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def parse_recipe_url(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Parse Recipe Url"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/url?"
@@ -3417,21 +3630,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def parse_recipe_url_bulk(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Parse Recipe Url Bulk"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/url/bulk?"
@@ -3446,21 +3661,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def create_recipe_from_zip(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create Recipe From Zip"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/zip?"
@@ -3475,22 +3692,26 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def create_recipe_from_image(
-        data: Dict = Field(default=..., description="Request body data"),
-        translate_language: Any = Field(default=None, description="translateLanguage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        translate_language: Any | None = Field(
+            default=None, description="translateLanguage"
+        ),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create Recipe From Image"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/image?"
@@ -3509,41 +3730,49 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_recipes(
-        categories: Any = Field(default=None, description="categories"),
-        tags: Any = Field(default=None, description="tags"),
-        tools: Any = Field(default=None, description="tools"),
-        foods: Any = Field(default=None, description="foods"),
-        households: Any = Field(default=None, description="households"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        categories: Any | None = Field(default=None, description="categories"),
+        tags: Any | None = Field(default=None, description="tags"),
+        tools: Any | None = Field(default=None, description="tools"),
+        foods: Any | None = Field(default=None, description="foods"),
+        households: Any | None = Field(default=None, description="households"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        cookbook: Any = Field(default=None, description="cookbook"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        cookbook: Any | None = Field(default=None, description="cookbook"),
         require_all_categories: bool = Field(
             default=None, description="requireAllCategories"
         ),
-        require_all_tags: bool = Field(default=None, description="requireAllTags"),
-        require_all_tools: bool = Field(default=None, description="requireAllTools"),
-        require_all_foods: bool = Field(default=None, description="requireAllFoods"),
-        search: Any = Field(default=None, description="search"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        require_all_tags: bool | None = Field(
+            default=None, description="requireAllTags"
+        ),
+        require_all_tools: bool | None = Field(
+            default=None, description="requireAllTools"
+        ),
+        require_all_foods: bool | None = Field(
+            default=None, description="requireAllFoods"
+        ),
+        search: Any | None = Field(default=None, description="search"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipes(
@@ -3573,21 +3802,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def post_recipes(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes?"
@@ -3602,21 +3833,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def put_recipes(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Many"""
         if ctx:
             message = "Are you sure you want to PUT /api/recipes?"
@@ -3631,21 +3864,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def patch_many(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Patch Many"""
         if ctx:
             message = "Are you sure you want to PATCH /api/recipes?"
@@ -3660,37 +3895,43 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_recipes_suggestions(
-        foods: Any = Field(default=None, description="foods"),
-        tools: Any = Field(default=None, description="tools"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        foods: Any | None = Field(default=None, description="foods"),
+        tools: Any | None = Field(default=None, description="tools"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        limit: int = Field(default=None, description="limit"),
-        max_missing_foods: int = Field(default=None, description="maxMissingFoods"),
-        max_missing_tools: int = Field(default=None, description="maxMissingTools"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        limit: int | None = Field(default=None, description="limit"),
+        max_missing_foods: int | None = Field(
+            default=None, description="maxMissingFoods"
+        ),
+        max_missing_tools: int | None = Field(
+            default=None, description="maxMissingTools"
+        ),
         include_foods_on_hand: bool = Field(
             default=None, description="includeFoodsOnHand"
         ),
         include_tools_on_hand: bool = Field(
             default=None, description="includeToolsOnHand"
         ),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Suggest Recipes"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipes_suggestions(
@@ -3715,19 +3956,21 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_recipes_slug(
         slug: str = Field(default=..., description="A recipe's slug or id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipes_slug(slug=slug, accept_language=accept_language)
@@ -3738,21 +3981,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def put_recipes_slug(
         slug: str = Field(default=..., description="slug"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/recipes/{slug}?"
@@ -3770,21 +4015,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def patch_one(
         slug: str = Field(default=..., description="slug"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Patch One"""
         if ctx:
             message = f"Are you sure you want to PATCH /api/recipes/{slug}?"
@@ -3800,20 +4047,22 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def delete_recipes_slug(
         slug: str = Field(default=..., description="slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/recipes/{slug}?"
@@ -3829,21 +4078,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def duplicate_one(
         slug: str = Field(default=..., description="slug"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Duplicate One"""
         if ctx:
             message = f"Are you sure you want to POST /api/recipes/{slug}/duplicate?"
@@ -3861,21 +4112,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def update_last_made(
         slug: str = Field(default=..., description="slug"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Last Made"""
         if ctx:
             message = f"Are you sure you want to PATCH /api/recipes/{slug}/last-made?"
@@ -3893,21 +4146,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def scrape_image_url(
         slug: str = Field(default=..., description="slug"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Scrape Image Url"""
         if ctx:
             message = f"Are you sure you want to POST /api/recipes/{slug}/image?"
@@ -3925,21 +4180,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def update_recipe_image(
         slug: str = Field(default=..., description="slug"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Recipe Image"""
         if ctx:
             message = f"Are you sure you want to PUT /api/recipes/{slug}/image?"
@@ -3957,20 +4214,22 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def delete_recipe_image(
         slug: str = Field(default=..., description="slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete Recipe Image"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/recipes/{slug}/image?"
@@ -3986,21 +4245,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def upload_recipe_asset(
         slug: str = Field(default=..., description="slug"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Upload Recipe Asset"""
         if ctx:
             message = f"Are you sure you want to POST /api/recipes/{slug}/assets?"
@@ -4018,19 +4279,21 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_recipe_comments(
         slug: str = Field(default=..., description="slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Recipe Comments"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipe_comments(slug=slug, accept_language=accept_language)
@@ -4040,21 +4303,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def bulk_tag_recipes(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Bulk Tag Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/tag?"
@@ -4069,21 +4334,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def bulk_settings_recipes(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Bulk Settings Recipes"""
         if ctx:
             message = (
@@ -4100,21 +4367,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def bulk_categorize_recipes(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Bulk Categorize Recipes"""
         if ctx:
             message = (
@@ -4133,21 +4402,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def bulk_delete_recipes(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Bulk Delete Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/delete?"
@@ -4162,21 +4433,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def bulk_export_recipes(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Bulk Export Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/export?"
@@ -4191,19 +4464,21 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_exported_data(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Exported Data"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_exported_data(accept_language=accept_language)
@@ -4214,19 +4489,21 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_exported_data_token(
         export_id: str = Field(default=..., description="export_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Exported Data Token"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_exported_data_token(
@@ -4238,20 +4515,22 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def purge_export_data(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Purge Export Data"""
         if ctx:
             message = "Are you sure you want to DELETE /api/recipes/bulk-actions/export/purge?"
@@ -4271,14 +4550,14 @@ def register_recipes_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Shared Recipe"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_shared_recipe(token_id=token_id)
@@ -4293,14 +4572,14 @@ def register_recipes_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Shared Recipe As Zip"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_shared_recipe_as_zip(token_id=token_id)
@@ -4310,28 +4589,30 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_recipes_timeline_events(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipes_timeline_events(
@@ -4350,21 +4631,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def post_recipes_timeline_events(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/timeline/events?"
@@ -4382,19 +4665,21 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_recipes_timeline_events_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipes_timeline_events_item_id(
@@ -4407,21 +4692,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def put_recipes_timeline_events_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = (
@@ -4441,20 +4728,22 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def delete_recipes_timeline_events_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/recipes/timeline/events/{item_id}?"
@@ -4472,21 +4761,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def update_event_image(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update Event Image"""
         if ctx:
             message = f"Are you sure you want to PUT /api/recipes/timeline/events/{item_id}/image?"
@@ -4503,28 +4794,30 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_comments(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_comments(
@@ -4543,21 +4836,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def post_comments(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/comments?"
@@ -4573,19 +4868,21 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_comments_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_comments_item_id(
@@ -4598,21 +4895,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def put_comments_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/comments/{item_id}?"
@@ -4630,20 +4929,22 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def post_parser_ingredient(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/comments/{item_id}?"
@@ -4660,21 +4961,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def parse_ingredient(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Parse Ingredient"""
         if ctx:
             message = "Are you sure you want to POST /api/parser/ingredient?"
@@ -4689,21 +4992,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def parse_ingredients(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Parse Ingredients"""
         if ctx:
             message = "Are you sure you want to POST /api/parser/ingredients?"
@@ -4718,29 +5023,31 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_foods(
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_foods(
@@ -4760,21 +5067,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def post_foods(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/foods?"
@@ -4789,21 +5098,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def put_foods_merge(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Merge One"""
         if ctx:
             message = "Are you sure you want to PUT /api/foods/merge?"
@@ -4819,19 +5130,21 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_foods_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_foods_item_id(
@@ -4844,21 +5157,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def put_foods_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/foods/{item_id}?"
@@ -4876,20 +5191,22 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def delete_foods_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/foods/{item_id}?"
@@ -4906,29 +5223,31 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_units(
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_units(
@@ -4948,21 +5267,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def post_units(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/units?"
@@ -4977,21 +5298,23 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def put_units_merge(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Merge One"""
         if ctx:
             message = "Are you sure you want to PUT /api/units/merge?"
@@ -5007,19 +5330,21 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_units_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_units_item_id(
@@ -5032,21 +5357,23 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def put_units_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/units/{item_id}?"
@@ -5064,20 +5391,22 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def delete_units_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/units/{item_id}?"
@@ -5100,14 +5429,14 @@ def register_recipes_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Recipe Img"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipe_img(recipe_id=recipe_id, file_name=file_name)
@@ -5124,14 +5453,14 @@ def register_recipes_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Recipe Timeline Event Img"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipe_timeline_event_img(
@@ -5151,14 +5480,14 @@ def register_recipes_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Recipe Asset"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipe_asset(recipe_id=recipe_id, file_name=file_name)
@@ -5174,14 +5503,14 @@ def register_recipes_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get User Image"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_user_image(user_id=user_id, file_name=file_name)
@@ -5195,14 +5524,14 @@ def register_recipes_tools(mcp: FastMCP):
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Validation Text"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_validation_text()
@@ -5214,29 +5543,31 @@ def register_organizer_tools(mcp: FastMCP):
         tags={"organizer"},
     )
     async def get_organizers_categories(
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_categories(
@@ -5256,21 +5587,23 @@ def register_organizer_tools(mcp: FastMCP):
         tags={"organizer"},
     )
     async def post_organizers_categories(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/organizers/categories?"
@@ -5287,19 +5620,21 @@ def register_organizer_tools(mcp: FastMCP):
         tags={"organizer"},
     )
     async def get_all_empty(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All Empty"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_all_empty(accept_language=accept_language)
@@ -5310,19 +5645,21 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def get_organizers_categories_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_categories_item_id(
@@ -5335,21 +5672,23 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def put_organizers_categories_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = (
@@ -5369,20 +5708,22 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def delete_organizers_categories_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = (
@@ -5402,19 +5743,21 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def get_organizers_categories_slug_category_slug(
         category_slug: str = Field(default=..., description="category_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One By Slug"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_categories_slug_category_slug(
@@ -5426,29 +5769,31 @@ def register_organizer_tools(mcp: FastMCP):
         tags={"organizer"},
     )
     async def get_organizers_tags(
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_tags(
@@ -5468,21 +5813,23 @@ def register_organizer_tools(mcp: FastMCP):
         tags={"organizer"},
     )
     async def post_organizers_tags(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/organizers/tags?"
@@ -5497,19 +5844,21 @@ def register_organizer_tools(mcp: FastMCP):
         tags={"organizer"},
     )
     async def get_empty_tags(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Empty Tags"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_empty_tags(accept_language=accept_language)
@@ -5520,19 +5869,21 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def get_organizers_tags_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_tags_item_id(
@@ -5545,21 +5896,23 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def put_organizers_tags_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/organizers/tags/{item_id}?"
@@ -5577,20 +5930,22 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def delete_recipe_tag(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete Recipe Tag"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/organizers/tags/{item_id}?"
@@ -5608,19 +5963,21 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def get_organizers_tags_slug_tag_slug(
         tag_slug: str = Field(default=..., description="tag_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One By Slug"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_tags_slug_tag_slug(
@@ -5632,29 +5989,31 @@ def register_organizer_tools(mcp: FastMCP):
         tags={"organizer"},
     )
     async def get_organizers_tools(
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_tools(
@@ -5674,21 +6033,23 @@ def register_organizer_tools(mcp: FastMCP):
         tags={"organizer"},
     )
     async def post_organizers_tools(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/organizers/tools?"
@@ -5704,19 +6065,21 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def get_organizers_tools_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_tools_item_id(
@@ -5729,21 +6092,23 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def put_organizers_tools_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/organizers/tools/{item_id}?"
@@ -5761,20 +6126,22 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def delete_organizers_tools_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = (
@@ -5794,19 +6161,21 @@ def register_organizer_tools(mcp: FastMCP):
     )
     async def get_organizers_tools_slug_tool_slug(
         tool_slug: str = Field(default=..., description="tool_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One By Slug"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_organizers_tools_slug_tool_slug(
@@ -5820,20 +6189,22 @@ def register_shared_tools(mcp: FastMCP):
         tags={"shared"},
     )
     async def get_shared_recipes(
-        recipe_id: Any = Field(default=None, description="recipe_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        recipe_id: Any | None = Field(default=None, description="recipe_id"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_shared_recipes(
@@ -5845,21 +6216,23 @@ def register_shared_tools(mcp: FastMCP):
         tags={"shared"},
     )
     async def post_shared_recipes(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/shared/recipes?"
@@ -5875,19 +6248,21 @@ def register_shared_tools(mcp: FastMCP):
     )
     async def get_shared_recipes_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_shared_recipes_item_id(
@@ -5900,20 +6275,22 @@ def register_shared_tools(mcp: FastMCP):
     )
     async def delete_shared_recipes_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/shared/recipes/{item_id}?"
@@ -5932,19 +6309,21 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def get_app_info(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get App Info"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_app_info(accept_language=accept_language)
@@ -5954,19 +6333,21 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def get_app_statistics(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get App Statistics"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_app_statistics(accept_language=accept_language)
@@ -5976,19 +6357,21 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def check_app_config(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Check App Config"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.check_app_config(accept_language=accept_language)
@@ -5998,28 +6381,30 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def get_admin_users(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_admin_users(
@@ -6038,21 +6423,23 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def post_admin_users(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/users?"
@@ -6067,21 +6454,23 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def unlock_users(
-        force: bool = Field(default=None, description="force"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        force: bool | None = Field(default=None, description="force"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Unlock Users"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/users/unlock?"
@@ -6097,19 +6486,21 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def get_admin_users_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_admin_users_item_id(
@@ -6122,21 +6513,23 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def put_admin_users_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/admin/users/{item_id}?"
@@ -6154,20 +6547,22 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def delete_admin_users_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/admin/users/{item_id}?"
@@ -6184,21 +6579,23 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def generate_token(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Generate Token"""
         if ctx:
             message = (
@@ -6215,28 +6612,30 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def get_admin_households(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_admin_households(
@@ -6255,21 +6654,23 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def post_admin_households(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/households?"
@@ -6285,19 +6686,21 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def get_admin_households_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_admin_households_item_id(
@@ -6310,21 +6713,23 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def put_admin_households_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/admin/households/{item_id}?"
@@ -6342,20 +6747,22 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def delete_admin_households_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = (
@@ -6374,28 +6781,30 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def get_admin_groups(
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_admin_groups(
@@ -6414,21 +6823,23 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def post_admin_groups(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/groups?"
@@ -6444,19 +6855,21 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def get_admin_groups_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_admin_groups_item_id(
@@ -6469,21 +6882,23 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def put_admin_groups_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/admin/groups/{item_id}?"
@@ -6501,20 +6916,22 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def delete_admin_groups_item_id(
         item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/admin/groups/{item_id}?"
@@ -6531,19 +6948,21 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def check_email_config(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Check Email Config"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.check_email_config(accept_language=accept_language)
@@ -6553,21 +6972,23 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def send_test_email(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Send Test Email"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/email?"
@@ -6582,19 +7003,21 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def get_admin_backups(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_admin_backups(accept_language=accept_language)
@@ -6604,20 +7027,22 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def post_admin_backups(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/backups?"
@@ -6633,19 +7058,21 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def get_admin_backups_file_name(
         file_name: str = Field(default=..., description="file_name"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_admin_backups_file_name(
@@ -6658,20 +7085,22 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def delete_admin_backups_file_name(
         file_name: str = Field(default=..., description="file_name"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/admin/backups/{file_name}?"
@@ -6688,21 +7117,23 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def upload_one(
-        data: Dict = Field(default=..., description="Request body data"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        data: dict = Field(default=..., description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Upload One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/backups/upload?"
@@ -6718,20 +7149,22 @@ def register_admin_tools(mcp: FastMCP):
     )
     async def import_one(
         file_name: str = Field(default=..., description="file_name"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Import One"""
         if ctx:
             message = (
@@ -6748,19 +7181,21 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def get_maintenance_summary(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Maintenance Summary"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_maintenance_summary(accept_language=accept_language)
@@ -6770,19 +7205,21 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def get_storage_details(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Storage Details"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_storage_details(accept_language=accept_language)
@@ -6792,20 +7229,22 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def clean_images(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Clean Images"""
         if ctx:
             message = (
@@ -6822,20 +7261,22 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def clean_temp(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Clean Temp"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/maintenance/clean/temp?"
@@ -6850,20 +7291,22 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def clean_recipe_folders(
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Clean Recipe Folders"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/maintenance/clean/recipe-folders?"
@@ -6878,21 +7321,23 @@ def register_admin_tools(mcp: FastMCP):
         tags={"admin"},
     )
     async def debug_openai(
-        accept_language: Any = Field(default=None, description="accept-language"),
-        data: Dict = Field(default=None, description="Request body data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
+        data: dict | None = Field(default=None, description="Request body data"),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = None,
-    ) -> Dict:
+        ctx: Context | None = None,
+    ) -> dict:
         """Debug Openai"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/debug/openai?"
@@ -6910,29 +7355,31 @@ def register_explore_tools(mcp: FastMCP):
     )
     async def get_explore_groups_group_slug_foods(
         group_slug: str = Field(default=..., description="group_slug"),
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_foods(
@@ -6955,19 +7402,21 @@ def register_explore_tools(mcp: FastMCP):
     async def get_explore_groups_group_slug_foods_item_id(
         item_id: str = Field(default=..., description="item_id"),
         group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_foods_item_id(
@@ -6980,28 +7429,30 @@ def register_explore_tools(mcp: FastMCP):
     )
     async def get_explore_groups_group_slug_households(
         group_slug: str = Field(default=..., description="group_slug"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_households(
@@ -7023,19 +7474,21 @@ def register_explore_tools(mcp: FastMCP):
     async def get_household(
         household_slug: str = Field(default=..., description="household_slug"),
         group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Household"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_household(
@@ -7050,29 +7503,31 @@ def register_explore_tools(mcp: FastMCP):
     )
     async def get_explore_groups_group_slug_organizers_categories(
         group_slug: str = Field(default=..., description="group_slug"),
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_organizers_categories(
@@ -7095,19 +7550,21 @@ def register_explore_tools(mcp: FastMCP):
     async def get_explore_groups_group_slug_organizers_categories_item_id(
         item_id: str = Field(default=..., description="item_id"),
         group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_organizers_categories_item_id(
@@ -7120,29 +7577,31 @@ def register_explore_tools(mcp: FastMCP):
     )
     async def get_explore_groups_group_slug_organizers_tags(
         group_slug: str = Field(default=..., description="group_slug"),
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_organizers_tags(
@@ -7165,19 +7624,21 @@ def register_explore_tools(mcp: FastMCP):
     async def get_explore_groups_group_slug_organizers_tags_item_id(
         item_id: str = Field(default=..., description="item_id"),
         group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_organizers_tags_item_id(
@@ -7190,29 +7651,31 @@ def register_explore_tools(mcp: FastMCP):
     )
     async def get_explore_groups_group_slug_organizers_tools(
         group_slug: str = Field(default=..., description="group_slug"),
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_organizers_tools(
@@ -7235,19 +7698,21 @@ def register_explore_tools(mcp: FastMCP):
     async def get_explore_groups_group_slug_organizers_tools_item_id(
         item_id: str = Field(default=..., description="item_id"),
         group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_organizers_tools_item_id(
@@ -7260,29 +7725,31 @@ def register_explore_tools(mcp: FastMCP):
     )
     async def get_explore_groups_group_slug_cookbooks(
         group_slug: str = Field(default=..., description="group_slug"),
-        search: Any = Field(default=None, description="search"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        search: Any | None = Field(default=None, description="search"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_cookbooks(
@@ -7305,19 +7772,21 @@ def register_explore_tools(mcp: FastMCP):
     async def get_explore_groups_group_slug_cookbooks_item_id(
         item_id: Any = Field(default=..., description="item_id"),
         group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_cookbooks_item_id(
@@ -7330,41 +7799,49 @@ def register_explore_tools(mcp: FastMCP):
     )
     async def get_explore_groups_group_slug_recipes(
         group_slug: str = Field(default=..., description="group_slug"),
-        categories: Any = Field(default=None, description="categories"),
-        tags: Any = Field(default=None, description="tags"),
-        tools: Any = Field(default=None, description="tools"),
-        foods: Any = Field(default=None, description="foods"),
-        households: Any = Field(default=None, description="households"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        categories: Any | None = Field(default=None, description="categories"),
+        tags: Any | None = Field(default=None, description="tags"),
+        tools: Any | None = Field(default=None, description="tools"),
+        foods: Any | None = Field(default=None, description="foods"),
+        households: Any | None = Field(default=None, description="households"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        page: int = Field(default=None, description="page"),
-        per_page: int = Field(default=None, description="perPage"),
-        cookbook: Any = Field(default=None, description="cookbook"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        page: int | None = Field(default=None, description="page"),
+        per_page: int | None = Field(default=None, description="perPage"),
+        cookbook: Any | None = Field(default=None, description="cookbook"),
         require_all_categories: bool = Field(
             default=None, description="requireAllCategories"
         ),
-        require_all_tags: bool = Field(default=None, description="requireAllTags"),
-        require_all_tools: bool = Field(default=None, description="requireAllTools"),
-        require_all_foods: bool = Field(default=None, description="requireAllFoods"),
-        search: Any = Field(default=None, description="search"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        require_all_tags: bool | None = Field(
+            default=None, description="requireAllTags"
+        ),
+        require_all_tools: bool | None = Field(
+            default=None, description="requireAllTools"
+        ),
+        require_all_foods: bool | None = Field(
+            default=None, description="requireAllFoods"
+        ),
+        search: Any | None = Field(default=None, description="search"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_recipes(
@@ -7396,37 +7873,43 @@ def register_explore_tools(mcp: FastMCP):
     )
     async def get_explore_groups_group_slug_recipes_suggestions(
         group_slug: str = Field(default=..., description="group_slug"),
-        foods: Any = Field(default=None, description="foods"),
-        tools: Any = Field(default=None, description="tools"),
-        order_by: Any = Field(default=None, description="orderBy"),
+        foods: Any | None = Field(default=None, description="foods"),
+        tools: Any | None = Field(default=None, description="tools"),
+        order_by: Any | None = Field(default=None, description="orderBy"),
         order_by_null_position: Any = Field(
             default=None, description="orderByNullPosition"
         ),
-        order_direction: Any = Field(default=None, description="orderDirection"),
-        query_filter: Any = Field(default=None, description="queryFilter"),
-        pagination_seed: Any = Field(default=None, description="paginationSeed"),
-        limit: int = Field(default=None, description="limit"),
-        max_missing_foods: int = Field(default=None, description="maxMissingFoods"),
-        max_missing_tools: int = Field(default=None, description="maxMissingTools"),
+        order_direction: Any | None = Field(default=None, description="orderDirection"),
+        query_filter: Any | None = Field(default=None, description="queryFilter"),
+        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        limit: int | None = Field(default=None, description="limit"),
+        max_missing_foods: int | None = Field(
+            default=None, description="maxMissingFoods"
+        ),
+        max_missing_tools: int | None = Field(
+            default=None, description="maxMissingTools"
+        ),
         include_foods_on_hand: bool = Field(
             default=None, description="includeFoodsOnHand"
         ),
         include_tools_on_hand: bool = Field(
             default=None, description="includeToolsOnHand"
         ),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Suggest Recipes"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_explore_groups_group_slug_recipes_suggestions(
@@ -7453,19 +7936,21 @@ def register_explore_tools(mcp: FastMCP):
     async def get_recipe(
         recipe_slug: str = Field(default=..., description="recipe_slug"),
         group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any = Field(default=None, description="accept-language"),
+        accept_language: Any | None = Field(
+            default=None, description="accept-language"
+        ),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Get Recipe"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.get_recipe(
@@ -7481,19 +7966,19 @@ def register_utils_tools(mcp: FastMCP):
         tags={"utils"},
     )
     async def download_file(
-        token: Any = Field(default=None, description="token"),
+        token: Any | None = Field(default=None, description="token"),
         mealie_base_url: str = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
-        mealie_token: Optional[str] = Field(
+        mealie_token: str | None = Field(
             default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
         ),
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-    ) -> Dict:
+    ) -> dict:
         """Download File"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
         return client.download_file(token=token)

@@ -23,13 +23,15 @@ from typing import Any
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
+    ctx_progress,
+    ctx_set_state,
 )
 from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
-from mealie_mcp.api_wrapper import Api
+from mealie_mcp.api_client import Api
 
 __version__ = "0.2.55"
 print(f"Mealie MCP v{__version__}", file=sys.stderr)
@@ -74,6 +76,9 @@ def register_app_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Startup Info"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -93,6 +98,9 @@ def register_app_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get App Theme"""
@@ -145,10 +153,20 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Oauth Login"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.oauth_login()
+        result = client.oauth_login()
+        await ctx_set_state(
+            ctx,
+            "mealie",
+            "auth_token",
+            result.get("jwt") if isinstance(result, dict) else None,
+        )
+        return result
 
     @mcp.tool(
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
@@ -165,6 +183,9 @@ def register_users_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Oauth Callback"""
@@ -186,6 +207,9 @@ def register_users_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Refresh Token"""
@@ -272,6 +296,9 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Logged In User"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -295,6 +322,9 @@ def register_users_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Logged In User Ratings"""
@@ -321,6 +351,9 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Logged In User Rating For Recipe"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -346,6 +379,9 @@ def register_users_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Logged In User Favorites"""
@@ -594,6 +630,9 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Ratings"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -618,6 +657,9 @@ def register_users_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Favorites"""
@@ -755,6 +797,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -854,6 +899,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -961,6 +1009,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1029,6 +1080,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -1165,6 +1219,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1231,6 +1288,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -1363,6 +1423,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Logged In User Household"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1387,6 +1450,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Household Recipe"""
@@ -1423,6 +1489,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Household Members"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1455,6 +1524,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Household Preferences"""
@@ -1544,6 +1616,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Statistics"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1567,6 +1642,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Invite Tokens"""
@@ -1663,6 +1741,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1729,6 +1810,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -1976,6 +2060,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2111,6 +2198,7 @@ def register_households_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Create Many"""
         if ctx:
             message = "Are you sure you want to POST /api/households/shopping/items/create-bulk?"
@@ -2118,6 +2206,7 @@ def register_households_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.post_households_shopping_items_create_bulk(
             data=data, accept_language=accept_language
         )
@@ -2141,6 +2230,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -2244,6 +2336,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2312,6 +2407,7 @@ def register_households_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Rerun Webhooks"""
         if ctx:
             message = "Are you sure you want to POST /api/households/webhooks/rerun?"
@@ -2319,6 +2415,7 @@ def register_households_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.rerun_webhooks(accept_language=accept_language)
 
     @mcp.tool(
@@ -2340,6 +2437,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -2478,6 +2578,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2544,6 +2647,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -2649,6 +2755,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2717,6 +2826,9 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Todays Meals"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2772,6 +2884,9 @@ def register_households_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -2881,6 +2996,9 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All Households"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2915,6 +3033,9 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get One Household"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2940,6 +3061,9 @@ def register_groups_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Logged In User Group"""
@@ -2973,6 +3097,9 @@ def register_groups_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Group Members"""
@@ -3008,6 +3135,9 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Group Member"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3033,6 +3163,9 @@ def register_groups_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Group Preferences"""
@@ -3091,6 +3224,9 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Storage"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3147,6 +3283,9 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3173,6 +3312,9 @@ def register_groups_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -3243,6 +3385,9 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3308,6 +3453,9 @@ def register_groups_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -3497,6 +3645,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Recipe Formats And Templates"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3522,6 +3673,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Recipe As Format"""
@@ -3647,6 +3801,7 @@ def register_recipes_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Parse Recipe Url Bulk"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/url/bulk?"
@@ -3654,6 +3809,7 @@ def register_recipes_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.parse_recipe_url_bulk(data=data, accept_language=accept_language)
 
     @mcp.tool(
@@ -3771,6 +3927,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get All"""
@@ -3931,6 +4090,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Suggest Recipes"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3969,6 +4131,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -4262,6 +4427,7 @@ def register_recipes_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Upload Recipe Asset"""
         if ctx:
             message = f"Are you sure you want to POST /api/recipes/{slug}/assets?"
@@ -4269,6 +4435,7 @@ def register_recipes_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.upload_recipe_asset(
             slug=slug, data=data, accept_language=accept_language
         )
@@ -4292,6 +4459,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Recipe Comments"""
@@ -4320,6 +4490,7 @@ def register_recipes_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Bulk Tag Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/tag?"
@@ -4327,6 +4498,7 @@ def register_recipes_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.bulk_tag_recipes(data=data, accept_language=accept_language)
 
     @mcp.tool(
@@ -4351,6 +4523,7 @@ def register_recipes_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Bulk Settings Recipes"""
         if ctx:
             message = (
@@ -4360,6 +4533,7 @@ def register_recipes_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.bulk_settings_recipes(data=data, accept_language=accept_language)
 
     @mcp.tool(
@@ -4384,6 +4558,7 @@ def register_recipes_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Bulk Categorize Recipes"""
         if ctx:
             message = (
@@ -4393,6 +4568,7 @@ def register_recipes_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.bulk_categorize_recipes(
             data=data, accept_language=accept_language
         )
@@ -4419,6 +4595,7 @@ def register_recipes_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Bulk Delete Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/delete?"
@@ -4426,6 +4603,7 @@ def register_recipes_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.bulk_delete_recipes(data=data, accept_language=accept_language)
 
     @mcp.tool(
@@ -4450,6 +4628,7 @@ def register_recipes_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Bulk Export Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/export?"
@@ -4457,6 +4636,7 @@ def register_recipes_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.bulk_export_recipes(data=data, accept_language=accept_language)
 
     @mcp.tool(
@@ -4477,6 +4657,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Exported Data"""
@@ -4502,6 +4685,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Exported Data Token"""
@@ -4557,6 +4743,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Shared Recipe"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4578,6 +4767,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Shared Recipe As Zip"""
@@ -4611,6 +4803,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get All"""
@@ -4678,6 +4873,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -4817,6 +5015,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4881,6 +5082,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -5047,6 +5251,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5143,6 +5350,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -5247,6 +5457,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5344,6 +5557,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5436,6 +5652,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Recipe Img"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5459,6 +5678,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Recipe Timeline Event Img"""
@@ -5487,6 +5709,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Recipe Asset"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5510,6 +5735,9 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get User Image"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5530,6 +5758,9 @@ def register_recipes_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Validation Text"""
@@ -5566,6 +5797,9 @@ def register_organizer_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get All"""
@@ -5634,6 +5868,9 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All Empty"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5658,6 +5895,9 @@ def register_organizer_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -5757,6 +5997,9 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get One By Slug"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5792,6 +6035,9 @@ def register_organizer_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get All"""
@@ -5858,6 +6104,9 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Empty Tags"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5882,6 +6131,9 @@ def register_organizer_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -5977,6 +6229,9 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get One By Slug"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6012,6 +6267,9 @@ def register_organizer_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get All"""
@@ -6078,6 +6336,9 @@ def register_organizer_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -6175,6 +6436,9 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get One By Slug"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6203,6 +6467,9 @@ def register_shared_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get All"""
@@ -6261,6 +6528,9 @@ def register_shared_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -6323,6 +6593,9 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get App Info"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6347,6 +6620,9 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get App Statistics"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6370,6 +6646,9 @@ def register_admin_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Check App Config"""
@@ -6403,6 +6682,9 @@ def register_admin_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get All"""
@@ -6499,6 +6781,9 @@ def register_admin_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -6635,6 +6920,9 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6699,6 +6987,9 @@ def register_admin_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -6804,6 +7095,9 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6868,6 +7162,9 @@ def register_admin_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -6962,6 +7259,9 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Check Email Config"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7017,6 +7317,9 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7071,6 +7374,9 @@ def register_admin_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -7134,6 +7440,7 @@ def register_admin_tools(mcp: FastMCP):
         ),
         ctx: Context | None = None,
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Upload One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/backups/upload?"
@@ -7141,6 +7448,7 @@ def register_admin_tools(mcp: FastMCP):
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.upload_one(data=data, accept_language=accept_language)
 
     @mcp.tool(
@@ -7195,6 +7503,9 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Maintenance Summary"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7218,6 +7529,9 @@ def register_admin_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Storage Details"""
@@ -7379,6 +7693,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7416,6 +7733,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get One"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7452,6 +7772,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7487,6 +7810,9 @@ def register_explore_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get Household"""
@@ -7527,6 +7853,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7563,6 +7892,9 @@ def register_explore_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -7601,6 +7933,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7637,6 +7972,9 @@ def register_explore_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -7675,6 +8013,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7711,6 +8052,9 @@ def register_explore_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -7749,6 +8093,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get All"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7785,6 +8132,9 @@ def register_explore_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get One"""
@@ -7840,6 +8190,9 @@ def register_explore_tools(mcp: FastMCP):
         mealie_verify: bool = Field(
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
+        ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
         """Get All"""
@@ -7909,6 +8262,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Suggest Recipes"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7950,6 +8306,9 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
         """Get Recipe"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7978,9 +8337,14 @@ def register_utils_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
+        ctx: Context = Field(
+            description="MCP context for progress reporting", default=None
+        ),
     ) -> dict:
+        await ctx_progress(ctx, 0, 100)
         """Download File"""
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
+        await ctx_progress(ctx, 100, 100)
         return client.download_file(token=token)
 
 

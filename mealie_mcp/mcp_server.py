@@ -33,7 +33,7 @@ from pydantic import Field
 
 from mealie_mcp.api_client import Api
 
-__version__ = "0.2.55"
+__version__ = "0.2.56"
 print(f"Mealie MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="TokenMiddleware")
@@ -65,7 +65,7 @@ def register_app_tools(mcp: FastMCP):
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"], tags={"app"}
     )
     async def get_startup_info(
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -76,7 +76,7 @@ def register_app_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -88,7 +88,7 @@ def register_app_tools(mcp: FastMCP):
         exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"], tags={"app"}
     )
     async def get_app_theme(
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -99,7 +99,7 @@ def register_app_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -115,7 +115,7 @@ def register_users_tools(mcp: FastMCP):
     )
     async def get_token(
         data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -131,7 +131,7 @@ def register_users_tools(mcp: FastMCP):
         """Get Token"""
         if ctx:
             message = "Are you sure you want to POST /api/auth/token?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -142,7 +142,7 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def oauth_login(
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -153,7 +153,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -173,7 +173,7 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def oauth_callback(
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -184,7 +184,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -197,7 +197,7 @@ def register_users_tools(mcp: FastMCP):
         tags={"users"},
     )
     async def refresh_token(
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -208,7 +208,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -224,7 +224,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -240,7 +240,7 @@ def register_users_tools(mcp: FastMCP):
         """Logout"""
         if ctx:
             message = "Are you sure you want to POST /api/auth/logout?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -255,7 +255,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -271,7 +271,7 @@ def register_users_tools(mcp: FastMCP):
         """Register New User"""
         if ctx:
             message = "Are you sure you want to POST /api/users/register?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -285,7 +285,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -296,7 +296,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -312,7 +312,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -323,7 +323,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -340,7 +340,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -351,7 +351,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -369,7 +369,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -380,7 +380,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -397,7 +397,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -413,7 +413,7 @@ def register_users_tools(mcp: FastMCP):
         """Update Password"""
         if ctx:
             message = "Are you sure you want to PUT /api/users/password?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -429,7 +429,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -445,7 +445,7 @@ def register_users_tools(mcp: FastMCP):
         """Update User"""
         if ctx:
             message = f"Are you sure you want to PUT /api/users/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -462,7 +462,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -478,7 +478,7 @@ def register_users_tools(mcp: FastMCP):
         """Forgot Password"""
         if ctx:
             message = "Are you sure you want to POST /api/users/forgot-password?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -490,7 +490,7 @@ def register_users_tools(mcp: FastMCP):
     )
     async def reset_password(
         data: dict = Field(default=..., description="Request body data"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -506,7 +506,7 @@ def register_users_tools(mcp: FastMCP):
         """Reset Password"""
         if ctx:
             message = "Are you sure you want to POST /api/users/reset-password?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -522,7 +522,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -538,7 +538,7 @@ def register_users_tools(mcp: FastMCP):
         """Update User Image"""
         if ctx:
             message = f"Are you sure you want to POST /api/users/{id}/image?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -555,7 +555,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -571,7 +571,7 @@ def register_users_tools(mcp: FastMCP):
         """Create Api Token"""
         if ctx:
             message = "Are you sure you want to POST /api/users/api-tokens?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -586,7 +586,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -604,7 +604,7 @@ def register_users_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to DELETE /api/users/api-tokens/{token_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -619,7 +619,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -630,7 +630,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -647,7 +647,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -658,7 +658,7 @@ def register_users_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -677,7 +677,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -693,7 +693,7 @@ def register_users_tools(mcp: FastMCP):
         """Set Rating"""
         if ctx:
             message = f"Are you sure you want to POST /api/users/{id}/ratings/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -711,7 +711,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -727,7 +727,7 @@ def register_users_tools(mcp: FastMCP):
         """Add Favorite"""
         if ctx:
             message = f"Are you sure you want to POST /api/users/{id}/favorites/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -743,7 +743,7 @@ def register_users_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -761,7 +761,7 @@ def register_users_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to DELETE /api/users/{id}/favorites/{slug}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -786,7 +786,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -797,7 +797,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -823,7 +823,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -839,7 +839,7 @@ def register_households_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/cookbooks?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -856,7 +856,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -872,7 +872,7 @@ def register_households_tools(mcp: FastMCP):
         """Update Many"""
         if ctx:
             message = "Are you sure you want to PUT /api/households/cookbooks?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -889,7 +889,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -900,7 +900,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -920,7 +920,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -938,7 +938,7 @@ def register_households_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to PUT /api/households/cookbooks/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -955,7 +955,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -973,7 +973,7 @@ def register_households_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to DELETE /api/households/cookbooks/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -998,7 +998,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1009,7 +1009,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1035,7 +1035,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1053,7 +1053,7 @@ def register_households_tools(mcp: FastMCP):
             message = (
                 "Are you sure you want to POST /api/households/events/notifications?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1070,7 +1070,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1081,7 +1081,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1101,7 +1101,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1117,7 +1117,7 @@ def register_households_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/events/notifications/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1134,7 +1134,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1150,7 +1150,7 @@ def register_households_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/events/notifications/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1167,7 +1167,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1183,7 +1183,7 @@ def register_households_tools(mcp: FastMCP):
         """Test Notification"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/events/notifications/{item_id}/test?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1208,7 +1208,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1219,7 +1219,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1245,7 +1245,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1261,7 +1261,7 @@ def register_households_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/recipe-actions?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1278,7 +1278,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1289,7 +1289,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1309,7 +1309,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1325,7 +1325,7 @@ def register_households_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/recipe-actions/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1342,7 +1342,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1358,7 +1358,7 @@ def register_households_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/recipe-actions/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1377,7 +1377,7 @@ def register_households_tools(mcp: FastMCP):
             default=None, description="accept-language"
         ),
         data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1393,7 +1393,7 @@ def register_households_tools(mcp: FastMCP):
         """Trigger Action"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/recipe-actions/{item_id}/trigger/{recipe_slug}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1412,7 +1412,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1423,7 +1423,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1440,7 +1440,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1451,7 +1451,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1478,7 +1478,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1489,7 +1489,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1514,7 +1514,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1525,7 +1525,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1542,7 +1542,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1558,7 +1558,7 @@ def register_households_tools(mcp: FastMCP):
         """Update Household Preferences"""
         if ctx:
             message = "Are you sure you want to PUT /api/households/preferences?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1575,7 +1575,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1591,7 +1591,7 @@ def register_households_tools(mcp: FastMCP):
         """Set Member Permissions"""
         if ctx:
             message = "Are you sure you want to PUT /api/households/permissions?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1605,7 +1605,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1616,7 +1616,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1632,7 +1632,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1643,7 +1643,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1660,7 +1660,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1676,7 +1676,7 @@ def register_households_tools(mcp: FastMCP):
         """Create Invite Token"""
         if ctx:
             message = "Are you sure you want to POST /api/households/invitations?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1691,7 +1691,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1707,7 +1707,7 @@ def register_households_tools(mcp: FastMCP):
         """Email Invitation"""
         if ctx:
             message = "Are you sure you want to POST /api/households/invitations/email?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1730,7 +1730,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1741,7 +1741,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1767,7 +1767,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1783,7 +1783,7 @@ def register_households_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/shopping/lists?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1800,7 +1800,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1811,7 +1811,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -1831,7 +1831,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1847,7 +1847,7 @@ def register_households_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/shopping/lists/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1864,7 +1864,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1880,7 +1880,7 @@ def register_households_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/shopping/lists/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1898,7 +1898,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1914,7 +1914,7 @@ def register_households_tools(mcp: FastMCP):
         """Update Label Settings"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/shopping/lists/{item_id}/label-settings?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1932,7 +1932,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1948,7 +1948,7 @@ def register_households_tools(mcp: FastMCP):
         """Add Recipe Ingredients To List"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -1967,7 +1967,7 @@ def register_households_tools(mcp: FastMCP):
             default=None, description="accept-language"
         ),
         data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -1983,7 +1983,7 @@ def register_households_tools(mcp: FastMCP):
         """Add Single Recipe Ingredients To List"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe/{recipe_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2005,7 +2005,7 @@ def register_households_tools(mcp: FastMCP):
             default=None, description="accept-language"
         ),
         data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2021,7 +2021,7 @@ def register_households_tools(mcp: FastMCP):
         """Remove Recipe Ingredients From List"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe/{recipe_id}/delete?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2049,7 +2049,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2060,7 +2060,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2086,7 +2086,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2102,7 +2102,7 @@ def register_households_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/shopping/items?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2119,7 +2119,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2135,7 +2135,7 @@ def register_households_tools(mcp: FastMCP):
         """Update Many"""
         if ctx:
             message = "Are you sure you want to PUT /api/households/shopping/items?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2152,7 +2152,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2168,7 +2168,7 @@ def register_households_tools(mcp: FastMCP):
         """Delete Many"""
         if ctx:
             message = "Are you sure you want to DELETE /api/households/shopping/items?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2185,7 +2185,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2202,7 +2202,7 @@ def register_households_tools(mcp: FastMCP):
         """Create Many"""
         if ctx:
             message = "Are you sure you want to POST /api/households/shopping/items/create-bulk?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2220,7 +2220,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2231,7 +2231,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2251,7 +2251,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2267,7 +2267,7 @@ def register_households_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/shopping/items/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2284,7 +2284,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2300,7 +2300,7 @@ def register_households_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/shopping/items/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2325,7 +2325,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2336,7 +2336,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2362,7 +2362,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2378,7 +2378,7 @@ def register_households_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/webhooks?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2394,7 +2394,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2411,7 +2411,7 @@ def register_households_tools(mcp: FastMCP):
         """Rerun Webhooks"""
         if ctx:
             message = "Are you sure you want to POST /api/households/webhooks/rerun?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2427,7 +2427,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2438,7 +2438,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2458,7 +2458,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2476,7 +2476,7 @@ def register_households_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to PUT /api/households/webhooks/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2493,7 +2493,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2511,7 +2511,7 @@ def register_households_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to DELETE /api/households/webhooks/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2528,7 +2528,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2544,7 +2544,7 @@ def register_households_tools(mcp: FastMCP):
         """Test One"""
         if ctx:
             message = f"Are you sure you want to POST /api/households/webhooks/{item_id}/test?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2567,7 +2567,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2578,7 +2578,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2604,7 +2604,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2620,7 +2620,7 @@ def register_households_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/mealplans/rules?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2637,7 +2637,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2648,7 +2648,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2668,7 +2668,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2684,7 +2684,7 @@ def register_households_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/households/mealplans/rules/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2701,7 +2701,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2717,7 +2717,7 @@ def register_households_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/households/mealplans/rules/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2744,7 +2744,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2755,7 +2755,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2783,7 +2783,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2799,7 +2799,7 @@ def register_households_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/households/mealplans?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2815,7 +2815,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2826,7 +2826,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2843,7 +2843,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2859,7 +2859,7 @@ def register_households_tools(mcp: FastMCP):
         """Create Random Meal"""
         if ctx:
             message = "Are you sure you want to POST /api/households/mealplans/random?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2874,7 +2874,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2885,7 +2885,7 @@ def register_households_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -2905,7 +2905,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2923,7 +2923,7 @@ def register_households_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to PUT /api/households/mealplans/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2940,7 +2940,7 @@ def register_households_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2958,7 +2958,7 @@ def register_households_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to DELETE /api/households/mealplans/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -2985,7 +2985,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -2996,7 +2996,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3022,7 +3022,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3033,7 +3033,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3051,7 +3051,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3062,7 +3062,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3087,7 +3087,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3098,7 +3098,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3124,7 +3124,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3135,7 +3135,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3153,7 +3153,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3164,7 +3164,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3181,7 +3181,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3197,7 +3197,7 @@ def register_groups_tools(mcp: FastMCP):
         """Update Group Preferences"""
         if ctx:
             message = "Are you sure you want to PUT /api/groups/preferences?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3213,7 +3213,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3224,7 +3224,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3241,7 +3241,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3257,7 +3257,7 @@ def register_groups_tools(mcp: FastMCP):
         """Start Data Migration"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/migrations?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3272,7 +3272,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3283,7 +3283,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3302,7 +3302,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3313,7 +3313,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3332,7 +3332,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3348,7 +3348,7 @@ def register_groups_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/groups/reports/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3374,7 +3374,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3385,7 +3385,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3412,7 +3412,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3428,7 +3428,7 @@ def register_groups_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/labels?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3443,7 +3443,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3454,7 +3454,7 @@ def register_groups_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3474,7 +3474,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3490,7 +3490,7 @@ def register_groups_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/groups/labels/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3507,7 +3507,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3523,7 +3523,7 @@ def register_groups_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/groups/labels/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3540,7 +3540,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3556,7 +3556,7 @@ def register_groups_tools(mcp: FastMCP):
         """Seed Foods"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/seeders/foods?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3571,7 +3571,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3587,7 +3587,7 @@ def register_groups_tools(mcp: FastMCP):
         """Seed Labels"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/seeders/labels?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3602,7 +3602,7 @@ def register_groups_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3618,7 +3618,7 @@ def register_groups_tools(mcp: FastMCP):
         """Seed Units"""
         if ctx:
             message = "Are you sure you want to POST /api/groups/seeders/units?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3634,7 +3634,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3645,7 +3645,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3663,7 +3663,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3674,7 +3674,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3693,7 +3693,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3709,7 +3709,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Test Parse Recipe Url"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/test-scrape-url?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3724,7 +3724,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3740,7 +3740,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Create Recipe From Html Or Json"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/html-or-json?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3757,7 +3757,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3773,7 +3773,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Parse Recipe Url"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/url?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3788,7 +3788,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3805,7 +3805,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Parse Recipe Url Bulk"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/url/bulk?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3821,7 +3821,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3837,7 +3837,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Create Recipe From Zip"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/zip?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3855,7 +3855,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3871,7 +3871,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Create Recipe From Image"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/create/image?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3901,7 +3901,7 @@ def register_recipes_tools(mcp: FastMCP):
         page: int | None = Field(default=None, description="page"),
         per_page: int | None = Field(default=None, description="perPage"),
         cookbook: Any | None = Field(default=None, description="cookbook"),
-        require_all_categories: bool = Field(
+        require_all_categories: bool | None = Field(
             default=None, description="requireAllCategories"
         ),
         require_all_tags: bool | None = Field(
@@ -3917,7 +3917,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3928,7 +3928,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -3965,7 +3965,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -3981,7 +3981,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -3996,7 +3996,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4012,7 +4012,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Update Many"""
         if ctx:
             message = "Are you sure you want to PUT /api/recipes?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4027,7 +4027,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4043,7 +4043,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Patch Many"""
         if ctx:
             message = "Are you sure you want to PATCH /api/recipes?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4070,16 +4070,16 @@ def register_recipes_tools(mcp: FastMCP):
         max_missing_tools: int | None = Field(
             default=None, description="maxMissingTools"
         ),
-        include_foods_on_hand: bool = Field(
+        include_foods_on_hand: bool | None = Field(
             default=None, description="includeFoodsOnHand"
         ),
-        include_tools_on_hand: bool = Field(
+        include_tools_on_hand: bool | None = Field(
             default=None, description="includeToolsOnHand"
         ),
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4090,7 +4090,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4121,7 +4121,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4132,7 +4132,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4150,7 +4150,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4166,7 +4166,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/recipes/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4184,7 +4184,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4200,7 +4200,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Patch One"""
         if ctx:
             message = f"Are you sure you want to PATCH /api/recipes/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4215,7 +4215,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4231,7 +4231,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/recipes/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4247,7 +4247,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4263,7 +4263,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Duplicate One"""
         if ctx:
             message = f"Are you sure you want to POST /api/recipes/{slug}/duplicate?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4281,7 +4281,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4297,7 +4297,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Update Last Made"""
         if ctx:
             message = f"Are you sure you want to PATCH /api/recipes/{slug}/last-made?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4315,7 +4315,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4331,7 +4331,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Scrape Image Url"""
         if ctx:
             message = f"Are you sure you want to POST /api/recipes/{slug}/image?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4349,7 +4349,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4365,7 +4365,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Update Recipe Image"""
         if ctx:
             message = f"Are you sure you want to PUT /api/recipes/{slug}/image?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4382,7 +4382,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4398,7 +4398,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Delete Recipe Image"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/recipes/{slug}/image?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4414,7 +4414,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4431,7 +4431,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Upload Recipe Asset"""
         if ctx:
             message = f"Are you sure you want to POST /api/recipes/{slug}/assets?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4449,7 +4449,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4460,7 +4460,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4477,7 +4477,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4494,7 +4494,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Bulk Tag Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/tag?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4510,7 +4510,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4529,7 +4529,7 @@ def register_recipes_tools(mcp: FastMCP):
             message = (
                 "Are you sure you want to POST /api/recipes/bulk-actions/settings?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4545,7 +4545,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4564,7 +4564,7 @@ def register_recipes_tools(mcp: FastMCP):
             message = (
                 "Are you sure you want to POST /api/recipes/bulk-actions/categorize?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4582,7 +4582,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4599,7 +4599,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Bulk Delete Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/delete?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4615,7 +4615,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4632,7 +4632,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Bulk Export Recipes"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/bulk-actions/export?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4647,7 +4647,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4658,7 +4658,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4675,7 +4675,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4686,7 +4686,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4704,7 +4704,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4720,7 +4720,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Purge Export Data"""
         if ctx:
             message = "Are you sure you want to DELETE /api/recipes/bulk-actions/export/purge?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4732,7 +4732,7 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_shared_recipe(
         token_id: str = Field(default=..., description="token_id"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4743,7 +4743,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4757,7 +4757,7 @@ def register_recipes_tools(mcp: FastMCP):
     )
     async def get_shared_recipe_as_zip(
         token_id: str = Field(default=..., description="token_id"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4768,7 +4768,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4793,7 +4793,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4804,7 +4804,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4830,7 +4830,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4846,7 +4846,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/recipes/timeline/events?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4863,7 +4863,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4874,7 +4874,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -4894,7 +4894,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4912,7 +4912,7 @@ def register_recipes_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to PUT /api/recipes/timeline/events/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4929,7 +4929,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4945,7 +4945,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/recipes/timeline/events/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -4963,7 +4963,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -4979,7 +4979,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Update Event Image"""
         if ctx:
             message = f"Are you sure you want to PUT /api/recipes/timeline/events/{item_id}/image?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5004,7 +5004,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5015,7 +5015,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5041,7 +5041,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5057,7 +5057,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/comments?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5072,7 +5072,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5083,7 +5083,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5103,7 +5103,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5119,7 +5119,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/comments/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5136,7 +5136,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5152,7 +5152,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/comments/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5169,7 +5169,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5185,7 +5185,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Parse Ingredient"""
         if ctx:
             message = "Are you sure you want to POST /api/parser/ingredient?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5200,7 +5200,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5216,7 +5216,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Parse Ingredients"""
         if ctx:
             message = "Are you sure you want to POST /api/parser/ingredients?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5240,7 +5240,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5251,7 +5251,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5278,7 +5278,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5294,7 +5294,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/foods?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5309,7 +5309,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5325,7 +5325,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Merge One"""
         if ctx:
             message = "Are you sure you want to PUT /api/foods/merge?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5340,7 +5340,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5351,7 +5351,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5371,7 +5371,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5387,7 +5387,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/foods/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5404,7 +5404,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5420,7 +5420,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/foods/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5446,7 +5446,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5457,7 +5457,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5484,7 +5484,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5500,7 +5500,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/units?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5515,7 +5515,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5531,7 +5531,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Merge One"""
         if ctx:
             message = "Are you sure you want to PUT /api/units/merge?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5546,7 +5546,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5557,7 +5557,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5577,7 +5577,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5593,7 +5593,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/units/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5610,7 +5610,7 @@ def register_recipes_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5626,7 +5626,7 @@ def register_recipes_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/units/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5641,7 +5641,7 @@ def register_recipes_tools(mcp: FastMCP):
     async def get_recipe_img(
         recipe_id: str = Field(default=..., description="recipe_id"),
         file_name: Any = Field(default=..., description="file_name"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5652,7 +5652,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5668,7 +5668,7 @@ def register_recipes_tools(mcp: FastMCP):
         recipe_id: str = Field(default=..., description="recipe_id"),
         timeline_event_id: str = Field(default=..., description="timeline_event_id"),
         file_name: Any = Field(default=..., description="file_name"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5679,7 +5679,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5698,7 +5698,7 @@ def register_recipes_tools(mcp: FastMCP):
     async def get_recipe_asset(
         recipe_id: str = Field(default=..., description="recipe_id"),
         file_name: str = Field(default=..., description="file_name"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5709,7 +5709,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5724,7 +5724,7 @@ def register_recipes_tools(mcp: FastMCP):
     async def get_user_image(
         user_id: str = Field(default=..., description="user_id"),
         file_name: str = Field(default=..., description="file_name"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5735,7 +5735,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5748,7 +5748,7 @@ def register_recipes_tools(mcp: FastMCP):
         tags={"recipes"},
     )
     async def get_validation_text(
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5759,7 +5759,7 @@ def register_recipes_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5787,7 +5787,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5798,7 +5798,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5825,7 +5825,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5841,7 +5841,7 @@ def register_organizer_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/organizers/categories?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5857,7 +5857,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5868,7 +5868,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5885,7 +5885,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5896,7 +5896,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -5916,7 +5916,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5934,7 +5934,7 @@ def register_organizer_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to PUT /api/organizers/categories/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5951,7 +5951,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5969,7 +5969,7 @@ def register_organizer_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to DELETE /api/organizers/categories/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -5986,7 +5986,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -5997,7 +5997,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6025,7 +6025,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6036,7 +6036,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6063,7 +6063,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6079,7 +6079,7 @@ def register_organizer_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/organizers/tags?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6093,7 +6093,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6104,7 +6104,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6121,7 +6121,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6132,7 +6132,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6152,7 +6152,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6168,7 +6168,7 @@ def register_organizer_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/organizers/tags/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6185,7 +6185,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6201,7 +6201,7 @@ def register_organizer_tools(mcp: FastMCP):
         """Delete Recipe Tag"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/organizers/tags/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6218,7 +6218,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6229,7 +6229,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6257,7 +6257,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6268,7 +6268,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6295,7 +6295,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6311,7 +6311,7 @@ def register_organizer_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/organizers/tools?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6326,7 +6326,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6337,7 +6337,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6357,7 +6357,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6373,7 +6373,7 @@ def register_organizer_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/organizers/tools/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6390,7 +6390,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6408,7 +6408,7 @@ def register_organizer_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to DELETE /api/organizers/tools/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6425,7 +6425,7 @@ def register_organizer_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6436,7 +6436,7 @@ def register_organizer_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6457,7 +6457,7 @@ def register_shared_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6468,7 +6468,7 @@ def register_shared_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6487,7 +6487,7 @@ def register_shared_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6503,7 +6503,7 @@ def register_shared_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/shared/recipes?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6518,7 +6518,7 @@ def register_shared_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6529,7 +6529,7 @@ def register_shared_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6548,7 +6548,7 @@ def register_shared_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6564,7 +6564,7 @@ def register_shared_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/shared/recipes/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6582,7 +6582,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6593,7 +6593,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6609,7 +6609,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6620,7 +6620,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6636,7 +6636,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6647,7 +6647,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6672,7 +6672,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6683,7 +6683,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6709,7 +6709,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6725,7 +6725,7 @@ def register_admin_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/users?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6740,7 +6740,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6756,7 +6756,7 @@ def register_admin_tools(mcp: FastMCP):
         """Unlock Users"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/users/unlock?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6771,7 +6771,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6782,7 +6782,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6802,7 +6802,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6818,7 +6818,7 @@ def register_admin_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/admin/users/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6835,7 +6835,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6851,7 +6851,7 @@ def register_admin_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/admin/users/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6868,7 +6868,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6886,7 +6886,7 @@ def register_admin_tools(mcp: FastMCP):
             message = (
                 "Are you sure you want to POST /api/admin/users/password-reset-token?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6909,7 +6909,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6920,7 +6920,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -6946,7 +6946,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6962,7 +6962,7 @@ def register_admin_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/households?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -6977,7 +6977,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -6988,7 +6988,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7008,7 +7008,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7024,7 +7024,7 @@ def register_admin_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/admin/households/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7041,7 +7041,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7059,7 +7059,7 @@ def register_admin_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to DELETE /api/admin/households/{item_id}?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7084,7 +7084,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7095,7 +7095,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7121,7 +7121,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7137,7 +7137,7 @@ def register_admin_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/groups?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7152,7 +7152,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7163,7 +7163,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7183,7 +7183,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7199,7 +7199,7 @@ def register_admin_tools(mcp: FastMCP):
         """Update One"""
         if ctx:
             message = f"Are you sure you want to PUT /api/admin/groups/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7216,7 +7216,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7232,7 +7232,7 @@ def register_admin_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/admin/groups/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7248,7 +7248,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7259,7 +7259,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7276,7 +7276,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7292,7 +7292,7 @@ def register_admin_tools(mcp: FastMCP):
         """Send Test Email"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/email?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7306,7 +7306,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7317,7 +7317,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7333,7 +7333,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7349,7 +7349,7 @@ def register_admin_tools(mcp: FastMCP):
         """Create One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/backups?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7364,7 +7364,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7375,7 +7375,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7394,7 +7394,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7410,7 +7410,7 @@ def register_admin_tools(mcp: FastMCP):
         """Delete One"""
         if ctx:
             message = f"Are you sure you want to DELETE /api/admin/backups/{file_name}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7427,7 +7427,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7444,7 +7444,7 @@ def register_admin_tools(mcp: FastMCP):
         """Upload One"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/backups/upload?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7460,7 +7460,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7478,7 +7478,7 @@ def register_admin_tools(mcp: FastMCP):
             message = (
                 f"Are you sure you want to POST /api/admin/backups/{file_name}/restore?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7492,7 +7492,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7503,7 +7503,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7519,7 +7519,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7530,7 +7530,7 @@ def register_admin_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7546,7 +7546,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7564,7 +7564,7 @@ def register_admin_tools(mcp: FastMCP):
             message = (
                 "Are you sure you want to POST /api/admin/maintenance/clean/images?"
             )
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7578,7 +7578,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7594,7 +7594,7 @@ def register_admin_tools(mcp: FastMCP):
         """Clean Temp"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/maintenance/clean/temp?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7608,7 +7608,7 @@ def register_admin_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7624,7 +7624,7 @@ def register_admin_tools(mcp: FastMCP):
         """Clean Recipe Folders"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/maintenance/clean/recipe-folders?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7639,7 +7639,7 @@ def register_admin_tools(mcp: FastMCP):
             default=None, description="accept-language"
         ),
         data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7655,7 +7655,7 @@ def register_admin_tools(mcp: FastMCP):
         """Debug Openai"""
         if ctx:
             message = "Are you sure you want to POST /api/admin/debug/openai?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
             if result.action != "accept" or not result.data:
                 return {"status": "cancelled", "message": "User cancelled"}
         client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
@@ -7682,7 +7682,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7693,7 +7693,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7722,7 +7722,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7733,7 +7733,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7761,7 +7761,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7772,7 +7772,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7800,7 +7800,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7811,7 +7811,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7842,7 +7842,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7853,7 +7853,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7882,7 +7882,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7893,7 +7893,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7922,7 +7922,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7933,7 +7933,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -7962,7 +7962,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -7973,7 +7973,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8002,7 +8002,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -8013,7 +8013,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8042,7 +8042,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -8053,7 +8053,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8082,7 +8082,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -8093,7 +8093,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8122,7 +8122,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -8133,7 +8133,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8164,7 +8164,7 @@ def register_explore_tools(mcp: FastMCP):
         page: int | None = Field(default=None, description="page"),
         per_page: int | None = Field(default=None, description="perPage"),
         cookbook: Any | None = Field(default=None, description="cookbook"),
-        require_all_categories: bool = Field(
+        require_all_categories: bool | None = Field(
             default=None, description="requireAllCategories"
         ),
         require_all_tags: bool | None = Field(
@@ -8180,7 +8180,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -8191,7 +8191,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8242,16 +8242,16 @@ def register_explore_tools(mcp: FastMCP):
         max_missing_tools: int | None = Field(
             default=None, description="maxMissingTools"
         ),
-        include_foods_on_hand: bool = Field(
+        include_foods_on_hand: bool | None = Field(
             default=None, description="includeFoodsOnHand"
         ),
-        include_tools_on_hand: bool = Field(
+        include_tools_on_hand: bool | None = Field(
             default=None, description="includeToolsOnHand"
         ),
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -8262,7 +8262,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8295,7 +8295,7 @@ def register_explore_tools(mcp: FastMCP):
         accept_language: Any | None = Field(
             default=None, description="accept-language"
         ),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -8306,7 +8306,7 @@ def register_explore_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8326,7 +8326,7 @@ def register_utils_tools(mcp: FastMCP):
     )
     async def download_file(
         token: Any | None = Field(default=None, description="token"),
-        mealie_base_url: str = Field(
+        mealie_base_url: str | None = Field(
             default=os.environ.get("MEALIE_BASE_URL", None),
             description="Mealie Base URL",
         ),
@@ -8337,7 +8337,7 @@ def register_utils_tools(mcp: FastMCP):
             default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
             description="Verify SSL",
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
     ) -> dict:
@@ -8395,7 +8395,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
 
     for mw in middlewares:
         mcp.add_middleware(mw)
-    registered_tags = []
+    registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
 

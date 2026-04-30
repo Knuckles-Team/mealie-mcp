@@ -11,7 +11,7 @@ import urllib3
 class Api:
     def __init__(
         self,
-        base_url: str,
+        base_url: str | None,
         token: str | None = None,
         verify: bool = False,
     ):
@@ -34,7 +34,7 @@ class Api:
         data: dict | None = None,
         files: dict | None = None,
     ) -> Any:
-        url = urljoin(self.base_url, endpoint)
+        url = urljoin(self.base_url or "", endpoint)
 
         response = self._session.request(
             method=method, url=url, params=params, json=data, files=files

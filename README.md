@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/mealie-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/mealie-mcp)
 
-*Version: 0.6.0*
+*Version: 0.7.0*
 
 ## Overview
 
@@ -432,3 +432,82 @@ uv pip install mealie-mcp
 
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+
+
+## MCP Configuration Examples
+
+### 1. Standard IO (stdio) Deployment
+
+```json
+{
+  "mcpServers": {
+    "mealie-mcp": {
+      "command": "uv",
+      "args": [
+        "run",
+        "mealie-mcp"
+      ],
+      "env": {
+        "ADMINTOOL": "True",
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "APPTOOL": "True",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "EXPLORETOOL": "True",
+        "GROUPSTOOL": "True",
+        "HOUSEHOLDSTOOL": "True",
+        "MEALIE_BASE_URL": "<YOUR_MEALIE_BASE_URL>",
+        "MEALIE_TOKEN": "<YOUR_MEALIE_TOKEN>",
+        "MEALIE_VERIFY": "<YOUR_MEALIE_VERIFY>",
+        "MISCTOOL": "True",
+        "ORGANIZERTOOL": "True",
+        "RECIPESTOOL": "True",
+        "SHAREDTOOL": "True",
+        "USERSTOOL": "True",
+        "UTILSTOOL": "True"
+      }
+    }
+  }
+}
+```
+
+### 2. Streamable HTTP (SSE) Deployment
+
+```json
+{
+  "mcpServers": {
+    "mealie-mcp": {
+      "command": "uv",
+      "args": [
+        "run",
+        "mealie-mcp",
+        "--transport",
+        "http",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ],
+      "env": {
+        "ADMINTOOL": "True",
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "APPTOOL": "True",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "EXPLORETOOL": "True",
+        "GROUPSTOOL": "True",
+        "HOUSEHOLDSTOOL": "True",
+        "MEALIE_BASE_URL": "<YOUR_MEALIE_BASE_URL>",
+        "MEALIE_TOKEN": "<YOUR_MEALIE_TOKEN>",
+        "MEALIE_VERIFY": "<YOUR_MEALIE_VERIFY>",
+        "MISCTOOL": "True",
+        "ORGANIZERTOOL": "True",
+        "RECIPESTOOL": "True",
+        "SHAREDTOOL": "True",
+        "USERSTOOL": "True",
+        "UTILSTOOL": "True"
+      }
+    }
+  }
+}
+```

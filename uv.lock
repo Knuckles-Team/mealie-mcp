@@ -1324,7 +1324,7 @@ wheels = [
 
 [[package]]
 name = "mealie-mcp"
-version = "0.5.0"
+version = "0.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "agent-utilities", extra = ["mcp"] },

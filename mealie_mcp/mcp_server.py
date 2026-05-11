@@ -33,7 +33,7 @@ from pydantic import Field
 
 from mealie_mcp.api_client import Api
 
-__version__ = "0.10.0"
+__version__ = "0.11.0"
 print(f"Mealie MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="TokenMiddleware")

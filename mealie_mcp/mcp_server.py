@@ -11,7 +11,6 @@ with warnings.catch_warnings():
     except ImportError:
         pass
 
-# General urllib3/chardet mismatch warnings
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
@@ -21,8346 +20,2337 @@ import sys
 from typing import Any
 
 from agent_utilities.base_utilities import to_boolean
-from agent_utilities.mcp_utilities import (
-    create_mcp_server,
-    ctx_progress,
-    ctx_set_state,
-)
+from agent_utilities.mcp_utilities import create_mcp_server
 from dotenv import find_dotenv, load_dotenv
-from fastmcp import Context, FastMCP
+from fastmcp import FastMCP
+from fastmcp.dependencies import Depends
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
-from mealie_mcp.api_client import Api
+from mealie_mcp.auth import get_client
 
 __version__ = "0.11.0"
-print(f"Mealie MCP v{__version__}", file=sys.stderr)
 
-logger = get_logger(name="TokenMiddleware")
-logger.setLevel(logging.DEBUG)
-
-
-def register_prompts(mcp: FastMCP):
-    @mcp.prompt(name="find_recipe", description="Find a recipe in your cookbook.")
-    def find_recipe(query: str) -> str:
-        """Find a recipe."""
-        return f"Please find the recipe '{query}'"
-
-    @mcp.prompt(name="random_meal", description="Suggest a random meal.")
-    def random_meal() -> str:
-        """Suggest a random meal."""
-        return "Please suggest a random meal."
-
-
-def register_misc_tools(mcp: FastMCP):
-    pass
-    pass
-
-    async def health_check() -> dict:
-        return {"status": "OK"}
+logger = get_logger(name="mealie-mcp")
+logger.setLevel(logging.INFO)
 
 
 def register_app_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"], tags={"app"}
-    )
-    async def get_startup_info(
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
+    @mcp.tool(tags={"app"})
+    async def mealie_app(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_startup_info', 'get_app_theme'"
         ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
+        client=Depends(get_client),
     ) -> dict:
-        """Get Startup Info"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_startup_info()
+        """Manage app operations.
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"], tags={"app"}
-    )
-    async def get_app_theme(
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get App Theme"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_app_theme()
+        Actions:
+          - 'get_startup_info': Get Startup Info
+          - 'get_app_theme': Get App Theme
+        """
+        kwargs: dict[str, Any]
+        if action == "get_startup_info":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_startup_info(**kwargs)
+        if action == "get_app_theme":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_app_theme(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_startup_info', 'get_app_theme"
+        )
 
 
 def register_users_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def get_token(
-        data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
+    @mcp.tool(tags={"users"})
+    async def mealie_users(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_token', 'oauth_login', 'oauth_callback', 'refresh_token', 'logout', 'register_new_user', 'get_logged_in_user', 'get_logged_in_user_ratings', 'get_logged_in_user_rating_for_recipe', 'get_logged_in_user_favorites', 'update_password', 'update_user', 'forgot_password', 'reset_password', 'update_user_image', 'create', 'delete', 'get_ratings', 'get_favorites', 'set_rating', 'add_favorite', 'remove_favorite'"
         ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        data: Any | None = Field(default=None, description="data"),
+        accept_language: Any | None = Field(
+            default=None, description="accept language"
         ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
+        recipe_id: str | None = Field(default=None, description="recipe id"),
+        item_id: str | None = Field(default=None, description="item id"),
+        id: str | None = Field(default=None, description="id"),
+        token_id: int | None = Field(default=None, description="token id"),
+        slug: str | None = Field(default=None, description="slug"),
+        client=Depends(get_client),
     ) -> dict:
-        """Get Token"""
-        if ctx:
-            message = "Are you sure you want to POST /api/auth/token?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_token(data=data)
+        """Manage users operations.
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def oauth_login(
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Oauth Login"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        result = client.oauth_login()
-        await ctx_set_state(
-            ctx,
-            "mealie",
-            "auth_token",
-            result.get("jwt") if isinstance(result, dict) else None,
+        Actions:
+          - 'get_token': Get Token
+          - 'oauth_login': Oauth Login
+          - 'oauth_callback': Oauth Callback
+          - 'refresh_token': Refresh Token
+          - 'logout': Logout
+          - 'register_new_user': Register New User
+          - 'get_logged_in_user': Get Logged In User
+          - 'get_logged_in_user_ratings': Get Logged In User Ratings
+          - 'get_logged_in_user_rating_for_recipe': Get Logged In User Rating For Recipe
+          - 'get_logged_in_user_favorites': Get Logged In User Favorites
+          - 'update_password': Update Password
+          - 'update_user': Update User
+          - 'forgot_password': Forgot Password
+          - 'reset_password': Reset Password
+          - 'update_user_image': Update User Image
+          - 'create': Create Api Token
+          - 'delete': Delete Api Token
+          - 'get_ratings': Get Ratings
+          - 'get_favorites': Get Favorites
+          - 'set_rating': Set Rating
+          - 'add_favorite': Add Favorite
+          - 'remove_favorite': Remove Favorite
+        """
+        kwargs: dict[str, Any]
+        if action == "get_token":
+            kwargs = {"data": data}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_token(**kwargs)
+        if action == "oauth_login":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.oauth_login(**kwargs)
+        if action == "oauth_callback":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.oauth_callback(**kwargs)
+        if action == "refresh_token":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.refresh_token(**kwargs)
+        if action == "logout":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.logout(**kwargs)
+        if action == "register_new_user":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.register_new_user(**kwargs)
+        if action == "get_logged_in_user":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_logged_in_user(**kwargs)
+        if action == "get_logged_in_user_ratings":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_logged_in_user_ratings(**kwargs)
+        if action == "get_logged_in_user_rating_for_recipe":
+            kwargs = {
+                "recipe_id": recipe_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_logged_in_user_rating_for_recipe(**kwargs)
+        if action == "get_logged_in_user_favorites":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_logged_in_user_favorites(**kwargs)
+        if action == "update_password":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_password(**kwargs)
+        if action == "update_user":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_user(**kwargs)
+        if action == "forgot_password":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.forgot_password(**kwargs)
+        if action == "reset_password":
+            kwargs = {"data": data}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.reset_password(**kwargs)
+        if action == "update_user_image":
+            kwargs = {
+                "id": id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_user_image(**kwargs)
+        if action == "create":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.create(**kwargs)
+        if action == "delete":
+            kwargs = {
+                "token_id": token_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete(**kwargs)
+        if action == "get_ratings":
+            kwargs = {"id": id, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_ratings(**kwargs)
+        if action == "get_favorites":
+            kwargs = {"id": id, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_favorites(**kwargs)
+        if action == "set_rating":
+            kwargs = {
+                "id": id,
+                "slug": slug,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.set_rating(**kwargs)
+        if action == "add_favorite":
+            kwargs = {
+                "id": id,
+                "slug": slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.add_favorite(**kwargs)
+        if action == "remove_favorite":
+            kwargs = {
+                "id": id,
+                "slug": slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.remove_favorite(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_token', 'oauth_login', 'oauth_callback', 'refresh_token', 'logout', 'register_new_user', 'get_logged_in_user', 'get_logged_in_user_ratings', 'get_logged_in_user_rating_for_recipe', 'get_logged_in_user_favorites', 'update_password', 'update_user', 'forgot_password', 'reset_password', 'update_user_image', 'create', 'delete', 'get_ratings', 'get_favorites', 'set_rating', 'add_favorite', 'remove_favorite"
         )
-        return result
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def oauth_callback(
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Oauth Callback"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.oauth_callback()
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def refresh_token(
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Refresh Token"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.refresh_token()
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def logout(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Logout"""
-        if ctx:
-            message = "Are you sure you want to POST /api/auth/logout?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.logout(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def register_new_user(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Register New User"""
-        if ctx:
-            message = "Are you sure you want to POST /api/users/register?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.register_new_user(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def get_logged_in_user(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Logged In User"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_logged_in_user(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def get_logged_in_user_ratings(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Logged In User Ratings"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_logged_in_user_ratings(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def get_logged_in_user_rating_for_recipe(
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Logged In User Rating For Recipe"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_logged_in_user_rating_for_recipe(
-            recipe_id=recipe_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def get_logged_in_user_favorites(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Logged In User Favorites"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_logged_in_user_favorites(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def update_password(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Password"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/users/password?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_password(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def update_user(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update User"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/users/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_user(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def forgot_password(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Forgot Password"""
-        if ctx:
-            message = "Are you sure you want to POST /api/users/forgot-password?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.forgot_password(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def reset_password(
-        data: dict = Field(default=..., description="Request body data"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Reset Password"""
-        if ctx:
-            message = "Are you sure you want to POST /api/users/reset-password?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.reset_password(data=data)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def update_user_image(
-        id: str = Field(default=..., description="id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update User Image"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/users/{id}/image?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_user_image(
-            id=id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def create(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create Api Token"""
-        if ctx:
-            message = "Are you sure you want to POST /api/users/api-tokens?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.create(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def delete(
-        token_id: int = Field(default=..., description="token_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete Api Token"""
-        if ctx:
-            message = (
-                f"Are you sure you want to DELETE /api/users/api-tokens/{token_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete(token_id=token_id, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def get_ratings(
-        id: str = Field(default=..., description="id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Ratings"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_ratings(id=id, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def get_favorites(
-        id: str = Field(default=..., description="id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Favorites"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_favorites(id=id, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def set_rating(
-        id: str = Field(default=..., description="id"),
-        slug: str = Field(default=..., description="slug"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Set Rating"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/users/{id}/ratings/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.set_rating(
-            id=id, slug=slug, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def add_favorite(
-        id: str = Field(default=..., description="id"),
-        slug: str = Field(default=..., description="slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Add Favorite"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/users/{id}/favorites/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.add_favorite(id=id, slug=slug, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"users"},
-    )
-    async def remove_favorite(
-        id: str = Field(default=..., description="id"),
-        slug: str = Field(default=..., description="slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Remove Favorite"""
-        if ctx:
-            message = (
-                f"Are you sure you want to DELETE /api/users/{id}/favorites/{slug}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.remove_favorite(id=id, slug=slug, accept_language=accept_language)
 
 
 def register_households_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_cookbooks(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
+    @mcp.tool(tags={"households"})
+    async def mealie_households(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_households_cookbooks', 'post_households_cookbooks', 'put_households_cookbooks', 'get_households_cookbooks_item_id', 'put_households_cookbooks_item_id', 'delete_households_cookbooks_item_id', 'get_households_events_notifications', 'post_households_events_notifications', 'get_households_events_notifications_item_id', 'put_households_events_notifications_item_id', 'delete_households_events_notifications_item_id', 'test_notification', 'get_households_recipe_actions', 'post_households_recipe_actions', 'get_households_recipe_actions_item_id', 'put_households_recipe_actions_item_id', 'delete_households_recipe_actions_item_id', 'trigger_action', 'get_logged_in_user_household', 'get_household_recipe', 'get_household_members', 'get_household_preferences', 'update_household_preferences', 'set_member_permissions', 'get_statistics', 'get_invite_tokens', 'create_invite_token', 'email_invitation', 'get_households_shopping_lists', 'post_households_shopping_lists', 'get_households_shopping_lists_item_id', 'put_households_shopping_lists_item_id', 'delete_households_shopping_lists_item_id', 'update_label_settings', 'add_recipe_ingredients_to_list', 'add_single_recipe_ingredients_to_list', 'remove_recipe_ingredients_from_list', 'get_households_shopping_items', 'post_households_shopping_items', 'put_households_shopping_items', 'delete_households_shopping_items', 'post_households_shopping_items_create_bulk', 'get_households_shopping_items_item_id', 'put_households_shopping_items_item_id', 'delete_households_shopping_items_item_id', 'get_households_webhooks', 'post_households_webhooks', 'rerun_webhooks', 'get_households_webhooks_item_id', 'put_households_webhooks_item_id', 'delete_households_webhooks_item_id', 'test_one', 'get_households_mealplans_rules', 'post_households_mealplans_rules', 'get_households_mealplans_rules_item_id', 'put_households_mealplans_rules_item_id', 'delete_households_mealplans_rules_item_id', 'get_households_mealplans', 'post_households_mealplans', 'get_todays_meals', 'create_random_meal', 'get_households_mealplans_item_id', 'put_households_mealplans_item_id', 'delete_households_mealplans_item_id'"
         ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        order_by: Any | None = Field(default=None, description="order by"),
+        order_by_null_position: Any | None = Field(
+            default=None, description="order by null position"
+        ),
+        order_direction: Any | None = Field(
+            default=None, description="order direction"
+        ),
+        query_filter: Any | None = Field(default=None, description="query filter"),
+        pagination_seed: Any | None = Field(
+            default=None, description="pagination seed"
+        ),
         page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
+        per_page: int | None = Field(default=None, description="per page"),
         accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_cookbooks(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_cookbooks(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/cookbooks?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_households_cookbooks(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_cookbooks(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Many"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/households/cookbooks?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_cookbooks(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_cookbooks_item_id(
-        item_id: Any = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_cookbooks_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_cookbooks_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to PUT /api/households/cookbooks/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_cookbooks_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_cookbooks_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to DELETE /api/households/cookbooks/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_cookbooks_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_events_notifications(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_events_notifications(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_events_notifications(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = (
-                "Are you sure you want to POST /api/households/events/notifications?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_households_events_notifications(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_events_notifications_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_events_notifications_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_events_notifications_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/households/events/notifications/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_events_notifications_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_events_notifications_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/households/events/notifications/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_events_notifications_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def test_notification(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Test Notification"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/households/events/notifications/{item_id}/test?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.test_notification(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_recipe_actions(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_recipe_actions(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_recipe_actions(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/recipe-actions?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_households_recipe_actions(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_recipe_actions_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_recipe_actions_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_recipe_actions_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/households/recipe-actions/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_recipe_actions_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_recipe_actions_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/households/recipe-actions/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_recipe_actions_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def trigger_action(
-        item_id: str = Field(default=..., description="item_id"),
-        recipe_slug: str = Field(default=..., description="recipe_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Trigger Action"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/households/recipe-actions/{item_id}/trigger/{recipe_slug}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.trigger_action(
-            item_id=item_id,
-            recipe_slug=recipe_slug,
-            accept_language=accept_language,
-            data=data,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_logged_in_user_household(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Logged In User Household"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_logged_in_user_household(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_household_recipe(
-        recipe_slug: str = Field(default=..., description="recipe_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Household Recipe"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_household_recipe(
-            recipe_slug=recipe_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_household_members(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Household Members"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_household_members(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_household_preferences(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Household Preferences"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_household_preferences(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def update_household_preferences(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Household Preferences"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/households/preferences?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_household_preferences(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def set_member_permissions(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Set Member Permissions"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/households/permissions?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.set_member_permissions(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_statistics(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Statistics"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_statistics(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_invite_tokens(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Invite Tokens"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_invite_tokens(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def create_invite_token(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create Invite Token"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/invitations?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.create_invite_token(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def email_invitation(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Email Invitation"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/invitations/email?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.email_invitation(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_shopping_lists(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_shopping_lists(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_shopping_lists(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/shopping/lists?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_households_shopping_lists(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_shopping_lists_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_shopping_lists_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_shopping_lists_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/households/shopping/lists/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_shopping_lists_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_shopping_lists_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/households/shopping/lists/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_shopping_lists_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def update_label_settings(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Label Settings"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/households/shopping/lists/{item_id}/label-settings?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_label_settings(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def add_recipe_ingredients_to_list(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Add Recipe Ingredients To List"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.add_recipe_ingredients_to_list(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def add_single_recipe_ingredients_to_list(
-        item_id: str = Field(default=..., description="item_id"),
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Add Single Recipe Ingredients To List"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe/{recipe_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.add_single_recipe_ingredients_to_list(
-            item_id=item_id,
-            recipe_id=recipe_id,
-            accept_language=accept_language,
-            data=data,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def remove_recipe_ingredients_from_list(
-        item_id: str = Field(default=..., description="item_id"),
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Remove Recipe Ingredients From List"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/households/shopping/lists/{item_id}/recipe/{recipe_id}/delete?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.remove_recipe_ingredients_from_list(
-            item_id=item_id,
-            recipe_id=recipe_id,
-            accept_language=accept_language,
-            data=data,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_shopping_items(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_shopping_items(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_shopping_items(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/shopping/items?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_households_shopping_items(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_shopping_items(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Many"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/households/shopping/items?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_shopping_items(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_shopping_items(
+            default=None, description="accept language"
+        ),
+        data: Any | None = Field(default=None, description="data"),
+        item_id: Any | None = Field(default=None, description="item id"),
+        recipe_slug: str | None = Field(default=None, description="recipe slug"),
+        recipe_id: str | None = Field(default=None, description="recipe id"),
         ids: list | None = Field(default=None, description="ids"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
+        start_date: Any | None = Field(default=None, description="start date"),
+        end_date: Any | None = Field(default=None, description="end date"),
+        client=Depends(get_client),
     ) -> dict:
-        """Delete Many"""
-        if ctx:
-            message = "Are you sure you want to DELETE /api/households/shopping/items?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_shopping_items(
-            ids=ids, accept_language=accept_language
-        )
+        """Manage households operations.
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_shopping_items_create_bulk(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Create Many"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/shopping/items/create-bulk?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.post_households_shopping_items_create_bulk(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_shopping_items_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_shopping_items_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_shopping_items_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/households/shopping/items/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_shopping_items_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_shopping_items_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/households/shopping/items/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_shopping_items_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_webhooks(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_webhooks(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_webhooks(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/webhooks?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_households_webhooks(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def rerun_webhooks(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Rerun Webhooks"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/webhooks/rerun?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.rerun_webhooks(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_webhooks_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_webhooks_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_webhooks_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to PUT /api/households/webhooks/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_webhooks_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_webhooks_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to DELETE /api/households/webhooks/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_webhooks_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def test_one(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Test One"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/households/webhooks/{item_id}/test?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.test_one(item_id=item_id, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_mealplans_rules(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_mealplans_rules(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_mealplans_rules(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/mealplans/rules?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_households_mealplans_rules(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_mealplans_rules_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_mealplans_rules_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_mealplans_rules_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/households/mealplans/rules/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_mealplans_rules_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_mealplans_rules_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/households/mealplans/rules/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_mealplans_rules_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_mealplans(
-        start_date: Any | None = Field(default=None, description="start_date"),
-        end_date: Any | None = Field(default=None, description="end_date"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_mealplans(
-            start_date=start_date,
-            end_date=end_date,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def post_households_mealplans(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/mealplans?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_households_mealplans(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_todays_meals(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Todays Meals"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_todays_meals(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def create_random_meal(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create Random Meal"""
-        if ctx:
-            message = "Are you sure you want to POST /api/households/mealplans/random?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.create_random_meal(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def get_households_mealplans_item_id(
-        item_id: int = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_households_mealplans_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def put_households_mealplans_item_id(
-        item_id: int = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to PUT /api/households/mealplans/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_households_mealplans_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"households"},
-    )
-    async def delete_households_mealplans_item_id(
-        item_id: int = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to DELETE /api/households/mealplans/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_households_mealplans_item_id(
-            item_id=item_id, accept_language=accept_language
+        Actions:
+          - 'get_households_cookbooks': Get All
+          - 'post_households_cookbooks': Create One
+          - 'put_households_cookbooks': Update Many
+          - 'get_households_cookbooks_item_id': Get One
+          - 'put_households_cookbooks_item_id': Update One
+          - 'delete_households_cookbooks_item_id': Delete One
+          - 'get_households_events_notifications': Get All
+          - 'post_households_events_notifications': Create One
+          - 'get_households_events_notifications_item_id': Get One
+          - 'put_households_events_notifications_item_id': Update One
+          - 'delete_households_events_notifications_item_id': Delete One
+          - 'test_notification': Test Notification
+          - 'get_households_recipe_actions': Get All
+          - 'post_households_recipe_actions': Create One
+          - 'get_households_recipe_actions_item_id': Get One
+          - 'put_households_recipe_actions_item_id': Update One
+          - 'delete_households_recipe_actions_item_id': Delete One
+          - 'trigger_action': Trigger Action
+          - 'get_logged_in_user_household': Get Logged In User Household
+          - 'get_household_recipe': Get Household Recipe
+          - 'get_household_members': Get Household Members
+          - 'get_household_preferences': Get Household Preferences
+          - 'update_household_preferences': Update Household Preferences
+          - 'set_member_permissions': Set Member Permissions
+          - 'get_statistics': Get Statistics
+          - 'get_invite_tokens': Get Invite Tokens
+          - 'create_invite_token': Create Invite Token
+          - 'email_invitation': Email Invitation
+          - 'get_households_shopping_lists': Get All
+          - 'post_households_shopping_lists': Create One
+          - 'get_households_shopping_lists_item_id': Get One
+          - 'put_households_shopping_lists_item_id': Update One
+          - 'delete_households_shopping_lists_item_id': Delete One
+          - 'update_label_settings': Update Label Settings
+          - 'add_recipe_ingredients_to_list': Add Recipe Ingredients To List
+          - 'add_single_recipe_ingredients_to_list': Add Single Recipe Ingredients To List
+          - 'remove_recipe_ingredients_from_list': Remove Recipe Ingredients From List
+          - 'get_households_shopping_items': Get All
+          - 'post_households_shopping_items': Create One
+          - 'put_households_shopping_items': Update Many
+          - 'delete_households_shopping_items': Delete Many
+          - 'post_households_shopping_items_create_bulk': Create Many
+          - 'get_households_shopping_items_item_id': Get One
+          - 'put_households_shopping_items_item_id': Update One
+          - 'delete_households_shopping_items_item_id': Delete One
+          - 'get_households_webhooks': Get All
+          - 'post_households_webhooks': Create One
+          - 'rerun_webhooks': Rerun Webhooks
+          - 'get_households_webhooks_item_id': Get One
+          - 'put_households_webhooks_item_id': Update One
+          - 'delete_households_webhooks_item_id': Delete One
+          - 'test_one': Test One
+          - 'get_households_mealplans_rules': Get All
+          - 'post_households_mealplans_rules': Create One
+          - 'get_households_mealplans_rules_item_id': Get One
+          - 'put_households_mealplans_rules_item_id': Update One
+          - 'delete_households_mealplans_rules_item_id': Delete One
+          - 'get_households_mealplans': Get All
+          - 'post_households_mealplans': Create One
+          - 'get_todays_meals': Get Todays Meals
+          - 'create_random_meal': Create Random Meal
+          - 'get_households_mealplans_item_id': Get One
+          - 'put_households_mealplans_item_id': Update One
+          - 'delete_households_mealplans_item_id': Delete One
+        """
+        kwargs: dict[str, Any]
+        if action == "get_households_cookbooks":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_cookbooks(**kwargs)
+        if action == "post_households_cookbooks":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_cookbooks(**kwargs)
+        if action == "put_households_cookbooks":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_cookbooks(**kwargs)
+        if action == "get_households_cookbooks_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_cookbooks_item_id(**kwargs)
+        if action == "put_households_cookbooks_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_cookbooks_item_id(**kwargs)
+        if action == "delete_households_cookbooks_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_cookbooks_item_id(**kwargs)
+        if action == "get_households_events_notifications":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_events_notifications(**kwargs)
+        if action == "post_households_events_notifications":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_events_notifications(**kwargs)
+        if action == "get_households_events_notifications_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_events_notifications_item_id(**kwargs)
+        if action == "put_households_events_notifications_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_events_notifications_item_id(**kwargs)
+        if action == "delete_households_events_notifications_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_events_notifications_item_id(**kwargs)
+        if action == "test_notification":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.test_notification(**kwargs)
+        if action == "get_households_recipe_actions":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_recipe_actions(**kwargs)
+        if action == "post_households_recipe_actions":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_recipe_actions(**kwargs)
+        if action == "get_households_recipe_actions_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_recipe_actions_item_id(**kwargs)
+        if action == "put_households_recipe_actions_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_recipe_actions_item_id(**kwargs)
+        if action == "delete_households_recipe_actions_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_recipe_actions_item_id(**kwargs)
+        if action == "trigger_action":
+            kwargs = {
+                "item_id": item_id,
+                "recipe_slug": recipe_slug,
+                "accept_language": accept_language,
+                "data": data,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.trigger_action(**kwargs)
+        if action == "get_logged_in_user_household":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_logged_in_user_household(**kwargs)
+        if action == "get_household_recipe":
+            kwargs = {
+                "recipe_slug": recipe_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_household_recipe(**kwargs)
+        if action == "get_household_members":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_household_members(**kwargs)
+        if action == "get_household_preferences":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_household_preferences(**kwargs)
+        if action == "update_household_preferences":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_household_preferences(**kwargs)
+        if action == "set_member_permissions":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.set_member_permissions(**kwargs)
+        if action == "get_statistics":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_statistics(**kwargs)
+        if action == "get_invite_tokens":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_invite_tokens(**kwargs)
+        if action == "create_invite_token":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.create_invite_token(**kwargs)
+        if action == "email_invitation":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.email_invitation(**kwargs)
+        if action == "get_households_shopping_lists":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_shopping_lists(**kwargs)
+        if action == "post_households_shopping_lists":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_shopping_lists(**kwargs)
+        if action == "get_households_shopping_lists_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_shopping_lists_item_id(**kwargs)
+        if action == "put_households_shopping_lists_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_shopping_lists_item_id(**kwargs)
+        if action == "delete_households_shopping_lists_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_shopping_lists_item_id(**kwargs)
+        if action == "update_label_settings":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_label_settings(**kwargs)
+        if action == "add_recipe_ingredients_to_list":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.add_recipe_ingredients_to_list(**kwargs)
+        if action == "add_single_recipe_ingredients_to_list":
+            kwargs = {
+                "item_id": item_id,
+                "recipe_id": recipe_id,
+                "accept_language": accept_language,
+                "data": data,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.add_single_recipe_ingredients_to_list(**kwargs)
+        if action == "remove_recipe_ingredients_from_list":
+            kwargs = {
+                "item_id": item_id,
+                "recipe_id": recipe_id,
+                "accept_language": accept_language,
+                "data": data,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.remove_recipe_ingredients_from_list(**kwargs)
+        if action == "get_households_shopping_items":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_shopping_items(**kwargs)
+        if action == "post_households_shopping_items":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_shopping_items(**kwargs)
+        if action == "put_households_shopping_items":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_shopping_items(**kwargs)
+        if action == "delete_households_shopping_items":
+            kwargs = {"ids": ids, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_shopping_items(**kwargs)
+        if action == "post_households_shopping_items_create_bulk":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_shopping_items_create_bulk(**kwargs)
+        if action == "get_households_shopping_items_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_shopping_items_item_id(**kwargs)
+        if action == "put_households_shopping_items_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_shopping_items_item_id(**kwargs)
+        if action == "delete_households_shopping_items_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_shopping_items_item_id(**kwargs)
+        if action == "get_households_webhooks":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_webhooks(**kwargs)
+        if action == "post_households_webhooks":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_webhooks(**kwargs)
+        if action == "rerun_webhooks":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.rerun_webhooks(**kwargs)
+        if action == "get_households_webhooks_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_webhooks_item_id(**kwargs)
+        if action == "put_households_webhooks_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_webhooks_item_id(**kwargs)
+        if action == "delete_households_webhooks_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_webhooks_item_id(**kwargs)
+        if action == "test_one":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.test_one(**kwargs)
+        if action == "get_households_mealplans_rules":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_mealplans_rules(**kwargs)
+        if action == "post_households_mealplans_rules":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_mealplans_rules(**kwargs)
+        if action == "get_households_mealplans_rules_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_mealplans_rules_item_id(**kwargs)
+        if action == "put_households_mealplans_rules_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_mealplans_rules_item_id(**kwargs)
+        if action == "delete_households_mealplans_rules_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_mealplans_rules_item_id(**kwargs)
+        if action == "get_households_mealplans":
+            kwargs = {
+                "start_date": start_date,
+                "end_date": end_date,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_mealplans(**kwargs)
+        if action == "post_households_mealplans":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_households_mealplans(**kwargs)
+        if action == "get_todays_meals":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_todays_meals(**kwargs)
+        if action == "create_random_meal":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.create_random_meal(**kwargs)
+        if action == "get_households_mealplans_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_households_mealplans_item_id(**kwargs)
+        if action == "put_households_mealplans_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_households_mealplans_item_id(**kwargs)
+        if action == "delete_households_mealplans_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_households_mealplans_item_id(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_households_cookbooks', 'post_households_cookbooks', 'put_households_cookbooks', 'get_households_cookbooks_item_id', 'put_households_cookbooks_item_id', 'delete_households_cookbooks_item_id', 'get_households_events_notifications', 'post_households_events_notifications', 'get_households_events_notifications_item_id', 'put_households_events_notifications_item_id', 'delete_households_events_notifications_item_id', 'test_notification', 'get_households_recipe_actions', 'post_households_recipe_actions', 'get_households_recipe_actions_item_id', 'put_households_recipe_actions_item_id', 'delete_households_recipe_actions_item_id', 'trigger_action', 'get_logged_in_user_household', 'get_household_recipe', 'get_household_members', 'get_household_preferences', 'update_household_preferences', 'set_member_permissions', 'get_statistics', 'get_invite_tokens', 'create_invite_token', 'email_invitation', 'get_households_shopping_lists', 'post_households_shopping_lists', 'get_households_shopping_lists_item_id', 'put_households_shopping_lists_item_id', 'delete_households_shopping_lists_item_id', 'update_label_settings', 'add_recipe_ingredients_to_list', 'add_single_recipe_ingredients_to_list', 'remove_recipe_ingredients_from_list', 'get_households_shopping_items', 'post_households_shopping_items', 'put_households_shopping_items', 'delete_households_shopping_items', 'post_households_shopping_items_create_bulk', 'get_households_shopping_items_item_id', 'put_households_shopping_items_item_id', 'delete_households_shopping_items_item_id', 'get_households_webhooks', 'post_households_webhooks', 'rerun_webhooks', 'get_households_webhooks_item_id', 'put_households_webhooks_item_id', 'delete_households_webhooks_item_id', 'test_one', 'get_households_mealplans_rules', 'post_households_mealplans_rules', 'get_households_mealplans_rules_item_id', 'put_households_mealplans_rules_item_id', 'delete_households_mealplans_rules_item_id', 'get_households_mealplans', 'post_households_mealplans', 'get_todays_meals', 'create_random_meal', 'get_households_mealplans_item_id', 'put_households_mealplans_item_id', 'delete_households_mealplans_item_id"
         )
 
 
 def register_groups_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_all_households(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
+    @mcp.tool(tags={"groups"})
+    async def mealie_groups(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_all_households', 'get_one_household', 'get_logged_in_user_group', 'get_group_members', 'get_group_member', 'get_group_preferences', 'update_group_preferences', 'get_storage', 'start_data_migration', 'get_groups_reports', 'get_groups_reports_item_id', 'delete_groups_reports_item_id', 'get_groups_labels', 'post_groups_labels', 'get_groups_labels_item_id', 'put_groups_labels_item_id', 'delete_groups_labels_item_id', 'seed_foods', 'seed_labels', 'seed_units'"
         ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        order_by: Any | None = Field(default=None, description="order by"),
+        order_by_null_position: Any | None = Field(
+            default=None, description="order by null position"
+        ),
+        order_direction: Any | None = Field(
+            default=None, description="order direction"
+        ),
+        query_filter: Any | None = Field(default=None, description="query filter"),
+        pagination_seed: Any | None = Field(
+            default=None, description="pagination seed"
+        ),
         page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
+        per_page: int | None = Field(default=None, description="per page"),
         accept_language: Any | None = Field(
-            default=None, description="accept-language"
+            default=None, description="accept language"
         ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All Households"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_all_households(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_one_household(
-        household_slug: str = Field(default=..., description="household_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One Household"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_one_household(
-            household_slug=household_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_logged_in_user_group(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Logged In User Group"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_logged_in_user_group(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_group_members(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Group Members"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_group_members(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_group_member(
-        username_or_id: Any = Field(default=..., description="username_or_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Group Member"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_group_member(
-            username_or_id=username_or_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_group_preferences(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Group Preferences"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_group_preferences(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def update_group_preferences(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Group Preferences"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/groups/preferences?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_group_preferences(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_storage(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Storage"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_storage(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def start_data_migration(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Start Data Migration"""
-        if ctx:
-            message = "Are you sure you want to POST /api/groups/migrations?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.start_data_migration(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_groups_reports(
-        report_type: Any | None = Field(default=None, description="report_type"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_groups_reports(
-            report_type=report_type, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_groups_reports_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_groups_reports_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def delete_groups_reports_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/groups/reports/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_groups_reports_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_groups_labels(
+        household_slug: str | None = Field(default=None, description="household slug"),
+        username_or_id: Any | None = Field(default=None, description="username or id"),
+        data: dict | None = Field(default=None, description="data"),
+        report_type: Any | None = Field(default=None, description="report type"),
+        item_id: str | None = Field(default=None, description="item id"),
         search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
+        client=Depends(get_client),
     ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_groups_labels(
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
+        """Manage groups operations.
+
+        Actions:
+          - 'get_all_households': Get All Households
+          - 'get_one_household': Get One Household
+          - 'get_logged_in_user_group': Get Logged In User Group
+          - 'get_group_members': Get Group Members
+          - 'get_group_member': Get Group Member
+          - 'get_group_preferences': Get Group Preferences
+          - 'update_group_preferences': Update Group Preferences
+          - 'get_storage': Get Storage
+          - 'start_data_migration': Start Data Migration
+          - 'get_groups_reports': Get All
+          - 'get_groups_reports_item_id': Get One
+          - 'delete_groups_reports_item_id': Delete One
+          - 'get_groups_labels': Get All
+          - 'post_groups_labels': Create One
+          - 'get_groups_labels_item_id': Get One
+          - 'put_groups_labels_item_id': Update One
+          - 'delete_groups_labels_item_id': Delete One
+          - 'seed_foods': Seed Foods
+          - 'seed_labels': Seed Labels
+          - 'seed_units': Seed Units
+        """
+        kwargs: dict[str, Any]
+        if action == "get_all_households":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_all_households(**kwargs)
+        if action == "get_one_household":
+            kwargs = {
+                "household_slug": household_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_one_household(**kwargs)
+        if action == "get_logged_in_user_group":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_logged_in_user_group(**kwargs)
+        if action == "get_group_members":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_group_members(**kwargs)
+        if action == "get_group_member":
+            kwargs = {
+                "username_or_id": username_or_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_group_member(**kwargs)
+        if action == "get_group_preferences":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_group_preferences(**kwargs)
+        if action == "update_group_preferences":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_group_preferences(**kwargs)
+        if action == "get_storage":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_storage(**kwargs)
+        if action == "start_data_migration":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.start_data_migration(**kwargs)
+        if action == "get_groups_reports":
+            kwargs = {
+                "report_type": report_type,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_groups_reports(**kwargs)
+        if action == "get_groups_reports_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_groups_reports_item_id(**kwargs)
+        if action == "delete_groups_reports_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_groups_reports_item_id(**kwargs)
+        if action == "get_groups_labels":
+            kwargs = {
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_groups_labels(**kwargs)
+        if action == "post_groups_labels":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_groups_labels(**kwargs)
+        if action == "get_groups_labels_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_groups_labels_item_id(**kwargs)
+        if action == "put_groups_labels_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_groups_labels_item_id(**kwargs)
+        if action == "delete_groups_labels_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_groups_labels_item_id(**kwargs)
+        if action == "seed_foods":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.seed_foods(**kwargs)
+        if action == "seed_labels":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.seed_labels(**kwargs)
+        if action == "seed_units":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.seed_units(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_all_households', 'get_one_household', 'get_logged_in_user_group', 'get_group_members', 'get_group_member', 'get_group_preferences', 'update_group_preferences', 'get_storage', 'start_data_migration', 'get_groups_reports', 'get_groups_reports_item_id', 'delete_groups_reports_item_id', 'get_groups_labels', 'post_groups_labels', 'get_groups_labels_item_id', 'put_groups_labels_item_id', 'delete_groups_labels_item_id', 'seed_foods', 'seed_labels', 'seed_units"
         )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def post_groups_labels(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/groups/labels?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_groups_labels(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def get_groups_labels_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_groups_labels_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def put_groups_labels_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/groups/labels/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_groups_labels_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def delete_groups_labels_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/groups/labels/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_groups_labels_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def seed_foods(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Seed Foods"""
-        if ctx:
-            message = "Are you sure you want to POST /api/groups/seeders/foods?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.seed_foods(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def seed_labels(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Seed Labels"""
-        if ctx:
-            message = "Are you sure you want to POST /api/groups/seeders/labels?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.seed_labels(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"groups"},
-    )
-    async def seed_units(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Seed Units"""
-        if ctx:
-            message = "Are you sure you want to POST /api/groups/seeders/units?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.seed_units(data=data, accept_language=accept_language)
 
 
 def register_recipes_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_formats_and_templates(
+    @mcp.tool(tags={"recipes"})
+    async def mealie_recipes(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_recipe_formats_and_templates', 'get_recipe_as_format', 'test_parse_recipe_url', 'create_recipe_from_html_or_json', 'parse_recipe_url', 'parse_recipe_url_bulk', 'create_recipe_from_zip', 'create_recipe_from_image', 'get_recipes', 'post_recipes', 'put_recipes', 'patch_many', 'get_recipes_suggestions', 'get_recipes_slug', 'put_recipes_slug', 'patch_one', 'delete_recipes_slug', 'duplicate_one', 'update_last_made', 'scrape_image_url', 'update_recipe_image', 'delete_recipe_image', 'upload_recipe_asset', 'get_recipe_comments', 'bulk_tag_recipes', 'bulk_settings_recipes', 'bulk_categorize_recipes', 'bulk_delete_recipes', 'bulk_export_recipes', 'get_exported_data', 'get_exported_data_token', 'purge_export_data', 'get_shared_recipe', 'get_shared_recipe_as_zip', 'get_recipes_timeline_events', 'post_recipes_timeline_events', 'get_recipes_timeline_events_item_id', 'put_recipes_timeline_events_item_id', 'delete_recipes_timeline_events_item_id', 'update_event_image', 'get_comments', 'post_comments', 'get_comments_item_id', 'put_comments_item_id', 'post_parser_ingredient', 'parse_ingredient', 'parse_ingredients', 'get_foods', 'post_foods', 'put_foods_merge', 'get_foods_item_id', 'put_foods_item_id', 'delete_foods_item_id', 'get_units', 'post_units', 'put_units_merge', 'get_units_item_id', 'put_units_item_id', 'delete_units_item_id', 'get_recipe_img', 'get_recipe_timeline_event_img', 'get_recipe_asset', 'get_user_image', 'get_validation_text'"
+        ),
         accept_language: Any | None = Field(
-            default=None, description="accept-language"
+            default=None, description="accept language"
         ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Recipe Formats And Templates"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_formats_and_templates(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_as_format(
-        slug: str = Field(default=..., description="slug"),
-        template_name: str = Field(default=..., description="template_name"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Recipe As Format"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_as_format(
-            slug=slug, template_name=template_name, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def test_parse_recipe_url(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Test Parse Recipe Url"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/test-scrape-url?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.test_parse_recipe_url(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def create_recipe_from_html_or_json(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create Recipe From Html Or Json"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/create/html-or-json?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.create_recipe_from_html_or_json(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def parse_recipe_url(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Parse Recipe Url"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/create/url?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.parse_recipe_url(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def parse_recipe_url_bulk(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Parse Recipe Url Bulk"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/create/url/bulk?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.parse_recipe_url_bulk(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def create_recipe_from_zip(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create Recipe From Zip"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/create/zip?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.create_recipe_from_zip(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def create_recipe_from_image(
-        data: dict = Field(default=..., description="Request body data"),
+        slug: str | None = Field(default=None, description="slug"),
+        template_name: str | None = Field(default=None, description="template name"),
+        data: dict | None = Field(default=None, description="data"),
         translate_language: Any | None = Field(
-            default=None, description="translateLanguage"
+            default=None, description="translate language"
         ),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create Recipe From Image"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/create/image?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.create_recipe_from_image(
-            data=data,
-            translate_language=translate_language,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipes(
         categories: Any | None = Field(default=None, description="categories"),
         tags: Any | None = Field(default=None, description="tags"),
         tools: Any | None = Field(default=None, description="tools"),
         foods: Any | None = Field(default=None, description="foods"),
         households: Any | None = Field(default=None, description="households"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
+        order_by: Any | None = Field(default=None, description="order by"),
+        order_by_null_position: Any | None = Field(
+            default=None, description="order by null position"
         ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        order_direction: Any | None = Field(
+            default=None, description="order direction"
+        ),
+        query_filter: Any | None = Field(default=None, description="query filter"),
+        pagination_seed: Any | None = Field(
+            default=None, description="pagination seed"
+        ),
         page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
+        per_page: int | None = Field(default=None, description="per page"),
         cookbook: Any | None = Field(default=None, description="cookbook"),
         require_all_categories: bool | None = Field(
-            default=None, description="requireAllCategories"
+            default=None, description="require all categories"
         ),
         require_all_tags: bool | None = Field(
-            default=None, description="requireAllTags"
+            default=None, description="require all tags"
         ),
         require_all_tools: bool | None = Field(
-            default=None, description="requireAllTools"
+            default=None, description="require all tools"
         ),
         require_all_foods: bool | None = Field(
-            default=None, description="requireAllFoods"
+            default=None, description="require all foods"
         ),
         search: Any | None = Field(default=None, description="search"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipes(
-            categories=categories,
-            tags=tags,
-            tools=tools,
-            foods=foods,
-            households=households,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            cookbook=cookbook,
-            require_all_categories=require_all_categories,
-            require_all_tags=require_all_tags,
-            require_all_tools=require_all_tools,
-            require_all_foods=require_all_foods,
-            search=search,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_recipes(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_recipes(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_recipes(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Many"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/recipes?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_recipes(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def patch_many(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Patch Many"""
-        if ctx:
-            message = "Are you sure you want to PATCH /api/recipes?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.patch_many(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipes_suggestions(
-        foods: Any | None = Field(default=None, description="foods"),
-        tools: Any | None = Field(default=None, description="tools"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
         limit: int | None = Field(default=None, description="limit"),
         max_missing_foods: int | None = Field(
-            default=None, description="maxMissingFoods"
+            default=None, description="max missing foods"
         ),
         max_missing_tools: int | None = Field(
-            default=None, description="maxMissingTools"
+            default=None, description="max missing tools"
         ),
         include_foods_on_hand: bool | None = Field(
-            default=None, description="includeFoodsOnHand"
+            default=None, description="include foods on hand"
         ),
         include_tools_on_hand: bool | None = Field(
-            default=None, description="includeToolsOnHand"
+            default=None, description="include tools on hand"
         ),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
+        export_id: str | None = Field(default=None, description="export id"),
+        token_id: str | None = Field(default=None, description="token id"),
+        item_id: str | None = Field(default=None, description="item id"),
+        recipe_id: str | None = Field(default=None, description="recipe id"),
+        file_name: Any | None = Field(default=None, description="file name"),
+        timeline_event_id: str | None = Field(
+            default=None, description="timeline event id"
         ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
+        user_id: str | None = Field(default=None, description="user id"),
+        client=Depends(get_client),
     ) -> dict:
-        """Suggest Recipes"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipes_suggestions(
-            foods=foods,
-            tools=tools,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            limit=limit,
-            max_missing_foods=max_missing_foods,
-            max_missing_tools=max_missing_tools,
-            include_foods_on_hand=include_foods_on_hand,
-            include_tools_on_hand=include_tools_on_hand,
-            accept_language=accept_language,
+        """Manage recipes operations.
+
+        Actions:
+          - 'get_recipe_formats_and_templates': Get Recipe Formats And Templates
+          - 'get_recipe_as_format': Get Recipe As Format
+          - 'test_parse_recipe_url': Test Parse Recipe Url
+          - 'create_recipe_from_html_or_json': Create Recipe From Html Or Json
+          - 'parse_recipe_url': Parse Recipe Url
+          - 'parse_recipe_url_bulk': Parse Recipe Url Bulk
+          - 'create_recipe_from_zip': Create Recipe From Zip
+          - 'create_recipe_from_image': Create Recipe From Image
+          - 'get_recipes': Get All
+          - 'post_recipes': Create One
+          - 'put_recipes': Update Many
+          - 'patch_many': Patch Many
+          - 'get_recipes_suggestions': Suggest Recipes
+          - 'get_recipes_slug': Get One
+          - 'put_recipes_slug': Update One
+          - 'patch_one': Patch One
+          - 'delete_recipes_slug': Delete One
+          - 'duplicate_one': Duplicate One
+          - 'update_last_made': Update Last Made
+          - 'scrape_image_url': Scrape Image Url
+          - 'update_recipe_image': Update Recipe Image
+          - 'delete_recipe_image': Delete Recipe Image
+          - 'upload_recipe_asset': Upload Recipe Asset
+          - 'get_recipe_comments': Get Recipe Comments
+          - 'bulk_tag_recipes': Bulk Tag Recipes
+          - 'bulk_settings_recipes': Bulk Settings Recipes
+          - 'bulk_categorize_recipes': Bulk Categorize Recipes
+          - 'bulk_delete_recipes': Bulk Delete Recipes
+          - 'bulk_export_recipes': Bulk Export Recipes
+          - 'get_exported_data': Get Exported Data
+          - 'get_exported_data_token': Get Exported Data Token
+          - 'purge_export_data': Purge Export Data
+          - 'get_shared_recipe': Get Shared Recipe
+          - 'get_shared_recipe_as_zip': Get Shared Recipe As Zip
+          - 'get_recipes_timeline_events': Get All
+          - 'post_recipes_timeline_events': Create One
+          - 'get_recipes_timeline_events_item_id': Get One
+          - 'put_recipes_timeline_events_item_id': Update One
+          - 'delete_recipes_timeline_events_item_id': Delete One
+          - 'update_event_image': Update Event Image
+          - 'get_comments': Get All
+          - 'post_comments': Create One
+          - 'get_comments_item_id': Get One
+          - 'put_comments_item_id': Update One
+          - 'post_parser_ingredient': Delete One
+          - 'parse_ingredient': Parse Ingredient
+          - 'parse_ingredients': Parse Ingredients
+          - 'get_foods': Get All
+          - 'post_foods': Create One
+          - 'put_foods_merge': Merge One
+          - 'get_foods_item_id': Get One
+          - 'put_foods_item_id': Update One
+          - 'delete_foods_item_id': Delete One
+          - 'get_units': Get All
+          - 'post_units': Create One
+          - 'put_units_merge': Merge One
+          - 'get_units_item_id': Get One
+          - 'put_units_item_id': Update One
+          - 'delete_units_item_id': Delete One
+          - 'get_recipe_img': Get Recipe Img
+          - 'get_recipe_timeline_event_img': Get Recipe Timeline Event Img
+          - 'get_recipe_asset': Get Recipe Asset
+          - 'get_user_image': Get User Image
+          - 'get_validation_text': Get Validation Text
+        """
+        kwargs: dict[str, Any]
+        if action == "get_recipe_formats_and_templates":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipe_formats_and_templates(**kwargs)
+        if action == "get_recipe_as_format":
+            kwargs = {
+                "slug": slug,
+                "template_name": template_name,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipe_as_format(**kwargs)
+        if action == "test_parse_recipe_url":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.test_parse_recipe_url(**kwargs)
+        if action == "create_recipe_from_html_or_json":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.create_recipe_from_html_or_json(**kwargs)
+        if action == "parse_recipe_url":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.parse_recipe_url(**kwargs)
+        if action == "parse_recipe_url_bulk":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.parse_recipe_url_bulk(**kwargs)
+        if action == "create_recipe_from_zip":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.create_recipe_from_zip(**kwargs)
+        if action == "create_recipe_from_image":
+            kwargs = {
+                "data": data,
+                "translate_language": translate_language,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.create_recipe_from_image(**kwargs)
+        if action == "get_recipes":
+            kwargs = {
+                "categories": categories,
+                "tags": tags,
+                "tools": tools,
+                "foods": foods,
+                "households": households,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "cookbook": cookbook,
+                "require_all_categories": require_all_categories,
+                "require_all_tags": require_all_tags,
+                "require_all_tools": require_all_tools,
+                "require_all_foods": require_all_foods,
+                "search": search,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipes(**kwargs)
+        if action == "post_recipes":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_recipes(**kwargs)
+        if action == "put_recipes":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_recipes(**kwargs)
+        if action == "patch_many":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.patch_many(**kwargs)
+        if action == "get_recipes_suggestions":
+            kwargs = {
+                "foods": foods,
+                "tools": tools,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "limit": limit,
+                "max_missing_foods": max_missing_foods,
+                "max_missing_tools": max_missing_tools,
+                "include_foods_on_hand": include_foods_on_hand,
+                "include_tools_on_hand": include_tools_on_hand,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipes_suggestions(**kwargs)
+        if action == "get_recipes_slug":
+            kwargs = {"slug": slug, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipes_slug(**kwargs)
+        if action == "put_recipes_slug":
+            kwargs = {
+                "slug": slug,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_recipes_slug(**kwargs)
+        if action == "patch_one":
+            kwargs = {
+                "slug": slug,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.patch_one(**kwargs)
+        if action == "delete_recipes_slug":
+            kwargs = {"slug": slug, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_recipes_slug(**kwargs)
+        if action == "duplicate_one":
+            kwargs = {
+                "slug": slug,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.duplicate_one(**kwargs)
+        if action == "update_last_made":
+            kwargs = {
+                "slug": slug,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_last_made(**kwargs)
+        if action == "scrape_image_url":
+            kwargs = {
+                "slug": slug,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.scrape_image_url(**kwargs)
+        if action == "update_recipe_image":
+            kwargs = {
+                "slug": slug,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_recipe_image(**kwargs)
+        if action == "delete_recipe_image":
+            kwargs = {"slug": slug, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_recipe_image(**kwargs)
+        if action == "upload_recipe_asset":
+            kwargs = {
+                "slug": slug,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.upload_recipe_asset(**kwargs)
+        if action == "get_recipe_comments":
+            kwargs = {"slug": slug, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipe_comments(**kwargs)
+        if action == "bulk_tag_recipes":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.bulk_tag_recipes(**kwargs)
+        if action == "bulk_settings_recipes":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.bulk_settings_recipes(**kwargs)
+        if action == "bulk_categorize_recipes":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.bulk_categorize_recipes(**kwargs)
+        if action == "bulk_delete_recipes":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.bulk_delete_recipes(**kwargs)
+        if action == "bulk_export_recipes":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.bulk_export_recipes(**kwargs)
+        if action == "get_exported_data":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_exported_data(**kwargs)
+        if action == "get_exported_data_token":
+            kwargs = {
+                "export_id": export_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_exported_data_token(**kwargs)
+        if action == "purge_export_data":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.purge_export_data(**kwargs)
+        if action == "get_shared_recipe":
+            kwargs = {"token_id": token_id}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_shared_recipe(**kwargs)
+        if action == "get_shared_recipe_as_zip":
+            kwargs = {"token_id": token_id}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_shared_recipe_as_zip(**kwargs)
+        if action == "get_recipes_timeline_events":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipes_timeline_events(**kwargs)
+        if action == "post_recipes_timeline_events":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_recipes_timeline_events(**kwargs)
+        if action == "get_recipes_timeline_events_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipes_timeline_events_item_id(**kwargs)
+        if action == "put_recipes_timeline_events_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_recipes_timeline_events_item_id(**kwargs)
+        if action == "delete_recipes_timeline_events_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_recipes_timeline_events_item_id(**kwargs)
+        if action == "update_event_image":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.update_event_image(**kwargs)
+        if action == "get_comments":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_comments(**kwargs)
+        if action == "post_comments":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_comments(**kwargs)
+        if action == "get_comments_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_comments_item_id(**kwargs)
+        if action == "put_comments_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_comments_item_id(**kwargs)
+        if action == "post_parser_ingredient":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_parser_ingredient(**kwargs)
+        if action == "parse_ingredient":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.parse_ingredient(**kwargs)
+        if action == "parse_ingredients":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.parse_ingredients(**kwargs)
+        if action == "get_foods":
+            kwargs = {
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_foods(**kwargs)
+        if action == "post_foods":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_foods(**kwargs)
+        if action == "put_foods_merge":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_foods_merge(**kwargs)
+        if action == "get_foods_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_foods_item_id(**kwargs)
+        if action == "put_foods_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_foods_item_id(**kwargs)
+        if action == "delete_foods_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_foods_item_id(**kwargs)
+        if action == "get_units":
+            kwargs = {
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_units(**kwargs)
+        if action == "post_units":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_units(**kwargs)
+        if action == "put_units_merge":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_units_merge(**kwargs)
+        if action == "get_units_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_units_item_id(**kwargs)
+        if action == "put_units_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_units_item_id(**kwargs)
+        if action == "delete_units_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_units_item_id(**kwargs)
+        if action == "get_recipe_img":
+            kwargs = {"recipe_id": recipe_id, "file_name": file_name}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipe_img(**kwargs)
+        if action == "get_recipe_timeline_event_img":
+            kwargs = {
+                "recipe_id": recipe_id,
+                "timeline_event_id": timeline_event_id,
+                "file_name": file_name,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipe_timeline_event_img(**kwargs)
+        if action == "get_recipe_asset":
+            kwargs = {"recipe_id": recipe_id, "file_name": file_name}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipe_asset(**kwargs)
+        if action == "get_user_image":
+            kwargs = {"user_id": user_id, "file_name": file_name}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_user_image(**kwargs)
+        if action == "get_validation_text":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_validation_text(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_recipe_formats_and_templates', 'get_recipe_as_format', 'test_parse_recipe_url', 'create_recipe_from_html_or_json', 'parse_recipe_url', 'parse_recipe_url_bulk', 'create_recipe_from_zip', 'create_recipe_from_image', 'get_recipes', 'post_recipes', 'put_recipes', 'patch_many', 'get_recipes_suggestions', 'get_recipes_slug', 'put_recipes_slug', 'patch_one', 'delete_recipes_slug', 'duplicate_one', 'update_last_made', 'scrape_image_url', 'update_recipe_image', 'delete_recipe_image', 'upload_recipe_asset', 'get_recipe_comments', 'bulk_tag_recipes', 'bulk_settings_recipes', 'bulk_categorize_recipes', 'bulk_delete_recipes', 'bulk_export_recipes', 'get_exported_data', 'get_exported_data_token', 'purge_export_data', 'get_shared_recipe', 'get_shared_recipe_as_zip', 'get_recipes_timeline_events', 'post_recipes_timeline_events', 'get_recipes_timeline_events_item_id', 'put_recipes_timeline_events_item_id', 'delete_recipes_timeline_events_item_id', 'update_event_image', 'get_comments', 'post_comments', 'get_comments_item_id', 'put_comments_item_id', 'post_parser_ingredient', 'parse_ingredient', 'parse_ingredients', 'get_foods', 'post_foods', 'put_foods_merge', 'get_foods_item_id', 'put_foods_item_id', 'delete_foods_item_id', 'get_units', 'post_units', 'put_units_merge', 'get_units_item_id', 'put_units_item_id', 'delete_units_item_id', 'get_recipe_img', 'get_recipe_timeline_event_img', 'get_recipe_asset', 'get_user_image', 'get_validation_text"
         )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipes_slug(
-        slug: str = Field(default=..., description="A recipe's slug or id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipes_slug(slug=slug, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_recipes_slug(
-        slug: str = Field(default=..., description="slug"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/recipes/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_recipes_slug(
-            slug=slug, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def patch_one(
-        slug: str = Field(default=..., description="slug"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Patch One"""
-        if ctx:
-            message = f"Are you sure you want to PATCH /api/recipes/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.patch_one(slug=slug, data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def delete_recipes_slug(
-        slug: str = Field(default=..., description="slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/recipes/{slug}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_recipes_slug(slug=slug, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def duplicate_one(
-        slug: str = Field(default=..., description="slug"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Duplicate One"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/recipes/{slug}/duplicate?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.duplicate_one(
-            slug=slug, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def update_last_made(
-        slug: str = Field(default=..., description="slug"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Last Made"""
-        if ctx:
-            message = f"Are you sure you want to PATCH /api/recipes/{slug}/last-made?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_last_made(
-            slug=slug, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def scrape_image_url(
-        slug: str = Field(default=..., description="slug"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Scrape Image Url"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/recipes/{slug}/image?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.scrape_image_url(
-            slug=slug, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def update_recipe_image(
-        slug: str = Field(default=..., description="slug"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Recipe Image"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/recipes/{slug}/image?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_recipe_image(
-            slug=slug, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def delete_recipe_image(
-        slug: str = Field(default=..., description="slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete Recipe Image"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/recipes/{slug}/image?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_recipe_image(slug=slug, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def upload_recipe_asset(
-        slug: str = Field(default=..., description="slug"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Upload Recipe Asset"""
-        if ctx:
-            message = f"Are you sure you want to POST /api/recipes/{slug}/assets?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.upload_recipe_asset(
-            slug=slug, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_comments(
-        slug: str = Field(default=..., description="slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Recipe Comments"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_comments(slug=slug, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def bulk_tag_recipes(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Bulk Tag Recipes"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/bulk-actions/tag?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.bulk_tag_recipes(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def bulk_settings_recipes(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Bulk Settings Recipes"""
-        if ctx:
-            message = (
-                "Are you sure you want to POST /api/recipes/bulk-actions/settings?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.bulk_settings_recipes(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def bulk_categorize_recipes(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Bulk Categorize Recipes"""
-        if ctx:
-            message = (
-                "Are you sure you want to POST /api/recipes/bulk-actions/categorize?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.bulk_categorize_recipes(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def bulk_delete_recipes(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Bulk Delete Recipes"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/bulk-actions/delete?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.bulk_delete_recipes(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def bulk_export_recipes(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Bulk Export Recipes"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/bulk-actions/export?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.bulk_export_recipes(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_exported_data(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Exported Data"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_exported_data(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_exported_data_token(
-        export_id: str = Field(default=..., description="export_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Exported Data Token"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_exported_data_token(
-            export_id=export_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def purge_export_data(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Purge Export Data"""
-        if ctx:
-            message = "Are you sure you want to DELETE /api/recipes/bulk-actions/export/purge?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.purge_export_data(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_shared_recipe(
-        token_id: str = Field(default=..., description="token_id"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Shared Recipe"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_shared_recipe(token_id=token_id)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_shared_recipe_as_zip(
-        token_id: str = Field(default=..., description="token_id"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Shared Recipe As Zip"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_shared_recipe_as_zip(token_id=token_id)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipes_timeline_events(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipes_timeline_events(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_recipes_timeline_events(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/recipes/timeline/events?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_recipes_timeline_events(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipes_timeline_events_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipes_timeline_events_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_recipes_timeline_events_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to PUT /api/recipes/timeline/events/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_recipes_timeline_events_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def delete_recipes_timeline_events_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/recipes/timeline/events/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_recipes_timeline_events_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def update_event_image(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update Event Image"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/recipes/timeline/events/{item_id}/image?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.update_event_image(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_comments(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_comments(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_comments(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/comments?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_comments(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_comments_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_comments_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_comments_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/comments/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_comments_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_parser_ingredient(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/comments/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_parser_ingredient(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def parse_ingredient(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Parse Ingredient"""
-        if ctx:
-            message = "Are you sure you want to POST /api/parser/ingredient?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.parse_ingredient(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def parse_ingredients(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Parse Ingredients"""
-        if ctx:
-            message = "Are you sure you want to POST /api/parser/ingredients?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.parse_ingredients(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_foods(
-        search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_foods(
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_foods(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/foods?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_foods(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_foods_merge(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Merge One"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/foods/merge?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_foods_merge(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_foods_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_foods_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_foods_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/foods/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_foods_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def delete_foods_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/foods/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_foods_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_units(
-        search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_units(
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def post_units(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/units?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_units(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_units_merge(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Merge One"""
-        if ctx:
-            message = "Are you sure you want to PUT /api/units/merge?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_units_merge(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_units_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_units_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def put_units_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/units/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_units_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def delete_units_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/units/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_units_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_img(
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        file_name: Any = Field(default=..., description="file_name"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Recipe Img"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_img(recipe_id=recipe_id, file_name=file_name)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_timeline_event_img(
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        timeline_event_id: str = Field(default=..., description="timeline_event_id"),
-        file_name: Any = Field(default=..., description="file_name"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Recipe Timeline Event Img"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_timeline_event_img(
-            recipe_id=recipe_id,
-            timeline_event_id=timeline_event_id,
-            file_name=file_name,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_recipe_asset(
-        recipe_id: str = Field(default=..., description="recipe_id"),
-        file_name: str = Field(default=..., description="file_name"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Recipe Asset"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe_asset(recipe_id=recipe_id, file_name=file_name)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_user_image(
-        user_id: str = Field(default=..., description="user_id"),
-        file_name: str = Field(default=..., description="file_name"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get User Image"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_user_image(user_id=user_id, file_name=file_name)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"recipes"},
-    )
-    async def get_validation_text(
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Validation Text"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_validation_text()
 
 
 def register_organizer_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_categories(
+    @mcp.tool(tags={"organizer"})
+    async def mealie_organizer(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_organizers_categories', 'post_organizers_categories', 'get_all_empty', 'get_organizers_categories_item_id', 'put_organizers_categories_item_id', 'delete_organizers_categories_item_id', 'get_organizers_categories_slug_category_slug', 'get_organizers_tags', 'post_organizers_tags', 'get_empty_tags', 'get_organizers_tags_item_id', 'put_organizers_tags_item_id', 'delete_recipe_tag', 'get_organizers_tags_slug_tag_slug', 'get_organizerss', 'post_organizerss', 'get_organizerss_item_id', 'put_organizerss_item_id', 'delete_organizerss_item_id', 'get_organizerss_slug_slug'"
+        ),
         search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
+        order_by: Any | None = Field(default=None, description="order by"),
+        order_by_null_position: Any | None = Field(
+            default=None, description="order by null position"
         ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        order_direction: Any | None = Field(
+            default=None, description="order direction"
+        ),
+        query_filter: Any | None = Field(default=None, description="query filter"),
+        pagination_seed: Any | None = Field(
+            default=None, description="pagination seed"
+        ),
         page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
+        per_page: int | None = Field(default=None, description="per page"),
         accept_language: Any | None = Field(
-            default=None, description="accept-language"
+            default=None, description="accept language"
         ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
+        data: dict | None = Field(default=None, description="data"),
+        item_id: str | None = Field(default=None, description="item id"),
+        category_slug: str | None = Field(default=None, description="category slug"),
+        tag_slug: str | None = Field(default=None, description="tag slug"),
+        client=Depends(get_client),
     ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_categories(
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
+        """Manage organizer operations.
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def post_organizers_categories(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/organizers/categories?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_organizers_categories(
-            data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_all_empty(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All Empty"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_all_empty(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_categories_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_categories_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def put_organizers_categories_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to PUT /api/organizers/categories/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_organizers_categories_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def delete_organizers_categories_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to DELETE /api/organizers/categories/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_organizers_categories_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_categories_slug_category_slug(
-        category_slug: str = Field(default=..., description="category_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One By Slug"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_categories_slug_category_slug(
-            category_slug=category_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_tags(
-        search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_tags(
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def post_organizers_tags(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/organizers/tags?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_organizers_tags(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_empty_tags(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Empty Tags"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_empty_tags(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_tags_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_tags_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def put_organizers_tags_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/organizers/tags/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_organizers_tags_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def delete_recipe_tag(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete Recipe Tag"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/organizers/tags/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_recipe_tag(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_tags_slug_tag_slug(
-        tag_slug: str = Field(default=..., description="tag_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One By Slug"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_tags_slug_tag_slug(
-            tag_slug=tag_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_tools(
-        search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_tools(
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def post_organizers_tools(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/organizers/tools?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_organizers_tools(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_tools_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_tools_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def put_organizers_tools_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/organizers/tools/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_organizers_tools_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def delete_organizers_tools_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to DELETE /api/organizers/tools/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_organizers_tools_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"organizer"},
-    )
-    async def get_organizers_tools_slug_tool_slug(
-        tool_slug: str = Field(default=..., description="tool_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One By Slug"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_organizers_tools_slug_tool_slug(
-            tool_slug=tool_slug, accept_language=accept_language
+        Actions:
+          - 'get_organizers_categories': Get All
+          - 'post_organizers_categories': Create One
+          - 'get_all_empty': Get All Empty
+          - 'get_organizers_categories_item_id': Get One
+          - 'put_organizers_categories_item_id': Update One
+          - 'delete_organizers_categories_item_id': Delete One
+          - 'get_organizers_categories_slug_category_slug': Get One By Slug
+          - 'get_organizers_tags': Get All
+          - 'post_organizers_tags': Create One
+          - 'get_empty_tags': Get Empty Tags
+          - 'get_organizers_tags_item_id': Get One
+          - 'put_organizers_tags_item_id': Update One
+          - 'delete_recipe_tag': Delete Recipe Tag
+          - 'get_organizers_tags_slug_tag_slug': Get One By Slug
+          - 'get_organizerss': Call get_organizerss
+          - 'post_organizerss': Call post_organizerss
+          - 'get_organizerss_item_id': Call get_organizerss_item_id
+          - 'put_organizerss_item_id': Call put_organizerss_item_id
+          - 'delete_organizerss_item_id': Call delete_organizerss_item_id
+          - 'get_organizerss_slug_slug': Call get_organizerss_slug_slug
+        """
+        kwargs: dict[str, Any]
+        if action == "get_organizers_categories":
+            kwargs = {
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizers_categories(**kwargs)
+        if action == "post_organizers_categories":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_organizers_categories(**kwargs)
+        if action == "get_all_empty":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_all_empty(**kwargs)
+        if action == "get_organizers_categories_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizers_categories_item_id(**kwargs)
+        if action == "put_organizers_categories_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_organizers_categories_item_id(**kwargs)
+        if action == "delete_organizers_categories_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_organizers_categories_item_id(**kwargs)
+        if action == "get_organizers_categories_slug_category_slug":
+            kwargs = {
+                "category_slug": category_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizers_categories_slug_category_slug(**kwargs)
+        if action == "get_organizers_tags":
+            kwargs = {
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizers_tags(**kwargs)
+        if action == "post_organizers_tags":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_organizers_tags(**kwargs)
+        if action == "get_empty_tags":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_empty_tags(**kwargs)
+        if action == "get_organizers_tags_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizers_tags_item_id(**kwargs)
+        if action == "put_organizers_tags_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_organizers_tags_item_id(**kwargs)
+        if action == "delete_recipe_tag":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_recipe_tag(**kwargs)
+        if action == "get_organizers_tags_slug_tag_slug":
+            kwargs = {
+                "tag_slug": tag_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizers_tags_slug_tag_slug(**kwargs)
+        if action == "get_organizerss":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizerss(**kwargs)
+        if action == "post_organizerss":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_organizerss(**kwargs)
+        if action == "get_organizerss_item_id":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizerss_item_id(**kwargs)
+        if action == "put_organizerss_item_id":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_organizerss_item_id(**kwargs)
+        if action == "delete_organizerss_item_id":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_organizerss_item_id(**kwargs)
+        if action == "get_organizerss_slug_slug":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_organizerss_slug_slug(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_organizers_categories', 'post_organizers_categories', 'get_all_empty', 'get_organizers_categories_item_id', 'put_organizers_categories_item_id', 'delete_organizers_categories_item_id', 'get_organizers_categories_slug_category_slug', 'get_organizers_tags', 'post_organizers_tags', 'get_empty_tags', 'get_organizers_tags_item_id', 'put_organizers_tags_item_id', 'delete_recipe_tag', 'get_organizers_tags_slug_tag_slug', 'get_organizerss', 'post_organizerss', 'get_organizerss_item_id', 'put_organizerss_item_id', 'delete_organizerss_item_id', 'get_organizerss_slug_slug"
         )
 
 
 def register_shared_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"shared"},
-    )
-    async def get_shared_recipes(
-        recipe_id: Any | None = Field(default=None, description="recipe_id"),
+    @mcp.tool(tags={"shared"})
+    async def mealie_shared(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_shared_recipes', 'post_shared_recipes', 'get_shared_recipes_item_id', 'delete_shared_recipes_item_id'"
+        ),
+        recipe_id: Any | None = Field(default=None, description="recipe id"),
         accept_language: Any | None = Field(
-            default=None, description="accept-language"
+            default=None, description="accept language"
         ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
+        data: dict | None = Field(default=None, description="data"),
+        item_id: str | None = Field(default=None, description="item id"),
+        client=Depends(get_client),
     ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_shared_recipes(
-            recipe_id=recipe_id, accept_language=accept_language
-        )
+        """Manage shared operations.
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"shared"},
-    )
-    async def post_shared_recipes(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/shared/recipes?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_shared_recipes(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"shared"},
-    )
-    async def get_shared_recipes_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_shared_recipes_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"shared"},
-    )
-    async def delete_shared_recipes_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/shared/recipes/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_shared_recipes_item_id(
-            item_id=item_id, accept_language=accept_language
+        Actions:
+          - 'get_shared_recipes': Get All
+          - 'post_shared_recipes': Create One
+          - 'get_shared_recipes_item_id': Get One
+          - 'delete_shared_recipes_item_id': Delete One
+        """
+        kwargs: dict[str, Any]
+        if action == "get_shared_recipes":
+            kwargs = {
+                "recipe_id": recipe_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_shared_recipes(**kwargs)
+        if action == "post_shared_recipes":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_shared_recipes(**kwargs)
+        if action == "get_shared_recipes_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_shared_recipes_item_id(**kwargs)
+        if action == "delete_shared_recipes_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_shared_recipes_item_id(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_shared_recipes', 'post_shared_recipes', 'get_shared_recipes_item_id', 'delete_shared_recipes_item_id"
         )
 
 
 def register_admin_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_app_info(
+    @mcp.tool(tags={"admin"})
+    async def mealie_admin(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_app_info', 'get_app_statistics', 'check_app_config', 'get_admin_users', 'post_admin_users', 'unlock_users', 'get_admin_users_item_id', 'put_admin_users_item_id', 'delete_admin_users_item_id', 'generate_token', 'get_admin_households', 'post_admin_households', 'get_admin_households_item_id', 'put_admin_households_item_id', 'delete_admin_households_item_id', 'get_admin_groups', 'post_admin_groups', 'get_admin_groups_item_id', 'put_admin_groups_item_id', 'delete_admin_groups_item_id', 'check_email_config', 'send_test_email', 'get_admin_backups', 'post_admin_backups', 'get_admin_backups_file_name', 'delete_admin_backups_file_name', 'upload_one', 'import_one', 'get_maintenance_summary', 'get_storage_details', 'clean_images', 'clean_temp', 'clean_recipe_folders', 'debug_openai'"
+        ),
         accept_language: Any | None = Field(
-            default=None, description="accept-language"
+            default=None, description="accept language"
         ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
+        order_by: Any | None = Field(default=None, description="order by"),
+        order_by_null_position: Any | None = Field(
+            default=None, description="order by null position"
         ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
+        order_direction: Any | None = Field(
+            default=None, description="order direction"
         ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
+        query_filter: Any | None = Field(default=None, description="query filter"),
+        pagination_seed: Any | None = Field(
+            default=None, description="pagination seed"
         ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get App Info"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_app_info(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_app_statistics(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get App Statistics"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_app_statistics(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def check_app_config(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Check App Config"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.check_app_config(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_admin_users(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
         page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_admin_users(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def post_admin_users(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/users?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_admin_users(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def unlock_users(
+        per_page: int | None = Field(default=None, description="per page"),
+        data: Any | None = Field(default=None, description="data"),
         force: bool | None = Field(default=None, description="force"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
+        item_id: str | None = Field(default=None, description="item id"),
+        file_name: str | None = Field(default=None, description="file name"),
+        client=Depends(get_client),
     ) -> dict:
-        """Unlock Users"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/users/unlock?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.unlock_users(force=force, accept_language=accept_language)
+        """Manage admin operations.
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_admin_users_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_admin_users_item_id(
-            item_id=item_id, accept_language=accept_language
+        Actions:
+          - 'get_app_info': Get App Info
+          - 'get_app_statistics': Get App Statistics
+          - 'check_app_config': Check App Config
+          - 'get_admin_users': Get All
+          - 'post_admin_users': Create One
+          - 'unlock_users': Unlock Users
+          - 'get_admin_users_item_id': Get One
+          - 'put_admin_users_item_id': Update One
+          - 'delete_admin_users_item_id': Delete One
+          - 'generate_token': Generate Token
+          - 'get_admin_households': Get All
+          - 'post_admin_households': Create One
+          - 'get_admin_households_item_id': Get One
+          - 'put_admin_households_item_id': Update One
+          - 'delete_admin_households_item_id': Delete One
+          - 'get_admin_groups': Get All
+          - 'post_admin_groups': Create One
+          - 'get_admin_groups_item_id': Get One
+          - 'put_admin_groups_item_id': Update One
+          - 'delete_admin_groups_item_id': Delete One
+          - 'check_email_config': Check Email Config
+          - 'send_test_email': Send Test Email
+          - 'get_admin_backups': Get All
+          - 'post_admin_backups': Create One
+          - 'get_admin_backups_file_name': Get One
+          - 'delete_admin_backups_file_name': Delete One
+          - 'upload_one': Upload One
+          - 'import_one': Import One
+          - 'get_maintenance_summary': Get Maintenance Summary
+          - 'get_storage_details': Get Storage Details
+          - 'clean_images': Clean Images
+          - 'clean_temp': Clean Temp
+          - 'clean_recipe_folders': Clean Recipe Folders
+          - 'debug_openai': Debug Openai
+        """
+        kwargs: dict[str, Any]
+        if action == "get_app_info":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_app_info(**kwargs)
+        if action == "get_app_statistics":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_app_statistics(**kwargs)
+        if action == "check_app_config":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.check_app_config(**kwargs)
+        if action == "get_admin_users":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_admin_users(**kwargs)
+        if action == "post_admin_users":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_admin_users(**kwargs)
+        if action == "unlock_users":
+            kwargs = {
+                "force": force,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.unlock_users(**kwargs)
+        if action == "get_admin_users_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_admin_users_item_id(**kwargs)
+        if action == "put_admin_users_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_admin_users_item_id(**kwargs)
+        if action == "delete_admin_users_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_admin_users_item_id(**kwargs)
+        if action == "generate_token":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.generate_token(**kwargs)
+        if action == "get_admin_households":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_admin_households(**kwargs)
+        if action == "post_admin_households":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_admin_households(**kwargs)
+        if action == "get_admin_households_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_admin_households_item_id(**kwargs)
+        if action == "put_admin_households_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_admin_households_item_id(**kwargs)
+        if action == "delete_admin_households_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_admin_households_item_id(**kwargs)
+        if action == "get_admin_groups":
+            kwargs = {
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_admin_groups(**kwargs)
+        if action == "post_admin_groups":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_admin_groups(**kwargs)
+        if action == "get_admin_groups_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_admin_groups_item_id(**kwargs)
+        if action == "put_admin_groups_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "data": data,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.put_admin_groups_item_id(**kwargs)
+        if action == "delete_admin_groups_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_admin_groups_item_id(**kwargs)
+        if action == "check_email_config":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.check_email_config(**kwargs)
+        if action == "send_test_email":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.send_test_email(**kwargs)
+        if action == "get_admin_backups":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_admin_backups(**kwargs)
+        if action == "post_admin_backups":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.post_admin_backups(**kwargs)
+        if action == "get_admin_backups_file_name":
+            kwargs = {
+                "file_name": file_name,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_admin_backups_file_name(**kwargs)
+        if action == "delete_admin_backups_file_name":
+            kwargs = {
+                "file_name": file_name,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.delete_admin_backups_file_name(**kwargs)
+        if action == "upload_one":
+            kwargs = {"data": data, "accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.upload_one(**kwargs)
+        if action == "import_one":
+            kwargs = {
+                "file_name": file_name,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.import_one(**kwargs)
+        if action == "get_maintenance_summary":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_maintenance_summary(**kwargs)
+        if action == "get_storage_details":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_storage_details(**kwargs)
+        if action == "clean_images":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.clean_images(**kwargs)
+        if action == "clean_temp":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.clean_temp(**kwargs)
+        if action == "clean_recipe_folders":
+            kwargs = {"accept_language": accept_language}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.clean_recipe_folders(**kwargs)
+        if action == "debug_openai":
+            kwargs = {"accept_language": accept_language, "data": data}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.debug_openai(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_app_info', 'get_app_statistics', 'check_app_config', 'get_admin_users', 'post_admin_users', 'unlock_users', 'get_admin_users_item_id', 'put_admin_users_item_id', 'delete_admin_users_item_id', 'generate_token', 'get_admin_households', 'post_admin_households', 'get_admin_households_item_id', 'put_admin_households_item_id', 'delete_admin_households_item_id', 'get_admin_groups', 'post_admin_groups', 'get_admin_groups_item_id', 'put_admin_groups_item_id', 'delete_admin_groups_item_id', 'check_email_config', 'send_test_email', 'get_admin_backups', 'post_admin_backups', 'get_admin_backups_file_name', 'delete_admin_backups_file_name', 'upload_one', 'import_one', 'get_maintenance_summary', 'get_storage_details', 'clean_images', 'clean_temp', 'clean_recipe_folders', 'debug_openai"
         )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def put_admin_users_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/admin/users/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_admin_users_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def delete_admin_users_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/admin/users/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_admin_users_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def generate_token(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Generate Token"""
-        if ctx:
-            message = (
-                "Are you sure you want to POST /api/admin/users/password-reset-token?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.generate_token(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_admin_households(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_admin_households(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def post_admin_households(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/households?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_admin_households(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_admin_households_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_admin_households_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def put_admin_households_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/admin/households/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_admin_households_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def delete_admin_households_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to DELETE /api/admin/households/{item_id}?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_admin_households_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_admin_groups(
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_admin_groups(
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def post_admin_groups(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/groups?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_admin_groups(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_admin_groups_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_admin_groups_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def put_admin_groups_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Update One"""
-        if ctx:
-            message = f"Are you sure you want to PUT /api/admin/groups/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.put_admin_groups_item_id(
-            item_id=item_id, data=data, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def delete_admin_groups_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/admin/groups/{item_id}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_admin_groups_item_id(
-            item_id=item_id, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def check_email_config(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Check Email Config"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.check_email_config(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def send_test_email(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Send Test Email"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/email?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.send_test_email(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_admin_backups(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_admin_backups(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def post_admin_backups(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Create One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/backups?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.post_admin_backups(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_admin_backups_file_name(
-        file_name: str = Field(default=..., description="file_name"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_admin_backups_file_name(
-            file_name=file_name, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def delete_admin_backups_file_name(
-        file_name: str = Field(default=..., description="file_name"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Delete One"""
-        if ctx:
-            message = f"Are you sure you want to DELETE /api/admin/backups/{file_name}?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.delete_admin_backups_file_name(
-            file_name=file_name, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def upload_one(
-        data: dict = Field(default=..., description="Request body data"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Upload One"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/backups/upload?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.upload_one(data=data, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def import_one(
-        file_name: str = Field(default=..., description="file_name"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Import One"""
-        if ctx:
-            message = (
-                f"Are you sure you want to POST /api/admin/backups/{file_name}/restore?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.import_one(file_name=file_name, accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_maintenance_summary(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Maintenance Summary"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_maintenance_summary(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def get_storage_details(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Storage Details"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_storage_details(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def clean_images(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Clean Images"""
-        if ctx:
-            message = (
-                "Are you sure you want to POST /api/admin/maintenance/clean/images?"
-            )
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.clean_images(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def clean_temp(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Clean Temp"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/maintenance/clean/temp?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.clean_temp(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def clean_recipe_folders(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Clean Recipe Folders"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/maintenance/clean/recipe-folders?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.clean_recipe_folders(accept_language=accept_language)
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"admin"},
-    )
-    async def debug_openai(
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        data: dict | None = Field(default=None, description="Request body data"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = None,
-    ) -> dict:
-        """Debug Openai"""
-        if ctx:
-            message = "Are you sure you want to POST /api/admin/debug/openai?"
-            result = await ctx.elicit(message, response_type=bool)  # type: ignore[arg-type]
-            if result.action != "accept" or not result.data:
-                return {"status": "cancelled", "message": "User cancelled"}
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.debug_openai(accept_language=accept_language, data=data)
 
 
 def register_explore_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_foods(
-        group_slug: str = Field(default=..., description="group_slug"),
+    @mcp.tool(tags={"explore"})
+    async def mealie_explore(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_explore_groups_group_slug_foods', 'get_explore_groups_group_slug_foods_item_id', 'get_explore_groups_group_slug_households', 'get_household', 'get_explore_groups_group_slug_organizers_categories', 'get_explore_groups_group_slug_organizers_categories_item_id', 'get_explore_groups_group_slug_organizers_tags', 'get_explore_groups_group_slug_organizers_tags_item_id', 'get_explore_groups_group_slug_organizerss', 'get_explore_groups_group_slug_organizerss_item_id', 'get_explore_groups_group_slug_cookbooks', 'get_explore_groups_group_slug_cookbooks_item_id', 'get_explore_groups_group_slug_recipes', 'get_explore_groups_group_slug_recipes_suggestions', 'get_recipe'"
+        ),
+        group_slug: str | None = Field(default=None, description="group slug"),
         search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
+        order_by: Any | None = Field(default=None, description="order by"),
+        order_by_null_position: Any | None = Field(
+            default=None, description="order by null position"
         ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
+        order_direction: Any | None = Field(
+            default=None, description="order direction"
+        ),
+        query_filter: Any | None = Field(default=None, description="query filter"),
+        pagination_seed: Any | None = Field(
+            default=None, description="pagination seed"
+        ),
         page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
+        per_page: int | None = Field(default=None, description="per page"),
         accept_language: Any | None = Field(
-            default=None, description="accept-language"
+            default=None, description="accept language"
         ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_foods(
-            group_slug=group_slug,
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_foods_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_foods_item_id(
-            item_id=item_id, group_slug=group_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_households(
-        group_slug: str = Field(default=..., description="group_slug"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_households(
-            group_slug=group_slug,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_household(
-        household_slug: str = Field(default=..., description="household_slug"),
-        group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Household"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_household(
-            household_slug=household_slug,
-            group_slug=group_slug,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_organizers_categories(
-        group_slug: str = Field(default=..., description="group_slug"),
-        search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_organizers_categories(
-            group_slug=group_slug,
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_organizers_categories_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_organizers_categories_item_id(
-            item_id=item_id, group_slug=group_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_organizers_tags(
-        group_slug: str = Field(default=..., description="group_slug"),
-        search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_organizers_tags(
-            group_slug=group_slug,
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_organizers_tags_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_organizers_tags_item_id(
-            item_id=item_id, group_slug=group_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_organizers_tools(
-        group_slug: str = Field(default=..., description="group_slug"),
-        search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_organizers_tools(
-            group_slug=group_slug,
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_organizers_tools_item_id(
-        item_id: str = Field(default=..., description="item_id"),
-        group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_organizers_tools_item_id(
-            item_id=item_id, group_slug=group_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_cookbooks(
-        group_slug: str = Field(default=..., description="group_slug"),
-        search: Any | None = Field(default=None, description="search"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_cookbooks(
-            group_slug=group_slug,
-            search=search,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_cookbooks_item_id(
-        item_id: Any = Field(default=..., description="item_id"),
-        group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get One"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_cookbooks_item_id(
-            item_id=item_id, group_slug=group_slug, accept_language=accept_language
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_recipes(
-        group_slug: str = Field(default=..., description="group_slug"),
+        item_id: Any | None = Field(default=None, description="item id"),
+        household_slug: str | None = Field(default=None, description="household slug"),
         categories: Any | None = Field(default=None, description="categories"),
         tags: Any | None = Field(default=None, description="tags"),
         tools: Any | None = Field(default=None, description="tools"),
         foods: Any | None = Field(default=None, description="foods"),
         households: Any | None = Field(default=None, description="households"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
-        page: int | None = Field(default=None, description="page"),
-        per_page: int | None = Field(default=None, description="perPage"),
         cookbook: Any | None = Field(default=None, description="cookbook"),
         require_all_categories: bool | None = Field(
-            default=None, description="requireAllCategories"
+            default=None, description="require all categories"
         ),
         require_all_tags: bool | None = Field(
-            default=None, description="requireAllTags"
+            default=None, description="require all tags"
         ),
         require_all_tools: bool | None = Field(
-            default=None, description="requireAllTools"
+            default=None, description="require all tools"
         ),
         require_all_foods: bool | None = Field(
-            default=None, description="requireAllFoods"
+            default=None, description="require all foods"
         ),
-        search: Any | None = Field(default=None, description="search"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get All"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_recipes(
-            group_slug=group_slug,
-            categories=categories,
-            tags=tags,
-            tools=tools,
-            foods=foods,
-            households=households,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            page=page,
-            per_page=per_page,
-            cookbook=cookbook,
-            require_all_categories=require_all_categories,
-            require_all_tags=require_all_tags,
-            require_all_tools=require_all_tools,
-            require_all_foods=require_all_foods,
-            search=search,
-            accept_language=accept_language,
-        )
-
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_explore_groups_group_slug_recipes_suggestions(
-        group_slug: str = Field(default=..., description="group_slug"),
-        foods: Any | None = Field(default=None, description="foods"),
-        tools: Any | None = Field(default=None, description="tools"),
-        order_by: Any | None = Field(default=None, description="orderBy"),
-        order_by_null_position: Any = Field(
-            default=None, description="orderByNullPosition"
-        ),
-        order_direction: Any | None = Field(default=None, description="orderDirection"),
-        query_filter: Any | None = Field(default=None, description="queryFilter"),
-        pagination_seed: Any | None = Field(default=None, description="paginationSeed"),
         limit: int | None = Field(default=None, description="limit"),
         max_missing_foods: int | None = Field(
-            default=None, description="maxMissingFoods"
+            default=None, description="max missing foods"
         ),
         max_missing_tools: int | None = Field(
-            default=None, description="maxMissingTools"
+            default=None, description="max missing tools"
         ),
         include_foods_on_hand: bool | None = Field(
-            default=None, description="includeFoodsOnHand"
+            default=None, description="include foods on hand"
         ),
         include_tools_on_hand: bool | None = Field(
-            default=None, description="includeToolsOnHand"
+            default=None, description="include tools on hand"
         ),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
+        recipe_slug: str | None = Field(default=None, description="recipe slug"),
+        client=Depends(get_client),
     ) -> dict:
-        """Suggest Recipes"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_explore_groups_group_slug_recipes_suggestions(
-            group_slug=group_slug,
-            foods=foods,
-            tools=tools,
-            order_by=order_by,
-            order_by_null_position=order_by_null_position,
-            order_direction=order_direction,
-            query_filter=query_filter,
-            pagination_seed=pagination_seed,
-            limit=limit,
-            max_missing_foods=max_missing_foods,
-            max_missing_tools=max_missing_tools,
-            include_foods_on_hand=include_foods_on_hand,
-            include_tools_on_hand=include_tools_on_hand,
-            accept_language=accept_language,
-        )
+        """Manage explore operations.
 
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"explore"},
-    )
-    async def get_recipe(
-        recipe_slug: str = Field(default=..., description="recipe_slug"),
-        group_slug: str = Field(default=..., description="group_slug"),
-        accept_language: Any | None = Field(
-            default=None, description="accept-language"
-        ),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> dict:
-        """Get Recipe"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        return client.get_recipe(
-            recipe_slug=recipe_slug,
-            group_slug=group_slug,
-            accept_language=accept_language,
+        Actions:
+          - 'get_explore_groups_group_slug_foods': Get All
+          - 'get_explore_groups_group_slug_foods_item_id': Get One
+          - 'get_explore_groups_group_slug_households': Get All
+          - 'get_household': Get Household
+          - 'get_explore_groups_group_slug_organizers_categories': Get All
+          - 'get_explore_groups_group_slug_organizers_categories_item_id': Get One
+          - 'get_explore_groups_group_slug_organizers_tags': Get All
+          - 'get_explore_groups_group_slug_organizers_tags_item_id': Get One
+          - 'get_explore_groups_group_slug_organizerss': Call get_explore_groups_group_slug_organizerss
+          - 'get_explore_groups_group_slug_organizerss_item_id': Call get_explore_groups_group_slug_organizerss_item_id
+          - 'get_explore_groups_group_slug_cookbooks': Get All
+          - 'get_explore_groups_group_slug_cookbooks_item_id': Get One
+          - 'get_explore_groups_group_slug_recipes': Get All
+          - 'get_explore_groups_group_slug_recipes_suggestions': Suggest Recipes
+          - 'get_recipe': Get Recipe
+        """
+        kwargs: dict[str, Any]
+        if action == "get_explore_groups_group_slug_foods":
+            kwargs = {
+                "group_slug": group_slug,
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_foods(**kwargs)
+        if action == "get_explore_groups_group_slug_foods_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "group_slug": group_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_foods_item_id(**kwargs)
+        if action == "get_explore_groups_group_slug_households":
+            kwargs = {
+                "group_slug": group_slug,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_households(**kwargs)
+        if action == "get_household":
+            kwargs = {
+                "household_slug": household_slug,
+                "group_slug": group_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_household(**kwargs)
+        if action == "get_explore_groups_group_slug_organizers_categories":
+            kwargs = {
+                "group_slug": group_slug,
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_organizers_categories(**kwargs)
+        if action == "get_explore_groups_group_slug_organizers_categories_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "group_slug": group_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_organizers_categories_item_id(
+                **kwargs
+            )
+        if action == "get_explore_groups_group_slug_organizers_tags":
+            kwargs = {
+                "group_slug": group_slug,
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_organizers_tags(**kwargs)
+        if action == "get_explore_groups_group_slug_organizers_tags_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "group_slug": group_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_organizers_tags_item_id(
+                **kwargs
+            )
+        if action == "get_explore_groups_group_slug_organizerss":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_organizerss(**kwargs)
+        if action == "get_explore_groups_group_slug_organizerss_item_id":
+            kwargs = {}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_organizerss_item_id(**kwargs)
+        if action == "get_explore_groups_group_slug_cookbooks":
+            kwargs = {
+                "group_slug": group_slug,
+                "search": search,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_cookbooks(**kwargs)
+        if action == "get_explore_groups_group_slug_cookbooks_item_id":
+            kwargs = {
+                "item_id": item_id,
+                "group_slug": group_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_cookbooks_item_id(**kwargs)
+        if action == "get_explore_groups_group_slug_recipes":
+            kwargs = {
+                "group_slug": group_slug,
+                "categories": categories,
+                "tags": tags,
+                "tools": tools,
+                "foods": foods,
+                "households": households,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "page": page,
+                "per_page": per_page,
+                "cookbook": cookbook,
+                "require_all_categories": require_all_categories,
+                "require_all_tags": require_all_tags,
+                "require_all_tools": require_all_tools,
+                "require_all_foods": require_all_foods,
+                "search": search,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_recipes(**kwargs)
+        if action == "get_explore_groups_group_slug_recipes_suggestions":
+            kwargs = {
+                "group_slug": group_slug,
+                "foods": foods,
+                "tools": tools,
+                "order_by": order_by,
+                "order_by_null_position": order_by_null_position,
+                "order_direction": order_direction,
+                "query_filter": query_filter,
+                "pagination_seed": pagination_seed,
+                "limit": limit,
+                "max_missing_foods": max_missing_foods,
+                "max_missing_tools": max_missing_tools,
+                "include_foods_on_hand": include_foods_on_hand,
+                "include_tools_on_hand": include_tools_on_hand,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_explore_groups_group_slug_recipes_suggestions(**kwargs)
+        if action == "get_recipe":
+            kwargs = {
+                "recipe_slug": recipe_slug,
+                "group_slug": group_slug,
+                "accept_language": accept_language,
+            }
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.get_recipe(**kwargs)
+        raise ValueError(
+            f"Unknown action: {action}. Must be one of: get_explore_groups_group_slug_foods', 'get_explore_groups_group_slug_foods_item_id', 'get_explore_groups_group_slug_households', 'get_household', 'get_explore_groups_group_slug_organizers_categories', 'get_explore_groups_group_slug_organizers_categories_item_id', 'get_explore_groups_group_slug_organizers_tags', 'get_explore_groups_group_slug_organizers_tags_item_id', 'get_explore_groups_group_slug_organizerss', 'get_explore_groups_group_slug_organizerss_item_id', 'get_explore_groups_group_slug_cookbooks', 'get_explore_groups_group_slug_cookbooks_item_id', 'get_explore_groups_group_slug_recipes', 'get_explore_groups_group_slug_recipes_suggestions', 'get_recipe"
         )
 
 
 def register_utils_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["mealie_base_url", "mealie_token", "mealie_verify"],
-        tags={"utils"},
-    )
-    async def download_file(
+    @mcp.tool(tags={"utils"})
+    async def mealie_utils(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'download_file'"
+        ),
         token: Any | None = Field(default=None, description="token"),
-        mealie_base_url: str | None = Field(
-            default=os.environ.get("MEALIE_BASE_URL", None),
-            description="Mealie Base URL",
-        ),
-        mealie_token: str | None = Field(
-            default=os.environ.get("MEALIE_TOKEN", None), description="API Token"
-        ),
-        mealie_verify: bool = Field(
-            default=to_boolean(os.environ.get("MEALIE_VERIFY", "False")),
-            description="Verify SSL",
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress reporting", default=None
-        ),
+        client=Depends(get_client),
     ) -> dict:
-        await ctx_progress(ctx, 0, 100)
-        """Download File"""
-        client = Api(base_url=mealie_base_url, token=mealie_token, verify=mealie_verify)
-        await ctx_progress(ctx, 100, 100)
-        return client.download_file(token=token)
+        """Manage utils operations.
+
+        Actions:
+          - 'download_file': Download File
+        """
+        kwargs: dict[str, Any]
+        if action == "download_file":
+            kwargs = {"token": token}
+            kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            return client.download_file(**kwargs)
+        raise ValueError(f"Unknown action: {action}. Must be one of: download_file")
 
 
-def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
-    """Initialize and return the MCP instance, args, and middlewares."""
+def get_mcp_instance() -> tuple[Any, ...]:
+    """Initialize and return the MCP instance."""
     load_dotenv(find_dotenv())
-
     args, mcp, middlewares = create_mcp_server(
-        name="Mealie",
+        name="mealie-mcp MCP",
         version=__version__,
-        instructions="Mealie Recipe Manager MCP Server - Manage recipes, meal plans, shopping lists, and users.",
+        instructions="mealie-mcp MCP Server — Condensed Action-Routed Tools.",
     )
 
-    DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
-    if DEFAULT_MISCTOOL:
-        register_misc_tools(mcp)
+    @mcp.custom_route("/health", methods=["GET"])
+    async def health_check(request: Request) -> JSONResponse:
+        return JSONResponse({"status": "OK"})
+
     DEFAULT_APPTOOL = to_boolean(os.getenv("APPTOOL", "True"))
     if DEFAULT_APPTOOL:
         register_app_tools(mcp)
@@ -8391,21 +2381,18 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     DEFAULT_UTILSTOOL = to_boolean(os.getenv("UTILSTOOL", "True"))
     if DEFAULT_UTILSTOOL:
         register_utils_tools(mcp)
-    register_prompts(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
-    registered_tags: list[str] = []
-    return mcp, args, middlewares, registered_tags
+    return mcp, args, middlewares
 
 
 def mcp_server() -> None:
-    mcp, args, middlewares, registered_tags = get_mcp_instance()
-    print(f"{'mealie-mcp'} MCP v{__version__}", file=sys.stderr)
+    mcp, args, middlewares = get_mcp_instance()
+    print(f"mealie-mcp MCP v{__version__}", file=sys.stderr)
     print("\nStarting MCP Server", file=sys.stderr)
     print(f"  Transport: {args.transport.upper()}", file=sys.stderr)
     print(f"  Auth: {args.auth_type}", file=sys.stderr)
-    print(f"  Dynamic Tags Loaded: {len(set(registered_tags))}", file=sys.stderr)
 
     if args.transport == "stdio":
         mcp.run(transport="stdio")

@@ -449,10 +449,7 @@ uv pip install mealie-mcp
       ],
       "env": {
         "ADMINTOOL": "True",
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
         "APPTOOL": "True",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
         "EXPLORETOOL": "True",
         "GROUPSTOOL": "True",
         "HOUSEHOLDSTOOL": "True",
@@ -490,10 +487,7 @@ uv pip install mealie-mcp
       ],
       "env": {
         "ADMINTOOL": "True",
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
         "APPTOOL": "True",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
         "EXPLORETOOL": "True",
         "GROUPSTOOL": "True",
         "HOUSEHOLDSTOOL": "True",

@@ -1,0 +1,69 @@
+# Tasks: Code Enhancement: mealie-mcp
+
+Generated: 2026-05-24T04:17:16.204625+00:00
+Skipped informational: 6
+
+- [ ] [P] **T001** [Dependency Audit] Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T002** [Dependency Audit] Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T003** [Codebase Optimization] 32 functions exceed 50 lines
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T004** [Codebase Optimization] Monolithic: mcp_server.py (895L) — 7 functions with high complexity (worst: regi
+  - Priority: P1-High | Effort: Large
+- [ ] [P] **T005** [Codebase Optimization] Monolithic: api_client_recipes.py (688L) — 1 functions with high complexity (wor
+  - Priority: P1-High | Effort: Large
+- [ ] [P] **T006** [Codebase Optimization] Needs attention: api_client_households.py (827L) — God class: Api (64 methods) —
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T007** [Test Coverage] Low test-to-source ratio: 0.21
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T008** [Test Coverage] Test suite lacks intent diversity (only one type)
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T009** [Test Coverage] 15 potential doc-test drift items
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T010** [Documentation & Governance] README.md missing sections: usage|quick start
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T011** [Documentation & Governance] 2 broken internal links in README.md
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T012** [Documentation & Governance] README missing: Has a Table of Contents
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T013** [Documentation & Governance] README missing: Has usage examples with code blocks
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T014** [Architecture & Design Patterns] SRP: 3 modules exceed 500 lines (god modules)
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T015** [Architecture & Design Patterns] SRP: 6 classes have >15 methods
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T016** [Architecture & Design Patterns] No discernible layer architecture (no domain/service/adapter separation)
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T017** [Architecture & Design Patterns] Low dependency injection ratio: 8%
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T018** [Concept Traceability] Low traceability ratio: 0% concepts fully traced
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T019** [Concept Traceability] 18 orphaned concepts (only in one source)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T020** [Concept Traceability] 8 test functions missing concept markers
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T021** [Concept Traceability] 114 significant functions (>10 lines) missing concept markers in docstrings
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T022** [Linting & Formatting] Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T023** [Pre-Commit Compliance] 2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit
+  - Priority: P2-Medium | Effort: Small
+- [ ] [P] **T024** [Directory Organization] 1 rogue/throwaway scripts detected (fix_*, validate_*, patch_*, etc.): scripts/v
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T025** [Changelog Audit] CHANGELOG.md exists but could not be parsed — check format compliance
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T026** [Changelog Audit] No changelog entries within the last 30 days
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T027** [Changelog Audit] keepachangelog not installed — pip install 'universal-skills[code-enhancer]'
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T028** [Pytest Quality] 3 tests have no assertions
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T029** [Environment Variables] Only 25% of env vars documented in README.md
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T030** [Environment Variables] Undocumented env vars: ADMINTOOL, APPTOOL, AUTH_TYPE, DEFAULT_AGENT_NAME, EUNOMI
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T031** [Environment Variables] 4 Python env vars not in .env.example: DEFAULT_AGENT_NAME, MEALIE_BASE_URL, MEAL
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T032** [analyze_xdg_kg] Analysis error: No module named 'agent_utilities.knowledge_graph'
+  - Priority: P1-High | Effort: Medium

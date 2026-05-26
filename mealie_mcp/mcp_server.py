@@ -37,7 +37,6 @@ __version__ = "0.15.0"
 logger = get_logger(name="mealie-mcp")
 logger.setLevel(logging.INFO)
 
-
 def register_app_tools(mcp: FastMCP):
     @mcp.tool(tags={"app"})
     async def mealie_app(
@@ -69,7 +68,6 @@ def register_app_tools(mcp: FastMCP):
         if action == "get_app_theme":
             return client.get_app_theme(**kwargs)
         raise ValueError(f"Unknown action: {action}")
-
 
 def register_users_tools(mcp: FastMCP):
     @mcp.tool(tags={"users"})
@@ -142,7 +140,6 @@ def register_users_tools(mcp: FastMCP):
         if action == "remove_favorite":
             return client.remove_favorite(**kwargs)
         raise ValueError(f"Unknown action: {action}")
-
 
 def register_households_tools(mcp: FastMCP):
     @mcp.tool(tags={"households"})
@@ -300,7 +297,6 @@ def register_households_tools(mcp: FastMCP):
             return client.delete_households_mealplans_item_id(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
-
 def register_groups_tools(mcp: FastMCP):
     @mcp.tool(tags={"groups"})
     async def mealie_groups(
@@ -368,7 +364,6 @@ def register_groups_tools(mcp: FastMCP):
         if action == "seed_units":
             return client.seed_units(**kwargs)
         raise ValueError(f"Unknown action: {action}")
-
 
 def register_recipes_tools(mcp: FastMCP):
     @mcp.tool(tags={"recipes"})
@@ -526,7 +521,6 @@ def register_recipes_tools(mcp: FastMCP):
             return client.get_validation_text(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
-
 def register_organizer_tools(mcp: FastMCP):
     @mcp.tool(tags={"organizer"})
     async def mealie_organizer(
@@ -595,7 +589,6 @@ def register_organizer_tools(mcp: FastMCP):
             return client.get_organizerss_slug_slug(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
-
 def register_shared_tools(mcp: FastMCP):
     @mcp.tool(tags={"shared"})
     async def mealie_shared(
@@ -631,7 +624,6 @@ def register_shared_tools(mcp: FastMCP):
         if action == "delete_shared_recipes_item_id":
             return client.delete_shared_recipes_item_id(**kwargs)
         raise ValueError(f"Unknown action: {action}")
-
 
 def register_admin_tools(mcp: FastMCP):
     @mcp.tool(tags={"admin"})
@@ -729,7 +721,6 @@ def register_admin_tools(mcp: FastMCP):
             return client.debug_openai(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
-
 def register_explore_tools(mcp: FastMCP):
     @mcp.tool(tags={"explore"})
     async def mealie_explore(
@@ -792,7 +783,6 @@ def register_explore_tools(mcp: FastMCP):
             return client.get_recipe(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
-
 def register_utils_tools(mcp: FastMCP):
     @mcp.tool(tags={"utils"})
     async def mealie_utils(
@@ -822,7 +812,6 @@ def register_utils_tools(mcp: FastMCP):
         if action == "download_file":
             return client.download_file(**kwargs)
         raise ValueError(f"Unknown action: {action}")
-
 
 def get_mcp_instance() -> tuple[Any, ...]:
     """Initialize and return the MCP instance."""
@@ -872,7 +861,6 @@ def get_mcp_instance() -> tuple[Any, ...]:
         mcp.add_middleware(mw)
     return mcp, args, middlewares
 
-
 def mcp_server() -> None:
     mcp, args, middlewares = get_mcp_instance()
     print(f"mealie-mcp MCP v{__version__}", file=sys.stderr)
@@ -889,7 +877,6 @@ def mcp_server() -> None:
     else:
         logger.error("Invalid transport", extra={"transport": args.transport})
         sys.exit(1)
-
 
 if __name__ == "__main__":
     mcp_server()

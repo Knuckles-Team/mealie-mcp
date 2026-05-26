@@ -1,0 +1,232 @@
+{
+  "feature_id": "code-enhancement-20260524",
+  "title": "Code Enhancement: mealie-mcp",
+  "created": "2026-05-24T04:17:16.204625+00:00",
+  "overview": "Automated code enhancement review for mealie-mcp. Covers 17 analysis domains.",
+  "user_stories": [
+    {
+      "role": "developer",
+      "action": "address Project Analysis findings (grade: C, score: 74)",
+      "value": "improve project project analysis from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Codebase Optimization findings (grade: F, score: 59)",
+      "value": "improve project codebase optimization from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Test Coverage findings (grade: F, score: 55)",
+      "value": "improve project test coverage from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Architecture & Design Patterns findings (grade: D, score: 65)",
+      "value": "improve project architecture & design patterns from D to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Concept Traceability findings (grade: F, score: 29)",
+      "value": "improve project concept traceability from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Test Execution findings (grade: F, score: 25)",
+      "value": "improve project test execution from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Changelog Audit findings (grade: C, score: 75)",
+      "value": "improve project changelog audit from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Environment Variables findings (grade: D, score: 62)",
+      "value": "improve project environment variables from D to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address analyze_xdg_kg findings (grade: F, score: 0)",
+      "value": "improve project analyze_xdg_kg from F to at least B (80+)"
+    }
+  ],
+  "functional_requirements": [
+    {
+      "id": "FR-001",
+      "description": "Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0",
+      "testable": true
+    },
+    {
+      "id": "FR-002",
+      "description": "Minor update: pytest-xdist 3.6.0 (constraint \u2014 not installed) -> 3.8.0",
+      "testable": true
+    },
+    {
+      "id": "FR-003",
+      "description": "32 functions exceed 50 lines",
+      "testable": true
+    },
+    {
+      "id": "FR-004",
+      "description": "Monolithic: mcp_server.py (895L) \u2014 7 functions with high complexity (worst: register_households_tools at 155L, CC=68); Low cohesion: 13 distinct concepts in one file",
+      "testable": true
+    },
+    {
+      "id": "FR-005",
+      "description": "Monolithic: api_client_recipes.py (688L) \u2014 1 functions with high complexity (worst: Api.get_recipes at 61L, CC=19); God class: Api (64 methods) \u2014 consider mixins/composition",
+      "testable": true
+    },
+    {
+      "id": "FR-006",
+      "description": "Needs attention: api_client_households.py (827L) \u2014 God class: Api (64 methods) \u2014 consider mixins/composition",
+      "testable": true
+    },
+    {
+      "id": "FR-007",
+      "description": "Low test-to-source ratio: 0.21",
+      "testable": true
+    },
+    {
+      "id": "FR-008",
+      "description": "Test suite lacks intent diversity (only one type)",
+      "testable": true
+    },
+    {
+      "id": "FR-009",
+      "description": "15 potential doc-test drift items",
+      "testable": true
+    },
+    {
+      "id": "FR-010",
+      "description": "README.md missing sections: usage|quick start",
+      "testable": true
+    },
+    {
+      "id": "FR-011",
+      "description": "2 broken internal links in README.md",
+      "testable": true
+    },
+    {
+      "id": "FR-012",
+      "description": "README missing: Has a Table of Contents",
+      "testable": true
+    },
+    {
+      "id": "FR-013",
+      "description": "README missing: Has usage examples with code blocks",
+      "testable": true
+    },
+    {
+      "id": "FR-014",
+      "description": "SRP: 3 modules exceed 500 lines (god modules)",
+      "testable": true
+    },
+    {
+      "id": "FR-015",
+      "description": "SRP: 6 classes have >15 methods",
+      "testable": true
+    },
+    {
+      "id": "FR-016",
+      "description": "No discernible layer architecture (no domain/service/adapter separation)",
+      "testable": true
+    },
+    {
+      "id": "FR-017",
+      "description": "Low dependency injection ratio: 8%",
+      "testable": true
+    },
+    {
+      "id": "FR-018",
+      "description": "Low traceability ratio: 0% concepts fully traced",
+      "testable": true
+    },
+    {
+      "id": "FR-019",
+      "description": "18 orphaned concepts (only in one source)",
+      "testable": true
+    },
+    {
+      "id": "FR-020",
+      "description": "8 test functions missing concept markers",
+      "testable": true
+    },
+    {
+      "id": "FR-021",
+      "description": "114 significant functions (>10 lines) missing concept markers in docstrings",
+      "testable": true
+    },
+    {
+      "id": "FR-022",
+      "description": "Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)",
+      "testable": true
+    },
+    {
+      "id": "FR-023",
+      "description": "2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit",
+      "testable": true
+    },
+    {
+      "id": "FR-024",
+      "description": "1 rogue/throwaway scripts detected (fix_*, validate_*, patch_*, etc.): scripts/validate_a2a_agent.py",
+      "testable": true
+    },
+    {
+      "id": "FR-025",
+      "description": "CHANGELOG.md exists but could not be parsed \u2014 check format compliance",
+      "testable": true
+    },
+    {
+      "id": "FR-026",
+      "description": "No changelog entries within the last 30 days",
+      "testable": true
+    },
+    {
+      "id": "FR-027",
+      "description": "keepachangelog not installed \u2014 pip install 'universal-skills[code-enhancer]'",
+      "testable": true
+    },
+    {
+      "id": "FR-028",
+      "description": "3 tests have no assertions",
+      "testable": true
+    },
+    {
+      "id": "FR-029",
+      "description": "Only 25% of env vars documented in README.md",
+      "testable": true
+    },
+    {
+      "id": "FR-030",
+      "description": "Undocumented env vars: ADMINTOOL, APPTOOL, AUTH_TYPE, DEFAULT_AGENT_NAME, EUNOMIA_POLICY_FILE, EUNOMIA_TYPE, EXPLORETOOL, GROUPSTOOL, HOUSEHOLDSTOOL, MEALIE_BASE_URL",
+      "testable": true
+    },
+    {
+      "id": "FR-031",
+      "description": "4 Python env vars not in .env.example: DEFAULT_AGENT_NAME, MEALIE_BASE_URL, MEALIE_SSL_VERIFY, MEALIE_TOKEN",
+      "testable": true
+    },
+    {
+      "id": "FR-032",
+      "description": "Analysis error: No module named 'agent_utilities.knowledge_graph'",
+      "testable": true
+    }
+  ],
+  "success_criteria": [
+    {
+      "metric": "Overall GPA",
+      "current": 2.18,
+      "target": 3.0
+    },
+    {
+      "metric": "Domains at B or above",
+      "current": 8,
+      "target": 17
+    },
+    {
+      "metric": "Actionable findings",
+      "current": 32,
+      "target": 0
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+"""MCP tools for admin operations.
+
+Auto-generated from mcp_server.py during ecosystem standardization.
+"""
+
+from fastmcp import Context, FastMCP
+from fastmcp.dependencies import Depends
+from pydantic import Field
+
+from mealie_mcp.auth import get_client
+
+
+def register_admin_tools(mcp: FastMCP):
+    @mcp.tool(tags={"admin"})
+    async def mealie_admin(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_app_info', 'get_app_statistics', 'check_app_config', 'get_admin_users', 'post_admin_users', 'unlock_users', 'get_admin_users_item_id', 'put_admin_users_item_id', 'delete_admin_users_item_id', 'generate_token', 'get_admin_households', 'post_admin_households', 'get_admin_households_item_id', 'put_admin_households_item_id', 'delete_admin_households_item_id', 'get_admin_groups', 'post_admin_groups', 'get_admin_groups_item_id', 'put_admin_groups_item_id', 'delete_admin_groups_item_id', 'check_email_config', 'send_test_email', 'get_admin_backups', 'post_admin_backups', 'get_admin_backups_file_name', 'delete_admin_backups_file_name', 'upload_one', 'import_one', 'get_maintenance_summary', 'get_storage_details', 'clean_images', 'clean_temp', 'clean_recipe_folders', 'debug_openai'"
+        ),
+        params_json: str = Field(
+            default="{}", description="JSON string of parameters to pass to the action."
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> dict:
+        """Manage mealie admin operations."""
+        if ctx:
+            ctx.info("Executing tool...")
+        import json
+
+        try:
+            kwargs = json.loads(params_json)
+        except Exception as e:
+            return {"error": f"Invalid params_json: {e}"}
+
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        if action == "get_app_info":
+            return client.get_app_info(**kwargs)
+        if action == "get_app_statistics":
+            return client.get_app_statistics(**kwargs)
+        if action == "check_app_config":
+            return client.check_app_config(**kwargs)
+        if action == "get_admin_users":
+            return client.get_admin_users(**kwargs)
+        if action == "post_admin_users":
+            return client.post_admin_users(**kwargs)
+        if action == "unlock_users":
+            return client.unlock_users(**kwargs)
+        if action == "get_admin_users_item_id":
+            return client.get_admin_users_item_id(**kwargs)
+        if action == "put_admin_users_item_id":
+            return client.put_admin_users_item_id(**kwargs)
+        if action == "delete_admin_users_item_id":
+            return client.delete_admin_users_item_id(**kwargs)
+        if action == "generate_token":
+            return client.generate_token(**kwargs)
+        if action == "get_admin_households":
+            return client.get_admin_households(**kwargs)
+        if action == "post_admin_households":
+            return client.post_admin_households(**kwargs)
+        if action == "get_admin_households_item_id":
+            return client.get_admin_households_item_id(**kwargs)
+        if action == "put_admin_households_item_id":
+            return client.put_admin_households_item_id(**kwargs)
+        if action == "delete_admin_households_item_id":
+            return client.delete_admin_households_item_id(**kwargs)
+        if action == "get_admin_groups":
+            return client.get_admin_groups(**kwargs)
+        if action == "post_admin_groups":
+            return client.post_admin_groups(**kwargs)
+        if action == "get_admin_groups_item_id":
+            return client.get_admin_groups_item_id(**kwargs)
+        if action == "put_admin_groups_item_id":
+            return client.put_admin_groups_item_id(**kwargs)
+        if action == "delete_admin_groups_item_id":
+            return client.delete_admin_groups_item_id(**kwargs)
+        if action == "check_email_config":
+            return client.check_email_config(**kwargs)
+        if action == "send_test_email":
+            return client.send_test_email(**kwargs)
+        if action == "get_admin_backups":
+            return client.get_admin_backups(**kwargs)
+        if action == "post_admin_backups":
+            return client.post_admin_backups(**kwargs)
+        if action == "get_admin_backups_file_name":
+            return client.get_admin_backups_file_name(**kwargs)
+        if action == "delete_admin_backups_file_name":
+            return client.delete_admin_backups_file_name(**kwargs)
+        if action == "upload_one":
+            return client.upload_one(**kwargs)
+        if action == "import_one":
+            return client.import_one(**kwargs)
+        if action == "get_maintenance_summary":
+            return client.get_maintenance_summary(**kwargs)
+        if action == "get_storage_details":
+            return client.get_storage_details(**kwargs)
+        if action == "clean_images":
+            return client.clean_images(**kwargs)
+        if action == "clean_temp":
+            return client.clean_temp(**kwargs)
+        if action == "clean_recipe_folders":
+            return client.clean_recipe_folders(**kwargs)
+        if action == "debug_openai":
+            return client.debug_openai(**kwargs)
+        raise ValueError(f"Unknown action: {action}")

@@ -32,7 +32,7 @@ from starlette.responses import JSONResponse
 
 from mealie_mcp.auth import get_client
 
-__version__ = "0.33.0"
+__version__ = "0.33.1"
 
 logger = get_logger(name="mealie-mcp")
 logger.setLevel(logging.INFO)

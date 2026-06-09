@@ -22,6 +22,10 @@
 
 *Version: 0.40.0*
 
+> **Documentation** — Installation, deployment, usage across the API, CLI, MCP, and
+> agent interfaces, and guidance for provisioning the Mealie platform are maintained in
+> the [official documentation](https://knuckles-team.github.io/mealie-mcp/).
+
 ---
 
 ## Overview
@@ -281,6 +285,23 @@ uv pip install mealie-mcp[all]
 # Using standard pip
 python -m pip install mealie-mcp[all]
 ```
+
+---
+
+## Documentation
+
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/mealie-mcp/) and is the
+recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/mealie-mcp/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/mealie-mcp/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/mealie-mcp/usage/) | the MCP tools, the `Api` client, the CLI |
+| [Backing Platform](https://knuckles-team.github.io/mealie-mcp/platform/) | deploy Mealie with Docker |
+| [Overview](https://knuckles-team.github.io/mealie-mcp/overview/) | the layered client and agent-package pattern |
+| [Concepts](https://knuckles-team.github.io/mealie-mcp/concepts/) | concept registry (`CONCEPT:MEAL-*`) |
 
 ---
 

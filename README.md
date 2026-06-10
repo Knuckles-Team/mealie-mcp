@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/mealie-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/mealie-mcp)
 
-*Version: 0.40.0*
+*Version: 0.41.0*
 
 > **Documentation** — Installation, deployment, usage across the API, CLI, MCP, and
 > agent interfaces, and guidance for provisioning the Mealie platform are maintained in

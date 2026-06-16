@@ -3,11 +3,79 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+
+VALID_HOUSEHOLDS_ACTIONS = (
+    "get_households_cookbooks",
+    "post_households_cookbooks",
+    "put_households_cookbooks",
+    "get_households_cookbooks_item_id",
+    "put_households_cookbooks_item_id",
+    "delete_households_cookbooks_item_id",
+    "get_households_events_notifications",
+    "post_households_events_notifications",
+    "get_households_events_notifications_item_id",
+    "put_households_events_notifications_item_id",
+    "delete_households_events_notifications_item_id",
+    "test_notification",
+    "get_households_recipe_actions",
+    "post_households_recipe_actions",
+    "get_households_recipe_actions_item_id",
+    "put_households_recipe_actions_item_id",
+    "delete_households_recipe_actions_item_id",
+    "trigger_action",
+    "get_logged_in_user_household",
+    "get_household_recipe",
+    "get_household_members",
+    "get_household_preferences",
+    "update_household_preferences",
+    "set_member_permissions",
+    "get_statistics",
+    "get_invite_tokens",
+    "create_invite_token",
+    "email_invitation",
+    "get_households_shopping_lists",
+    "post_households_shopping_lists",
+    "get_households_shopping_lists_item_id",
+    "put_households_shopping_lists_item_id",
+    "delete_households_shopping_lists_item_id",
+    "update_label_settings",
+    "add_recipe_ingredients_to_list",
+    "add_single_recipe_ingredients_to_list",
+    "remove_recipe_ingredients_from_list",
+    "get_households_shopping_items",
+    "post_households_shopping_items",
+    "put_households_shopping_items",
+    "delete_households_shopping_items",
+    "post_households_shopping_items_create_bulk",
+    "get_households_shopping_items_item_id",
+    "put_households_shopping_items_item_id",
+    "delete_households_shopping_items_item_id",
+    "get_households_webhooks",
+    "post_households_webhooks",
+    "rerun_webhooks",
+    "get_households_webhooks_item_id",
+    "put_households_webhooks_item_id",
+    "delete_households_webhooks_item_id",
+    "test_one",
+    "get_households_mealplans_rules",
+    "post_households_mealplans_rules",
+    "get_households_mealplans_rules_item_id",
+    "put_households_mealplans_rules_item_id",
+    "delete_households_mealplans_rules_item_id",
+    "get_households_mealplans",
+    "post_households_mealplans",
+    "get_todays_meals",
+    "create_random_meal",
+    "get_households_mealplans_item_id",
+    "put_households_mealplans_item_id",
+    "delete_households_mealplans_item_id",
+)
 
 
 def register_households_tools(mcp: FastMCP):
@@ -35,6 +103,13 @@ def register_households_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action, VALID_HOUSEHOLDS_ACTIONS, service="mealie-mcp"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_households_cookbooks":
             return client.get_households_cookbooks(**kwargs)

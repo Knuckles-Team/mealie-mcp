@@ -3,11 +3,35 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+
+VALID_GROUPS_ACTIONS = (
+    "get_all_households",
+    "get_one_household",
+    "get_logged_in_user_group",
+    "get_group_members",
+    "get_group_member",
+    "get_group_preferences",
+    "update_group_preferences",
+    "get_storage",
+    "start_data_migration",
+    "get_groups_reports",
+    "get_groups_reports_item_id",
+    "delete_groups_reports_item_id",
+    "get_groups_labels",
+    "post_groups_labels",
+    "get_groups_labels_item_id",
+    "put_groups_labels_item_id",
+    "delete_groups_labels_item_id",
+    "seed_foods",
+    "seed_labels",
+    "seed_units",
+)
 
 
 def register_groups_tools(mcp: FastMCP):
@@ -35,6 +59,11 @@ def register_groups_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_GROUPS_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_all_households":
             return client.get_all_households(**kwargs)

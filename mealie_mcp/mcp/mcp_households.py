@@ -3,7 +3,7 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -112,131 +112,177 @@ def register_households_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_households_cookbooks":
-            return client.get_households_cookbooks(**kwargs)
+            return await run_blocking(client.get_households_cookbooks, **kwargs)
         if action == "post_households_cookbooks":
-            return client.post_households_cookbooks(**kwargs)
+            return await run_blocking(client.post_households_cookbooks, **kwargs)
         if action == "put_households_cookbooks":
-            return client.put_households_cookbooks(**kwargs)
+            return await run_blocking(client.put_households_cookbooks, **kwargs)
         if action == "get_households_cookbooks_item_id":
-            return client.get_households_cookbooks_item_id(**kwargs)
+            return await run_blocking(client.get_households_cookbooks_item_id, **kwargs)
         if action == "put_households_cookbooks_item_id":
-            return client.put_households_cookbooks_item_id(**kwargs)
+            return await run_blocking(client.put_households_cookbooks_item_id, **kwargs)
         if action == "delete_households_cookbooks_item_id":
-            return client.delete_households_cookbooks_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_households_cookbooks_item_id, **kwargs
+            )
         if action == "get_households_events_notifications":
-            return client.get_households_events_notifications(**kwargs)
+            return await run_blocking(
+                client.get_households_events_notifications, **kwargs
+            )
         if action == "post_households_events_notifications":
-            return client.post_households_events_notifications(**kwargs)
+            return await run_blocking(
+                client.post_households_events_notifications, **kwargs
+            )
         if action == "get_households_events_notifications_item_id":
-            return client.get_households_events_notifications_item_id(**kwargs)
+            return await run_blocking(
+                client.get_households_events_notifications_item_id, **kwargs
+            )
         if action == "put_households_events_notifications_item_id":
-            return client.put_households_events_notifications_item_id(**kwargs)
+            return await run_blocking(
+                client.put_households_events_notifications_item_id, **kwargs
+            )
         if action == "delete_households_events_notifications_item_id":
-            return client.delete_households_events_notifications_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_households_events_notifications_item_id, **kwargs
+            )
         if action == "test_notification":
-            return client.test_notification(**kwargs)
+            return await run_blocking(client.test_notification, **kwargs)
         if action == "get_households_recipe_actions":
-            return client.get_households_recipe_actions(**kwargs)
+            return await run_blocking(client.get_households_recipe_actions, **kwargs)
         if action == "post_households_recipe_actions":
-            return client.post_households_recipe_actions(**kwargs)
+            return await run_blocking(client.post_households_recipe_actions, **kwargs)
         if action == "get_households_recipe_actions_item_id":
-            return client.get_households_recipe_actions_item_id(**kwargs)
+            return await run_blocking(
+                client.get_households_recipe_actions_item_id, **kwargs
+            )
         if action == "put_households_recipe_actions_item_id":
-            return client.put_households_recipe_actions_item_id(**kwargs)
+            return await run_blocking(
+                client.put_households_recipe_actions_item_id, **kwargs
+            )
         if action == "delete_households_recipe_actions_item_id":
-            return client.delete_households_recipe_actions_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_households_recipe_actions_item_id, **kwargs
+            )
         if action == "trigger_action":
-            return client.trigger_action(**kwargs)
+            return await run_blocking(client.trigger_action, **kwargs)
         if action == "get_logged_in_user_household":
-            return client.get_logged_in_user_household(**kwargs)
+            return await run_blocking(client.get_logged_in_user_household, **kwargs)
         if action == "get_household_recipe":
-            return client.get_household_recipe(**kwargs)
+            return await run_blocking(client.get_household_recipe, **kwargs)
         if action == "get_household_members":
-            return client.get_household_members(**kwargs)
+            return await run_blocking(client.get_household_members, **kwargs)
         if action == "get_household_preferences":
-            return client.get_household_preferences(**kwargs)
+            return await run_blocking(client.get_household_preferences, **kwargs)
         if action == "update_household_preferences":
-            return client.update_household_preferences(**kwargs)
+            return await run_blocking(client.update_household_preferences, **kwargs)
         if action == "set_member_permissions":
-            return client.set_member_permissions(**kwargs)
+            return await run_blocking(client.set_member_permissions, **kwargs)
         if action == "get_statistics":
-            return client.get_statistics(**kwargs)
+            return await run_blocking(client.get_statistics, **kwargs)
         if action == "get_invite_tokens":
-            return client.get_invite_tokens(**kwargs)
+            return await run_blocking(client.get_invite_tokens, **kwargs)
         if action == "create_invite_token":
-            return client.create_invite_token(**kwargs)
+            return await run_blocking(client.create_invite_token, **kwargs)
         if action == "email_invitation":
-            return client.email_invitation(**kwargs)
+            return await run_blocking(client.email_invitation, **kwargs)
         if action == "get_households_shopping_lists":
-            return client.get_households_shopping_lists(**kwargs)
+            return await run_blocking(client.get_households_shopping_lists, **kwargs)
         if action == "post_households_shopping_lists":
-            return client.post_households_shopping_lists(**kwargs)
+            return await run_blocking(client.post_households_shopping_lists, **kwargs)
         if action == "get_households_shopping_lists_item_id":
-            return client.get_households_shopping_lists_item_id(**kwargs)
+            return await run_blocking(
+                client.get_households_shopping_lists_item_id, **kwargs
+            )
         if action == "put_households_shopping_lists_item_id":
-            return client.put_households_shopping_lists_item_id(**kwargs)
+            return await run_blocking(
+                client.put_households_shopping_lists_item_id, **kwargs
+            )
         if action == "delete_households_shopping_lists_item_id":
-            return client.delete_households_shopping_lists_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_households_shopping_lists_item_id, **kwargs
+            )
         if action == "update_label_settings":
-            return client.update_label_settings(**kwargs)
+            return await run_blocking(client.update_label_settings, **kwargs)
         if action == "add_recipe_ingredients_to_list":
-            return client.add_recipe_ingredients_to_list(**kwargs)
+            return await run_blocking(client.add_recipe_ingredients_to_list, **kwargs)
         if action == "add_single_recipe_ingredients_to_list":
-            return client.add_single_recipe_ingredients_to_list(**kwargs)
+            return await run_blocking(
+                client.add_single_recipe_ingredients_to_list, **kwargs
+            )
         if action == "remove_recipe_ingredients_from_list":
-            return client.remove_recipe_ingredients_from_list(**kwargs)
+            return await run_blocking(
+                client.remove_recipe_ingredients_from_list, **kwargs
+            )
         if action == "get_households_shopping_items":
-            return client.get_households_shopping_items(**kwargs)
+            return await run_blocking(client.get_households_shopping_items, **kwargs)
         if action == "post_households_shopping_items":
-            return client.post_households_shopping_items(**kwargs)
+            return await run_blocking(client.post_households_shopping_items, **kwargs)
         if action == "put_households_shopping_items":
-            return client.put_households_shopping_items(**kwargs)
+            return await run_blocking(client.put_households_shopping_items, **kwargs)
         if action == "delete_households_shopping_items":
-            return client.delete_households_shopping_items(**kwargs)
+            return await run_blocking(client.delete_households_shopping_items, **kwargs)
         if action == "post_households_shopping_items_create_bulk":
-            return client.post_households_shopping_items_create_bulk(**kwargs)
+            return await run_blocking(
+                client.post_households_shopping_items_create_bulk, **kwargs
+            )
         if action == "get_households_shopping_items_item_id":
-            return client.get_households_shopping_items_item_id(**kwargs)
+            return await run_blocking(
+                client.get_households_shopping_items_item_id, **kwargs
+            )
         if action == "put_households_shopping_items_item_id":
-            return client.put_households_shopping_items_item_id(**kwargs)
+            return await run_blocking(
+                client.put_households_shopping_items_item_id, **kwargs
+            )
         if action == "delete_households_shopping_items_item_id":
-            return client.delete_households_shopping_items_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_households_shopping_items_item_id, **kwargs
+            )
         if action == "get_households_webhooks":
-            return client.get_households_webhooks(**kwargs)
+            return await run_blocking(client.get_households_webhooks, **kwargs)
         if action == "post_households_webhooks":
-            return client.post_households_webhooks(**kwargs)
+            return await run_blocking(client.post_households_webhooks, **kwargs)
         if action == "rerun_webhooks":
-            return client.rerun_webhooks(**kwargs)
+            return await run_blocking(client.rerun_webhooks, **kwargs)
         if action == "get_households_webhooks_item_id":
-            return client.get_households_webhooks_item_id(**kwargs)
+            return await run_blocking(client.get_households_webhooks_item_id, **kwargs)
         if action == "put_households_webhooks_item_id":
-            return client.put_households_webhooks_item_id(**kwargs)
+            return await run_blocking(client.put_households_webhooks_item_id, **kwargs)
         if action == "delete_households_webhooks_item_id":
-            return client.delete_households_webhooks_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_households_webhooks_item_id, **kwargs
+            )
         if action == "test_one":
-            return client.test_one(**kwargs)
+            return await run_blocking(client.test_one, **kwargs)
         if action == "get_households_mealplans_rules":
-            return client.get_households_mealplans_rules(**kwargs)
+            return await run_blocking(client.get_households_mealplans_rules, **kwargs)
         if action == "post_households_mealplans_rules":
-            return client.post_households_mealplans_rules(**kwargs)
+            return await run_blocking(client.post_households_mealplans_rules, **kwargs)
         if action == "get_households_mealplans_rules_item_id":
-            return client.get_households_mealplans_rules_item_id(**kwargs)
+            return await run_blocking(
+                client.get_households_mealplans_rules_item_id, **kwargs
+            )
         if action == "put_households_mealplans_rules_item_id":
-            return client.put_households_mealplans_rules_item_id(**kwargs)
+            return await run_blocking(
+                client.put_households_mealplans_rules_item_id, **kwargs
+            )
         if action == "delete_households_mealplans_rules_item_id":
-            return client.delete_households_mealplans_rules_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_households_mealplans_rules_item_id, **kwargs
+            )
         if action == "get_households_mealplans":
-            return client.get_households_mealplans(**kwargs)
+            return await run_blocking(client.get_households_mealplans, **kwargs)
         if action == "post_households_mealplans":
-            return client.post_households_mealplans(**kwargs)
+            return await run_blocking(client.post_households_mealplans, **kwargs)
         if action == "get_todays_meals":
-            return client.get_todays_meals(**kwargs)
+            return await run_blocking(client.get_todays_meals, **kwargs)
         if action == "create_random_meal":
-            return client.create_random_meal(**kwargs)
+            return await run_blocking(client.create_random_meal, **kwargs)
         if action == "get_households_mealplans_item_id":
-            return client.get_households_mealplans_item_id(**kwargs)
+            return await run_blocking(client.get_households_mealplans_item_id, **kwargs)
         if action == "put_households_mealplans_item_id":
-            return client.put_households_mealplans_item_id(**kwargs)
+            return await run_blocking(client.put_households_mealplans_item_id, **kwargs)
         if action == "delete_households_mealplans_item_id":
-            return client.delete_households_mealplans_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_households_mealplans_item_id, **kwargs
+            )
         raise ValueError(f"Unknown action: {action}")

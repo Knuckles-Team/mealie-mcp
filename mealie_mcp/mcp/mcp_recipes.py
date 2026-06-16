@@ -3,7 +3,7 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -110,131 +110,137 @@ def register_recipes_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_recipe_formats_and_templates":
-            return client.get_recipe_formats_and_templates(**kwargs)
+            return await run_blocking(client.get_recipe_formats_and_templates, **kwargs)
         if action == "get_recipe_as_format":
-            return client.get_recipe_as_format(**kwargs)
+            return await run_blocking(client.get_recipe_as_format, **kwargs)
         if action == "test_parse_recipe_url":
-            return client.test_parse_recipe_url(**kwargs)
+            return await run_blocking(client.test_parse_recipe_url, **kwargs)
         if action == "create_recipe_from_html_or_json":
-            return client.create_recipe_from_html_or_json(**kwargs)
+            return await run_blocking(client.create_recipe_from_html_or_json, **kwargs)
         if action == "parse_recipe_url":
-            return client.parse_recipe_url(**kwargs)
+            return await run_blocking(client.parse_recipe_url, **kwargs)
         if action == "parse_recipe_url_bulk":
-            return client.parse_recipe_url_bulk(**kwargs)
+            return await run_blocking(client.parse_recipe_url_bulk, **kwargs)
         if action == "create_recipe_from_zip":
-            return client.create_recipe_from_zip(**kwargs)
+            return await run_blocking(client.create_recipe_from_zip, **kwargs)
         if action == "create_recipe_from_image":
-            return client.create_recipe_from_image(**kwargs)
+            return await run_blocking(client.create_recipe_from_image, **kwargs)
         if action == "get_recipes":
-            return client.get_recipes(**kwargs)
+            return await run_blocking(client.get_recipes, **kwargs)
         if action == "post_recipes":
-            return client.post_recipes(**kwargs)
+            return await run_blocking(client.post_recipes, **kwargs)
         if action == "put_recipes":
-            return client.put_recipes(**kwargs)
+            return await run_blocking(client.put_recipes, **kwargs)
         if action == "patch_many":
-            return client.patch_many(**kwargs)
+            return await run_blocking(client.patch_many, **kwargs)
         if action == "get_recipes_suggestions":
-            return client.get_recipes_suggestions(**kwargs)
+            return await run_blocking(client.get_recipes_suggestions, **kwargs)
         if action == "get_recipes_slug":
-            return client.get_recipes_slug(**kwargs)
+            return await run_blocking(client.get_recipes_slug, **kwargs)
         if action == "put_recipes_slug":
-            return client.put_recipes_slug(**kwargs)
+            return await run_blocking(client.put_recipes_slug, **kwargs)
         if action == "patch_one":
-            return client.patch_one(**kwargs)
+            return await run_blocking(client.patch_one, **kwargs)
         if action == "delete_recipes_slug":
-            return client.delete_recipes_slug(**kwargs)
+            return await run_blocking(client.delete_recipes_slug, **kwargs)
         if action == "duplicate_one":
-            return client.duplicate_one(**kwargs)
+            return await run_blocking(client.duplicate_one, **kwargs)
         if action == "update_last_made":
-            return client.update_last_made(**kwargs)
+            return await run_blocking(client.update_last_made, **kwargs)
         if action == "scrape_image_url":
-            return client.scrape_image_url(**kwargs)
+            return await run_blocking(client.scrape_image_url, **kwargs)
         if action == "update_recipe_image":
-            return client.update_recipe_image(**kwargs)
+            return await run_blocking(client.update_recipe_image, **kwargs)
         if action == "delete_recipe_image":
-            return client.delete_recipe_image(**kwargs)
+            return await run_blocking(client.delete_recipe_image, **kwargs)
         if action == "upload_recipe_asset":
-            return client.upload_recipe_asset(**kwargs)
+            return await run_blocking(client.upload_recipe_asset, **kwargs)
         if action == "get_recipe_comments":
-            return client.get_recipe_comments(**kwargs)
+            return await run_blocking(client.get_recipe_comments, **kwargs)
         if action == "bulk_tag_recipes":
-            return client.bulk_tag_recipes(**kwargs)
+            return await run_blocking(client.bulk_tag_recipes, **kwargs)
         if action == "bulk_settings_recipes":
-            return client.bulk_settings_recipes(**kwargs)
+            return await run_blocking(client.bulk_settings_recipes, **kwargs)
         if action == "bulk_categorize_recipes":
-            return client.bulk_categorize_recipes(**kwargs)
+            return await run_blocking(client.bulk_categorize_recipes, **kwargs)
         if action == "bulk_delete_recipes":
-            return client.bulk_delete_recipes(**kwargs)
+            return await run_blocking(client.bulk_delete_recipes, **kwargs)
         if action == "bulk_export_recipes":
-            return client.bulk_export_recipes(**kwargs)
+            return await run_blocking(client.bulk_export_recipes, **kwargs)
         if action == "get_exported_data":
-            return client.get_exported_data(**kwargs)
+            return await run_blocking(client.get_exported_data, **kwargs)
         if action == "get_exported_data_token":
-            return client.get_exported_data_token(**kwargs)
+            return await run_blocking(client.get_exported_data_token, **kwargs)
         if action == "purge_export_data":
-            return client.purge_export_data(**kwargs)
+            return await run_blocking(client.purge_export_data, **kwargs)
         if action == "get_shared_recipe":
-            return client.get_shared_recipe(**kwargs)
+            return await run_blocking(client.get_shared_recipe, **kwargs)
         if action == "get_shared_recipe_as_zip":
-            return client.get_shared_recipe_as_zip(**kwargs)
+            return await run_blocking(client.get_shared_recipe_as_zip, **kwargs)
         if action == "get_recipes_timeline_events":
-            return client.get_recipes_timeline_events(**kwargs)
+            return await run_blocking(client.get_recipes_timeline_events, **kwargs)
         if action == "post_recipes_timeline_events":
-            return client.post_recipes_timeline_events(**kwargs)
+            return await run_blocking(client.post_recipes_timeline_events, **kwargs)
         if action == "get_recipes_timeline_events_item_id":
-            return client.get_recipes_timeline_events_item_id(**kwargs)
+            return await run_blocking(
+                client.get_recipes_timeline_events_item_id, **kwargs
+            )
         if action == "put_recipes_timeline_events_item_id":
-            return client.put_recipes_timeline_events_item_id(**kwargs)
+            return await run_blocking(
+                client.put_recipes_timeline_events_item_id, **kwargs
+            )
         if action == "delete_recipes_timeline_events_item_id":
-            return client.delete_recipes_timeline_events_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_recipes_timeline_events_item_id, **kwargs
+            )
         if action == "update_event_image":
-            return client.update_event_image(**kwargs)
+            return await run_blocking(client.update_event_image, **kwargs)
         if action == "get_comments":
-            return client.get_comments(**kwargs)
+            return await run_blocking(client.get_comments, **kwargs)
         if action == "post_comments":
-            return client.post_comments(**kwargs)
+            return await run_blocking(client.post_comments, **kwargs)
         if action == "get_comments_item_id":
-            return client.get_comments_item_id(**kwargs)
+            return await run_blocking(client.get_comments_item_id, **kwargs)
         if action == "put_comments_item_id":
-            return client.put_comments_item_id(**kwargs)
+            return await run_blocking(client.put_comments_item_id, **kwargs)
         if action == "post_parser_ingredient":
-            return client.post_parser_ingredient(**kwargs)
+            return await run_blocking(client.post_parser_ingredient, **kwargs)
         if action == "parse_ingredient":
-            return client.parse_ingredient(**kwargs)
+            return await run_blocking(client.parse_ingredient, **kwargs)
         if action == "parse_ingredients":
-            return client.parse_ingredients(**kwargs)
+            return await run_blocking(client.parse_ingredients, **kwargs)
         if action == "get_foods":
-            return client.get_foods(**kwargs)
+            return await run_blocking(client.get_foods, **kwargs)
         if action == "post_foods":
-            return client.post_foods(**kwargs)
+            return await run_blocking(client.post_foods, **kwargs)
         if action == "put_foods_merge":
-            return client.put_foods_merge(**kwargs)
+            return await run_blocking(client.put_foods_merge, **kwargs)
         if action == "get_foods_item_id":
-            return client.get_foods_item_id(**kwargs)
+            return await run_blocking(client.get_foods_item_id, **kwargs)
         if action == "put_foods_item_id":
-            return client.put_foods_item_id(**kwargs)
+            return await run_blocking(client.put_foods_item_id, **kwargs)
         if action == "delete_foods_item_id":
-            return client.delete_foods_item_id(**kwargs)
+            return await run_blocking(client.delete_foods_item_id, **kwargs)
         if action == "get_units":
-            return client.get_units(**kwargs)
+            return await run_blocking(client.get_units, **kwargs)
         if action == "post_units":
-            return client.post_units(**kwargs)
+            return await run_blocking(client.post_units, **kwargs)
         if action == "put_units_merge":
-            return client.put_units_merge(**kwargs)
+            return await run_blocking(client.put_units_merge, **kwargs)
         if action == "get_units_item_id":
-            return client.get_units_item_id(**kwargs)
+            return await run_blocking(client.get_units_item_id, **kwargs)
         if action == "put_units_item_id":
-            return client.put_units_item_id(**kwargs)
+            return await run_blocking(client.put_units_item_id, **kwargs)
         if action == "delete_units_item_id":
-            return client.delete_units_item_id(**kwargs)
+            return await run_blocking(client.delete_units_item_id, **kwargs)
         if action == "get_recipe_img":
-            return client.get_recipe_img(**kwargs)
+            return await run_blocking(client.get_recipe_img, **kwargs)
         if action == "get_recipe_timeline_event_img":
-            return client.get_recipe_timeline_event_img(**kwargs)
+            return await run_blocking(client.get_recipe_timeline_event_img, **kwargs)
         if action == "get_recipe_asset":
-            return client.get_recipe_asset(**kwargs)
+            return await run_blocking(client.get_recipe_asset, **kwargs)
         if action == "get_user_image":
-            return client.get_user_image(**kwargs)
+            return await run_blocking(client.get_user_image, **kwargs)
         if action == "get_validation_text":
-            return client.get_validation_text(**kwargs)
+            return await run_blocking(client.get_validation_text, **kwargs)
         raise ValueError(f"Unknown action: {action}")

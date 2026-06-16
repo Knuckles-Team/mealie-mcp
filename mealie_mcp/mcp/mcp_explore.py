@@ -3,7 +3,7 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -61,37 +61,60 @@ def register_explore_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_explore_groups_group_slug_foods":
-            return client.get_explore_groups_group_slug_foods(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_foods, **kwargs
+            )
         if action == "get_explore_groups_group_slug_foods_item_id":
-            return client.get_explore_groups_group_slug_foods_item_id(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_foods_item_id, **kwargs
+            )
         if action == "get_explore_groups_group_slug_households":
-            return client.get_explore_groups_group_slug_households(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_households, **kwargs
+            )
         if action == "get_household":
-            return client.get_household(**kwargs)
+            return await run_blocking(client.get_household, **kwargs)
         if action == "get_explore_groups_group_slug_organizers_categories":
-            return client.get_explore_groups_group_slug_organizers_categories(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_organizers_categories, **kwargs
+            )
         if action == "get_explore_groups_group_slug_organizers_categories_item_id":
-            return client.get_explore_groups_group_slug_organizers_categories_item_id(
-                **kwargs
+            return await run_blocking(
+                client.get_explore_groups_group_slug_organizers_categories_item_id,
+                **kwargs,
             )
         if action == "get_explore_groups_group_slug_organizers_tags":
-            return client.get_explore_groups_group_slug_organizers_tags(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_organizers_tags, **kwargs
+            )
         if action == "get_explore_groups_group_slug_organizers_tags_item_id":
-            return client.get_explore_groups_group_slug_organizers_tags_item_id(
-                **kwargs
+            return await run_blocking(
+                client.get_explore_groups_group_slug_organizers_tags_item_id, **kwargs
             )
         if action == "get_explore_groups_group_slug_organizerss":
-            return client.get_explore_groups_group_slug_organizerss(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_organizerss, **kwargs
+            )
         if action == "get_explore_groups_group_slug_organizerss_item_id":
-            return client.get_explore_groups_group_slug_organizerss_item_id(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_organizerss_item_id, **kwargs
+            )
         if action == "get_explore_groups_group_slug_cookbooks":
-            return client.get_explore_groups_group_slug_cookbooks(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_cookbooks, **kwargs
+            )
         if action == "get_explore_groups_group_slug_cookbooks_item_id":
-            return client.get_explore_groups_group_slug_cookbooks_item_id(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_cookbooks_item_id, **kwargs
+            )
         if action == "get_explore_groups_group_slug_recipes":
-            return client.get_explore_groups_group_slug_recipes(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_recipes, **kwargs
+            )
         if action == "get_explore_groups_group_slug_recipes_suggestions":
-            return client.get_explore_groups_group_slug_recipes_suggestions(**kwargs)
+            return await run_blocking(
+                client.get_explore_groups_group_slug_recipes_suggestions, **kwargs
+            )
         if action == "get_recipe":
-            return client.get_recipe(**kwargs)
+            return await run_blocking(client.get_recipe, **kwargs)
         raise ValueError(f"Unknown action: {action}")

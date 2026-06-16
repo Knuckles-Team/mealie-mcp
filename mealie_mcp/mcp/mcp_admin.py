@@ -3,7 +3,7 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -80,71 +80,71 @@ def register_admin_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_app_info":
-            return client.get_app_info(**kwargs)
+            return await run_blocking(client.get_app_info, **kwargs)
         if action == "get_app_statistics":
-            return client.get_app_statistics(**kwargs)
+            return await run_blocking(client.get_app_statistics, **kwargs)
         if action == "check_app_config":
-            return client.check_app_config(**kwargs)
+            return await run_blocking(client.check_app_config, **kwargs)
         if action == "get_admin_users":
-            return client.get_admin_users(**kwargs)
+            return await run_blocking(client.get_admin_users, **kwargs)
         if action == "post_admin_users":
-            return client.post_admin_users(**kwargs)
+            return await run_blocking(client.post_admin_users, **kwargs)
         if action == "unlock_users":
-            return client.unlock_users(**kwargs)
+            return await run_blocking(client.unlock_users, **kwargs)
         if action == "get_admin_users_item_id":
-            return client.get_admin_users_item_id(**kwargs)
+            return await run_blocking(client.get_admin_users_item_id, **kwargs)
         if action == "put_admin_users_item_id":
-            return client.put_admin_users_item_id(**kwargs)
+            return await run_blocking(client.put_admin_users_item_id, **kwargs)
         if action == "delete_admin_users_item_id":
-            return client.delete_admin_users_item_id(**kwargs)
+            return await run_blocking(client.delete_admin_users_item_id, **kwargs)
         if action == "generate_token":
-            return client.generate_token(**kwargs)
+            return await run_blocking(client.generate_token, **kwargs)
         if action == "get_admin_households":
-            return client.get_admin_households(**kwargs)
+            return await run_blocking(client.get_admin_households, **kwargs)
         if action == "post_admin_households":
-            return client.post_admin_households(**kwargs)
+            return await run_blocking(client.post_admin_households, **kwargs)
         if action == "get_admin_households_item_id":
-            return client.get_admin_households_item_id(**kwargs)
+            return await run_blocking(client.get_admin_households_item_id, **kwargs)
         if action == "put_admin_households_item_id":
-            return client.put_admin_households_item_id(**kwargs)
+            return await run_blocking(client.put_admin_households_item_id, **kwargs)
         if action == "delete_admin_households_item_id":
-            return client.delete_admin_households_item_id(**kwargs)
+            return await run_blocking(client.delete_admin_households_item_id, **kwargs)
         if action == "get_admin_groups":
-            return client.get_admin_groups(**kwargs)
+            return await run_blocking(client.get_admin_groups, **kwargs)
         if action == "post_admin_groups":
-            return client.post_admin_groups(**kwargs)
+            return await run_blocking(client.post_admin_groups, **kwargs)
         if action == "get_admin_groups_item_id":
-            return client.get_admin_groups_item_id(**kwargs)
+            return await run_blocking(client.get_admin_groups_item_id, **kwargs)
         if action == "put_admin_groups_item_id":
-            return client.put_admin_groups_item_id(**kwargs)
+            return await run_blocking(client.put_admin_groups_item_id, **kwargs)
         if action == "delete_admin_groups_item_id":
-            return client.delete_admin_groups_item_id(**kwargs)
+            return await run_blocking(client.delete_admin_groups_item_id, **kwargs)
         if action == "check_email_config":
-            return client.check_email_config(**kwargs)
+            return await run_blocking(client.check_email_config, **kwargs)
         if action == "send_test_email":
-            return client.send_test_email(**kwargs)
+            return await run_blocking(client.send_test_email, **kwargs)
         if action == "get_admin_backups":
-            return client.get_admin_backups(**kwargs)
+            return await run_blocking(client.get_admin_backups, **kwargs)
         if action == "post_admin_backups":
-            return client.post_admin_backups(**kwargs)
+            return await run_blocking(client.post_admin_backups, **kwargs)
         if action == "get_admin_backups_file_name":
-            return client.get_admin_backups_file_name(**kwargs)
+            return await run_blocking(client.get_admin_backups_file_name, **kwargs)
         if action == "delete_admin_backups_file_name":
-            return client.delete_admin_backups_file_name(**kwargs)
+            return await run_blocking(client.delete_admin_backups_file_name, **kwargs)
         if action == "upload_one":
-            return client.upload_one(**kwargs)
+            return await run_blocking(client.upload_one, **kwargs)
         if action == "import_one":
-            return client.import_one(**kwargs)
+            return await run_blocking(client.import_one, **kwargs)
         if action == "get_maintenance_summary":
-            return client.get_maintenance_summary(**kwargs)
+            return await run_blocking(client.get_maintenance_summary, **kwargs)
         if action == "get_storage_details":
-            return client.get_storage_details(**kwargs)
+            return await run_blocking(client.get_storage_details, **kwargs)
         if action == "clean_images":
-            return client.clean_images(**kwargs)
+            return await run_blocking(client.clean_images, **kwargs)
         if action == "clean_temp":
-            return client.clean_temp(**kwargs)
+            return await run_blocking(client.clean_temp, **kwargs)
         if action == "clean_recipe_folders":
-            return client.clean_recipe_folders(**kwargs)
+            return await run_blocking(client.clean_recipe_folders, **kwargs)
         if action == "debug_openai":
-            return client.debug_openai(**kwargs)
+            return await run_blocking(client.debug_openai, **kwargs)
         raise ValueError(f"Unknown action: {action}")

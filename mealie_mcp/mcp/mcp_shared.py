@@ -3,7 +3,7 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -50,11 +50,11 @@ def register_shared_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_shared_recipes":
-            return client.get_shared_recipes(**kwargs)
+            return await run_blocking(client.get_shared_recipes, **kwargs)
         if action == "post_shared_recipes":
-            return client.post_shared_recipes(**kwargs)
+            return await run_blocking(client.post_shared_recipes, **kwargs)
         if action == "get_shared_recipes_item_id":
-            return client.get_shared_recipes_item_id(**kwargs)
+            return await run_blocking(client.get_shared_recipes_item_id, **kwargs)
         if action == "delete_shared_recipes_item_id":
-            return client.delete_shared_recipes_item_id(**kwargs)
+            return await run_blocking(client.delete_shared_recipes_item_id, **kwargs)
         raise ValueError(f"Unknown action: {action}")

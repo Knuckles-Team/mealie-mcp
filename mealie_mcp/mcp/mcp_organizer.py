@@ -3,7 +3,7 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -66,43 +66,53 @@ def register_organizer_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_organizers_categories":
-            return client.get_organizers_categories(**kwargs)
+            return await run_blocking(client.get_organizers_categories, **kwargs)
         if action == "post_organizers_categories":
-            return client.post_organizers_categories(**kwargs)
+            return await run_blocking(client.post_organizers_categories, **kwargs)
         if action == "get_all_empty":
-            return client.get_all_empty(**kwargs)
+            return await run_blocking(client.get_all_empty, **kwargs)
         if action == "get_organizers_categories_item_id":
-            return client.get_organizers_categories_item_id(**kwargs)
+            return await run_blocking(
+                client.get_organizers_categories_item_id, **kwargs
+            )
         if action == "put_organizers_categories_item_id":
-            return client.put_organizers_categories_item_id(**kwargs)
+            return await run_blocking(
+                client.put_organizers_categories_item_id, **kwargs
+            )
         if action == "delete_organizers_categories_item_id":
-            return client.delete_organizers_categories_item_id(**kwargs)
+            return await run_blocking(
+                client.delete_organizers_categories_item_id, **kwargs
+            )
         if action == "get_organizers_categories_slug_category_slug":
-            return client.get_organizers_categories_slug_category_slug(**kwargs)
+            return await run_blocking(
+                client.get_organizers_categories_slug_category_slug, **kwargs
+            )
         if action == "get_organizers_tags":
-            return client.get_organizers_tags(**kwargs)
+            return await run_blocking(client.get_organizers_tags, **kwargs)
         if action == "post_organizers_tags":
-            return client.post_organizers_tags(**kwargs)
+            return await run_blocking(client.post_organizers_tags, **kwargs)
         if action == "get_empty_tags":
-            return client.get_empty_tags(**kwargs)
+            return await run_blocking(client.get_empty_tags, **kwargs)
         if action == "get_organizers_tags_item_id":
-            return client.get_organizers_tags_item_id(**kwargs)
+            return await run_blocking(client.get_organizers_tags_item_id, **kwargs)
         if action == "put_organizers_tags_item_id":
-            return client.put_organizers_tags_item_id(**kwargs)
+            return await run_blocking(client.put_organizers_tags_item_id, **kwargs)
         if action == "delete_recipe_tag":
-            return client.delete_recipe_tag(**kwargs)
+            return await run_blocking(client.delete_recipe_tag, **kwargs)
         if action == "get_organizers_tags_slug_tag_slug":
-            return client.get_organizers_tags_slug_tag_slug(**kwargs)
+            return await run_blocking(
+                client.get_organizers_tags_slug_tag_slug, **kwargs
+            )
         if action == "get_organizerss":
-            return client.get_organizerss(**kwargs)
+            return await run_blocking(client.get_organizerss, **kwargs)
         if action == "post_organizerss":
-            return client.post_organizerss(**kwargs)
+            return await run_blocking(client.post_organizerss, **kwargs)
         if action == "get_organizerss_item_id":
-            return client.get_organizerss_item_id(**kwargs)
+            return await run_blocking(client.get_organizerss_item_id, **kwargs)
         if action == "put_organizerss_item_id":
-            return client.put_organizerss_item_id(**kwargs)
+            return await run_blocking(client.put_organizerss_item_id, **kwargs)
         if action == "delete_organizerss_item_id":
-            return client.delete_organizerss_item_id(**kwargs)
+            return await run_blocking(client.delete_organizerss_item_id, **kwargs)
         if action == "get_organizerss_slug_slug":
-            return client.get_organizerss_slug_slug(**kwargs)
+            return await run_blocking(client.get_organizerss_slug_slug, **kwargs)
         raise ValueError(f"Unknown action: {action}")

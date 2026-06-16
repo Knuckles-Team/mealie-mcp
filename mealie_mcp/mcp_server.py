@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import warnings
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from fastmcp.utilities.logging import get_logger
@@ -38,6 +39,12 @@ logger = get_logger(name="mealie-mcp")
 logger.setLevel(logging.INFO)
 
 
+VALID_APP_ACTIONS = (
+    "get_startup_info",
+    "get_app_theme",
+)
+
+
 def register_app_tools(mcp: FastMCP):
     @mcp.tool(tags={"app"})
     async def mealie_app(
@@ -64,11 +71,42 @@ def register_app_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(action, VALID_APP_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get_startup_info":
             return client.get_startup_info(**kwargs)
         if action == "get_app_theme":
             return client.get_app_theme(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
+
+VALID_USERS_ACTIONS = (
+    "get_token",
+    "oauth_login",
+    "oauth_callback",
+    "refresh_token",
+    "logout",
+    "register_new_user",
+    "get_logged_in_user",
+    "get_logged_in_user_ratings",
+    "get_logged_in_user_rating_for_recipe",
+    "get_logged_in_user_favorites",
+    "update_password",
+    "update_user",
+    "forgot_password",
+    "reset_password",
+    "update_user_image",
+    "create",
+    "delete",
+    "get_ratings",
+    "get_favorites",
+    "set_rating",
+    "add_favorite",
+    "remove_favorite",
+)
 
 
 def register_users_tools(mcp: FastMCP):
@@ -96,6 +134,11 @@ def register_users_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_USERS_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_token":
             return client.get_token(**kwargs)
@@ -144,6 +187,74 @@ def register_users_tools(mcp: FastMCP):
         raise ValueError(f"Unknown action: {action}")
 
 
+VALID_HOUSEHOLDS_ACTIONS = (
+    "get_households_cookbooks",
+    "post_households_cookbooks",
+    "put_households_cookbooks",
+    "get_households_cookbooks_item_id",
+    "put_households_cookbooks_item_id",
+    "delete_households_cookbooks_item_id",
+    "get_households_events_notifications",
+    "post_households_events_notifications",
+    "get_households_events_notifications_item_id",
+    "put_households_events_notifications_item_id",
+    "delete_households_events_notifications_item_id",
+    "test_notification",
+    "get_households_recipe_actions",
+    "post_households_recipe_actions",
+    "get_households_recipe_actions_item_id",
+    "put_households_recipe_actions_item_id",
+    "delete_households_recipe_actions_item_id",
+    "trigger_action",
+    "get_logged_in_user_household",
+    "get_household_recipe",
+    "get_household_members",
+    "get_household_preferences",
+    "update_household_preferences",
+    "set_member_permissions",
+    "get_statistics",
+    "get_invite_tokens",
+    "create_invite_token",
+    "email_invitation",
+    "get_households_shopping_lists",
+    "post_households_shopping_lists",
+    "get_households_shopping_lists_item_id",
+    "put_households_shopping_lists_item_id",
+    "delete_households_shopping_lists_item_id",
+    "update_label_settings",
+    "add_recipe_ingredients_to_list",
+    "add_single_recipe_ingredients_to_list",
+    "remove_recipe_ingredients_from_list",
+    "get_households_shopping_items",
+    "post_households_shopping_items",
+    "put_households_shopping_items",
+    "delete_households_shopping_items",
+    "post_households_shopping_items_create_bulk",
+    "get_households_shopping_items_item_id",
+    "put_households_shopping_items_item_id",
+    "delete_households_shopping_items_item_id",
+    "get_households_webhooks",
+    "post_households_webhooks",
+    "rerun_webhooks",
+    "get_households_webhooks_item_id",
+    "put_households_webhooks_item_id",
+    "delete_households_webhooks_item_id",
+    "test_one",
+    "get_households_mealplans_rules",
+    "post_households_mealplans_rules",
+    "get_households_mealplans_rules_item_id",
+    "put_households_mealplans_rules_item_id",
+    "delete_households_mealplans_rules_item_id",
+    "get_households_mealplans",
+    "post_households_mealplans",
+    "get_todays_meals",
+    "create_random_meal",
+    "get_households_mealplans_item_id",
+    "put_households_mealplans_item_id",
+    "delete_households_mealplans_item_id",
+)
+
+
 def register_households_tools(mcp: FastMCP):
     @mcp.tool(tags={"households"})
     async def mealie_households(
@@ -169,6 +280,13 @@ def register_households_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action, VALID_HOUSEHOLDS_ACTIONS, service="mealie-mcp"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_households_cookbooks":
             return client.get_households_cookbooks(**kwargs)
@@ -301,6 +419,30 @@ def register_households_tools(mcp: FastMCP):
         raise ValueError(f"Unknown action: {action}")
 
 
+VALID_GROUPS_ACTIONS = (
+    "get_all_households",
+    "get_one_household",
+    "get_logged_in_user_group",
+    "get_group_members",
+    "get_group_member",
+    "get_group_preferences",
+    "update_group_preferences",
+    "get_storage",
+    "start_data_migration",
+    "get_groups_reports",
+    "get_groups_reports_item_id",
+    "delete_groups_reports_item_id",
+    "get_groups_labels",
+    "post_groups_labels",
+    "get_groups_labels_item_id",
+    "put_groups_labels_item_id",
+    "delete_groups_labels_item_id",
+    "seed_foods",
+    "seed_labels",
+    "seed_units",
+)
+
+
 def register_groups_tools(mcp: FastMCP):
     @mcp.tool(tags={"groups"})
     async def mealie_groups(
@@ -326,6 +468,11 @@ def register_groups_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_GROUPS_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_all_households":
             return client.get_all_households(**kwargs)
@@ -370,6 +517,74 @@ def register_groups_tools(mcp: FastMCP):
         raise ValueError(f"Unknown action: {action}")
 
 
+VALID_RECIPES_ACTIONS = (
+    "get_recipe_formats_and_templates",
+    "get_recipe_as_format",
+    "test_parse_recipe_url",
+    "create_recipe_from_html_or_json",
+    "parse_recipe_url",
+    "parse_recipe_url_bulk",
+    "create_recipe_from_zip",
+    "create_recipe_from_image",
+    "get_recipes",
+    "post_recipes",
+    "put_recipes",
+    "patch_many",
+    "get_recipes_suggestions",
+    "get_recipes_slug",
+    "put_recipes_slug",
+    "patch_one",
+    "delete_recipes_slug",
+    "duplicate_one",
+    "update_last_made",
+    "scrape_image_url",
+    "update_recipe_image",
+    "delete_recipe_image",
+    "upload_recipe_asset",
+    "get_recipe_comments",
+    "bulk_tag_recipes",
+    "bulk_settings_recipes",
+    "bulk_categorize_recipes",
+    "bulk_delete_recipes",
+    "bulk_export_recipes",
+    "get_exported_data",
+    "get_exported_data_token",
+    "purge_export_data",
+    "get_shared_recipe",
+    "get_shared_recipe_as_zip",
+    "get_recipes_timeline_events",
+    "post_recipes_timeline_events",
+    "get_recipes_timeline_events_item_id",
+    "put_recipes_timeline_events_item_id",
+    "delete_recipes_timeline_events_item_id",
+    "update_event_image",
+    "get_comments",
+    "post_comments",
+    "get_comments_item_id",
+    "put_comments_item_id",
+    "post_parser_ingredient",
+    "parse_ingredient",
+    "parse_ingredients",
+    "get_foods",
+    "post_foods",
+    "put_foods_merge",
+    "get_foods_item_id",
+    "put_foods_item_id",
+    "delete_foods_item_id",
+    "get_units",
+    "post_units",
+    "put_units_merge",
+    "get_units_item_id",
+    "put_units_item_id",
+    "delete_units_item_id",
+    "get_recipe_img",
+    "get_recipe_timeline_event_img",
+    "get_recipe_asset",
+    "get_user_image",
+    "get_validation_text",
+)
+
+
 def register_recipes_tools(mcp: FastMCP):
     @mcp.tool(tags={"recipes"})
     async def mealie_recipes(
@@ -395,6 +610,11 @@ def register_recipes_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_RECIPES_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_recipe_formats_and_templates":
             return client.get_recipe_formats_and_templates(**kwargs)
@@ -527,6 +747,30 @@ def register_recipes_tools(mcp: FastMCP):
         raise ValueError(f"Unknown action: {action}")
 
 
+VALID_ORGANIZER_ACTIONS = (
+    "get_organizers_categories",
+    "post_organizers_categories",
+    "get_all_empty",
+    "get_organizers_categories_item_id",
+    "put_organizers_categories_item_id",
+    "delete_organizers_categories_item_id",
+    "get_organizers_categories_slug_category_slug",
+    "get_organizers_tags",
+    "post_organizers_tags",
+    "get_empty_tags",
+    "get_organizers_tags_item_id",
+    "put_organizers_tags_item_id",
+    "delete_recipe_tag",
+    "get_organizers_tags_slug_tag_slug",
+    "get_organizerss",
+    "post_organizerss",
+    "get_organizerss_item_id",
+    "put_organizerss_item_id",
+    "delete_organizerss_item_id",
+    "get_organizerss_slug_slug",
+)
+
+
 def register_organizer_tools(mcp: FastMCP):
     @mcp.tool(tags={"organizer"})
     async def mealie_organizer(
@@ -552,6 +796,11 @@ def register_organizer_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_ORGANIZER_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_organizers_categories":
             return client.get_organizers_categories(**kwargs)
@@ -596,6 +845,14 @@ def register_organizer_tools(mcp: FastMCP):
         raise ValueError(f"Unknown action: {action}")
 
 
+VALID_SHARED_ACTIONS = (
+    "get_shared_recipes",
+    "post_shared_recipes",
+    "get_shared_recipes_item_id",
+    "delete_shared_recipes_item_id",
+)
+
+
 def register_shared_tools(mcp: FastMCP):
     @mcp.tool(tags={"shared"})
     async def mealie_shared(
@@ -622,6 +879,11 @@ def register_shared_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(action, VALID_SHARED_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get_shared_recipes":
             return client.get_shared_recipes(**kwargs)
         if action == "post_shared_recipes":
@@ -631,6 +893,44 @@ def register_shared_tools(mcp: FastMCP):
         if action == "delete_shared_recipes_item_id":
             return client.delete_shared_recipes_item_id(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
+
+VALID_ADMIN_ACTIONS = (
+    "get_app_info",
+    "get_app_statistics",
+    "check_app_config",
+    "get_admin_users",
+    "post_admin_users",
+    "unlock_users",
+    "get_admin_users_item_id",
+    "put_admin_users_item_id",
+    "delete_admin_users_item_id",
+    "generate_token",
+    "get_admin_households",
+    "post_admin_households",
+    "get_admin_households_item_id",
+    "put_admin_households_item_id",
+    "delete_admin_households_item_id",
+    "get_admin_groups",
+    "post_admin_groups",
+    "get_admin_groups_item_id",
+    "put_admin_groups_item_id",
+    "delete_admin_groups_item_id",
+    "check_email_config",
+    "send_test_email",
+    "get_admin_backups",
+    "post_admin_backups",
+    "get_admin_backups_file_name",
+    "delete_admin_backups_file_name",
+    "upload_one",
+    "import_one",
+    "get_maintenance_summary",
+    "get_storage_details",
+    "clean_images",
+    "clean_temp",
+    "clean_recipe_folders",
+    "debug_openai",
+)
 
 
 def register_admin_tools(mcp: FastMCP):
@@ -658,6 +958,11 @@ def register_admin_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_ADMIN_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_app_info":
             return client.get_app_info(**kwargs)
@@ -730,6 +1035,25 @@ def register_admin_tools(mcp: FastMCP):
         raise ValueError(f"Unknown action: {action}")
 
 
+VALID_EXPLORE_ACTIONS = (
+    "get_explore_groups_group_slug_foods",
+    "get_explore_groups_group_slug_foods_item_id",
+    "get_explore_groups_group_slug_households",
+    "get_household",
+    "get_explore_groups_group_slug_organizers_categories",
+    "get_explore_groups_group_slug_organizers_categories_item_id",
+    "get_explore_groups_group_slug_organizers_tags",
+    "get_explore_groups_group_slug_organizers_tags_item_id",
+    "get_explore_groups_group_slug_organizerss",
+    "get_explore_groups_group_slug_organizerss_item_id",
+    "get_explore_groups_group_slug_cookbooks",
+    "get_explore_groups_group_slug_cookbooks_item_id",
+    "get_explore_groups_group_slug_recipes",
+    "get_explore_groups_group_slug_recipes_suggestions",
+    "get_recipe",
+)
+
+
 def register_explore_tools(mcp: FastMCP):
     @mcp.tool(tags={"explore"})
     async def mealie_explore(
@@ -755,6 +1079,11 @@ def register_explore_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_EXPLORE_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_explore_groups_group_slug_foods":
             return client.get_explore_groups_group_slug_foods(**kwargs)
@@ -793,6 +1122,9 @@ def register_explore_tools(mcp: FastMCP):
         raise ValueError(f"Unknown action: {action}")
 
 
+VALID_UTILS_ACTIONS = ("download_file",)
+
+
 def register_utils_tools(mcp: FastMCP):
     @mcp.tool(tags={"utils"})
     async def mealie_utils(
@@ -818,6 +1150,11 @@ def register_utils_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_UTILS_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "download_file":
             return client.download_file(**kwargs)

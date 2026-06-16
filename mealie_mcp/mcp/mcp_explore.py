@@ -3,11 +3,30 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+
+VALID_EXPLORE_ACTIONS = (
+    "get_explore_groups_group_slug_foods",
+    "get_explore_groups_group_slug_foods_item_id",
+    "get_explore_groups_group_slug_households",
+    "get_household",
+    "get_explore_groups_group_slug_organizers_categories",
+    "get_explore_groups_group_slug_organizers_categories_item_id",
+    "get_explore_groups_group_slug_organizers_tags",
+    "get_explore_groups_group_slug_organizers_tags_item_id",
+    "get_explore_groups_group_slug_organizerss",
+    "get_explore_groups_group_slug_organizerss_item_id",
+    "get_explore_groups_group_slug_cookbooks",
+    "get_explore_groups_group_slug_cookbooks_item_id",
+    "get_explore_groups_group_slug_recipes",
+    "get_explore_groups_group_slug_recipes_suggestions",
+    "get_recipe",
+)
 
 
 def register_explore_tools(mcp: FastMCP):
@@ -35,6 +54,11 @@ def register_explore_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_EXPLORE_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_explore_groups_group_slug_foods":
             return client.get_explore_groups_group_slug_foods(**kwargs)

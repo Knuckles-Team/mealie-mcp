@@ -3,11 +3,35 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+
+VALID_ORGANIZER_ACTIONS = (
+    "get_organizers_categories",
+    "post_organizers_categories",
+    "get_all_empty",
+    "get_organizers_categories_item_id",
+    "put_organizers_categories_item_id",
+    "delete_organizers_categories_item_id",
+    "get_organizers_categories_slug_category_slug",
+    "get_organizers_tags",
+    "post_organizers_tags",
+    "get_empty_tags",
+    "get_organizers_tags_item_id",
+    "put_organizers_tags_item_id",
+    "delete_recipe_tag",
+    "get_organizers_tags_slug_tag_slug",
+    "get_organizerss",
+    "post_organizerss",
+    "get_organizerss_item_id",
+    "put_organizerss_item_id",
+    "delete_organizerss_item_id",
+    "get_organizerss_slug_slug",
+)
 
 
 def register_organizer_tools(mcp: FastMCP):
@@ -35,6 +59,11 @@ def register_organizer_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_ORGANIZER_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_organizers_categories":
             return client.get_organizers_categories(**kwargs)

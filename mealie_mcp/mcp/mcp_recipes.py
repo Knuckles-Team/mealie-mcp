@@ -3,11 +3,79 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+
+VALID_RECIPES_ACTIONS = (
+    "get_recipe_formats_and_templates",
+    "get_recipe_as_format",
+    "test_parse_recipe_url",
+    "create_recipe_from_html_or_json",
+    "parse_recipe_url",
+    "parse_recipe_url_bulk",
+    "create_recipe_from_zip",
+    "create_recipe_from_image",
+    "get_recipes",
+    "post_recipes",
+    "put_recipes",
+    "patch_many",
+    "get_recipes_suggestions",
+    "get_recipes_slug",
+    "put_recipes_slug",
+    "patch_one",
+    "delete_recipes_slug",
+    "duplicate_one",
+    "update_last_made",
+    "scrape_image_url",
+    "update_recipe_image",
+    "delete_recipe_image",
+    "upload_recipe_asset",
+    "get_recipe_comments",
+    "bulk_tag_recipes",
+    "bulk_settings_recipes",
+    "bulk_categorize_recipes",
+    "bulk_delete_recipes",
+    "bulk_export_recipes",
+    "get_exported_data",
+    "get_exported_data_token",
+    "purge_export_data",
+    "get_shared_recipe",
+    "get_shared_recipe_as_zip",
+    "get_recipes_timeline_events",
+    "post_recipes_timeline_events",
+    "get_recipes_timeline_events_item_id",
+    "put_recipes_timeline_events_item_id",
+    "delete_recipes_timeline_events_item_id",
+    "update_event_image",
+    "get_comments",
+    "post_comments",
+    "get_comments_item_id",
+    "put_comments_item_id",
+    "post_parser_ingredient",
+    "parse_ingredient",
+    "parse_ingredients",
+    "get_foods",
+    "post_foods",
+    "put_foods_merge",
+    "get_foods_item_id",
+    "put_foods_item_id",
+    "delete_foods_item_id",
+    "get_units",
+    "post_units",
+    "put_units_merge",
+    "get_units_item_id",
+    "put_units_item_id",
+    "delete_units_item_id",
+    "get_recipe_img",
+    "get_recipe_timeline_event_img",
+    "get_recipe_asset",
+    "get_user_image",
+    "get_validation_text",
+)
 
 
 def register_recipes_tools(mcp: FastMCP):
@@ -35,6 +103,11 @@ def register_recipes_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_RECIPES_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_recipe_formats_and_templates":
             return client.get_recipe_formats_and_templates(**kwargs)

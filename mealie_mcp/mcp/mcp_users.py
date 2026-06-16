@@ -3,11 +3,37 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+
+VALID_USERS_ACTIONS = (
+    "get_token",
+    "oauth_login",
+    "oauth_callback",
+    "refresh_token",
+    "logout",
+    "register_new_user",
+    "get_logged_in_user",
+    "get_logged_in_user_ratings",
+    "get_logged_in_user_rating_for_recipe",
+    "get_logged_in_user_favorites",
+    "update_password",
+    "update_user",
+    "forgot_password",
+    "reset_password",
+    "update_user_image",
+    "create",
+    "delete",
+    "get_ratings",
+    "get_favorites",
+    "set_rating",
+    "add_favorite",
+    "remove_favorite",
+)
 
 
 def register_users_tools(mcp: FastMCP):
@@ -35,6 +61,11 @@ def register_users_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(action, VALID_USERS_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_token":
             return client.get_token(**kwargs)

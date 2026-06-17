@@ -15,7 +15,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 RUN --mount=type=cache,target=/root/.cache/uv \
     pip install --no-cache-dir uv==0.11.21 \
-    && uv pip install --system --upgrade --break-system-packages --prerelease=allow mealie-mcp[all]>=0.40.0
+    && uv pip install --system --upgrade --break-system-packages --prerelease=allow mealie-mcp[all]>=0.42.0
 
 FROM python:3.11-slim
 

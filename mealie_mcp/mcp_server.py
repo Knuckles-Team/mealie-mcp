@@ -21,15 +21,14 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
 import logging
-import os
 import sys
 from typing import Any
 
-from agent_utilities.base_utilities import to_boolean
-from agent_utilities.mcp_utilities import create_mcp_server
+from agent_utilities.mcp_utilities import create_mcp_server, register_tool_surface
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from mealie_mcp.api_client import Api
 from mealie_mcp.auth import get_client
 
 __version__ = "0.42.0"
@@ -1260,36 +1259,13 @@ def get_mcp_instance() -> tuple[Any, ...]:
     async def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
-    DEFAULT_APPTOOL = to_boolean(os.getenv("APPTOOL", "True"))
-    if DEFAULT_APPTOOL:
-        register_app_tools(mcp)
-    DEFAULT_USERSTOOL = to_boolean(os.getenv("USERSTOOL", "True"))
-    if DEFAULT_USERSTOOL:
-        register_users_tools(mcp)
-    DEFAULT_HOUSEHOLDSTOOL = to_boolean(os.getenv("HOUSEHOLDSTOOL", "True"))
-    if DEFAULT_HOUSEHOLDSTOOL:
-        register_households_tools(mcp)
-    DEFAULT_GROUPSTOOL = to_boolean(os.getenv("GROUPSTOOL", "True"))
-    if DEFAULT_GROUPSTOOL:
-        register_groups_tools(mcp)
-    DEFAULT_RECIPESTOOL = to_boolean(os.getenv("RECIPESTOOL", "True"))
-    if DEFAULT_RECIPESTOOL:
-        register_recipes_tools(mcp)
-    DEFAULT_ORGANIZERTOOL = to_boolean(os.getenv("ORGANIZERTOOL", "True"))
-    if DEFAULT_ORGANIZERTOOL:
-        register_organizer_tools(mcp)
-    DEFAULT_SHAREDTOOL = to_boolean(os.getenv("SHAREDTOOL", "True"))
-    if DEFAULT_SHAREDTOOL:
-        register_shared_tools(mcp)
-    DEFAULT_ADMINTOOL = to_boolean(os.getenv("ADMINTOOL", "True"))
-    if DEFAULT_ADMINTOOL:
-        register_admin_tools(mcp)
-    DEFAULT_EXPLORETOOL = to_boolean(os.getenv("EXPLORETOOL", "True"))
-    if DEFAULT_EXPLORETOOL:
-        register_explore_tools(mcp)
-    DEFAULT_UTILSTOOL = to_boolean(os.getenv("UTILSTOOL", "True"))
-    if DEFAULT_UTILSTOOL:
-        register_utils_tools(mcp)
+    register_tool_surface(
+        mcp,
+        client_cls=Api,
+        get_client=get_client,
+        service="mealie-mcp",
+        tools_module=sys.modules[__name__],
+    )
 
     for mw in middlewares:
         mcp.add_middleware(mw)

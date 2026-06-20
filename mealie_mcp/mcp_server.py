@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import warnings
 
-from agent_utilities.mcp_utilities import resolve_action, run_blocking
+from agent_utilities.mcp_utilities import load_config, resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from fastmcp.utilities.logging import get_logger
@@ -27,7 +27,6 @@ from typing import Any
 
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import create_mcp_server
-from dotenv import find_dotenv, load_dotenv
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -1250,7 +1249,7 @@ def register_utils_tools(mcp: FastMCP):
 
 def get_mcp_instance() -> tuple[Any, ...]:
     """Initialize and return the MCP instance."""
-    load_dotenv(find_dotenv())
+    load_config()
     args, mcp, middlewares = create_mcp_server(
         name="mealie-mcp MCP",
         version=__version__,

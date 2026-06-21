@@ -27,6 +27,12 @@ test = [
 mealie-mcp = "mealie_mcp.mcp_server:mcp_server"
 mealie-agent = "mealie_mcp.agent_server:agent_server"
 
+[project.entry-points."agent_utilities.skill_providers"]
+modular-contrib = "mealie_mcp.skills"
+
+[project.entry-points."agent_utilities.prompt_providers"]
+modular-contrib = "mealie_mcp.prompts"
+
 [tool.setuptools]
 include-package-data = true
 
@@ -45,7 +51,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-mealie_mcp = [ "mcp_config.json", "agent_data/**",]
+mealie_mcp = [ "mcp_config.json", "agent_data/**", "prompts/**", "skills/**",]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "UP", "B",]

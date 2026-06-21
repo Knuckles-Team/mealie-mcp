@@ -28,10 +28,10 @@ mealie-mcp = "mealie_mcp.mcp_server:mcp_server"
 mealie-agent = "mealie_mcp.agent_server:agent_server"
 
 [project.entry-points."agent_utilities.skill_providers"]
-modular-contrib = "mealie_mcp.skills"
+mealie-mcp = "mealie_mcp.skills"
 
 [project.entry-points."agent_utilities.prompt_providers"]
-modular-contrib = "mealie_mcp.prompts"
+mealie-mcp = "mealie_mcp.prompts"
 
 [tool.setuptools]
 include-package-data = true

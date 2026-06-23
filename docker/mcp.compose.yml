@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mealie-mcp-mcp:
-    image: knucklessg1/mealie-mcp:latest
+    image: knucklessg1/mealie-mcp:mcp
     container_name: mealie-mcp-mcp
     hostname: mealie-mcp-mcp
     restart: always

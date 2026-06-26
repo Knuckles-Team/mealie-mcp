@@ -7,6 +7,7 @@
         "mealie-mcp"
       ],
       "env": {
+        "MCP_TOOL_MODE": "condensed",
         "ADMINTOOL": "True",
         "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
         "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
@@ -17,8 +18,7 @@
         "HOUSEHOLDSTOOL": "True",
         "MEALIE_BASE_URL": "<YOUR_MEALIE_BASE_URL>",
         "MEALIE_TOKEN": "<YOUR_MEALIE_TOKEN>",
-        "MEALIE_VERIFY": "<YOUR_MEALIE_VERIFY>",
-        "MISCTOOL": "True",
+        "MEALIE_SSL_VERIFY": "<YOUR_MEALIE_SSL_VERIFY>",
         "ORGANIZERTOOL": "True",
         "RECIPESTOOL": "True",
         "SHAREDTOOL": "True",

@@ -57,6 +57,8 @@ This server utilizes dynamic Action-Routed tools to optimize token overhead and 
 
 <!-- MCP-TOOLS-TABLE:START -->
 
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `mealie_admin` | `ADMINTOOL` | Manage mealie admin operations. |
@@ -70,7 +72,264 @@ This server utilizes dynamic Action-Routed tools to optimize token overhead and 
 | `mealie_users` | `USERSTOOL` | Manage mealie users operations. |
 | `mealie_utils` | `UTILSTOOL` | Manage mealie utils operations. |
 
-_10 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>247 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `mealie_add_favorite` | `APITOOL` | Add Favorite |
+| `mealie_add_recipe_ingredients_to_list` | `APITOOL` | Add Recipe Ingredients To List |
+| `mealie_add_single_recipe_ingredients_to_list` | `APITOOL` | Add Single Recipe Ingredients To List |
+| `mealie_bulk_categorize_recipes` | `APITOOL` | Bulk Categorize Recipes |
+| `mealie_bulk_delete_recipes` | `APITOOL` | Bulk Delete Recipes |
+| `mealie_bulk_export_recipes` | `APITOOL` | Bulk Export Recipes |
+| `mealie_bulk_settings_recipes` | `APITOOL` | Bulk Settings Recipes |
+| `mealie_bulk_tag_recipes` | `APITOOL` | Bulk Tag Recipes |
+| `mealie_check_app_config` | `APITOOL` | Check App Config |
+| `mealie_check_email_config` | `APITOOL` | Check Email Config |
+| `mealie_clean_images` | `APITOOL` | Clean Images |
+| `mealie_clean_recipe_folders` | `APITOOL` | Clean Recipe Folders |
+| `mealie_clean_temp` | `APITOOL` | Clean Temp |
+| `mealie_create` | `APITOOL` | Create Api Token |
+| `mealie_create_invite_token` | `APITOOL` | Create Invite Token |
+| `mealie_create_random_meal` | `APITOOL` | Create Random Meal |
+| `mealie_create_recipe_from_html_or_json` | `APITOOL` | Create Recipe From Html Or Json |
+| `mealie_create_recipe_from_image` | `APITOOL` | Create Recipe From Image |
+| `mealie_create_recipe_from_zip` | `APITOOL` | Create Recipe From Zip |
+| `mealie_debug_openai` | `APITOOL` | Debug Openai |
+| `mealie_delete` | `APITOOL` | Delete Api Token |
+| `mealie_delete_admin_backups_file_name` | `APITOOL` | Delete One |
+| `mealie_delete_admin_groups_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_admin_households_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_admin_users_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_foods_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_groups_labels_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_groups_reports_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_cookbooks_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_events_notifications_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_mealplans_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_mealplans_rules_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_recipe_actions_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_shopping_items` | `APITOOL` | Delete Many |
+| `mealie_delete_households_shopping_items_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_shopping_lists_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_webhooks_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_organizers_categories_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_organizers_tools_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_recipe_image` | `APITOOL` | Delete Recipe Image |
+| `mealie_delete_recipe_tag` | `APITOOL` | Delete Recipe Tag |
+| `mealie_delete_recipes_slug` | `APITOOL` | Delete One |
+| `mealie_delete_recipes_timeline_events_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_shared_recipes_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_units_item_id` | `APITOOL` | Delete One |
+| `mealie_download_file` | `APITOOL` | Download File |
+| `mealie_duplicate_one` | `APITOOL` | Duplicate One |
+| `mealie_email_invitation` | `APITOOL` | Email Invitation |
+| `mealie_forgot_password` | `APITOOL` | Forgot Password |
+| `mealie_generate_token` | `APITOOL` | Generate Token |
+| `mealie_get_admin_backups` | `APITOOL` | Get All |
+| `mealie_get_admin_backups_file_name` | `APITOOL` | Get One |
+| `mealie_get_admin_groups` | `APITOOL` | Get All |
+| `mealie_get_admin_groups_item_id` | `APITOOL` | Get One |
+| `mealie_get_admin_households` | `APITOOL` | Get All |
+| `mealie_get_admin_households_item_id` | `APITOOL` | Get One |
+| `mealie_get_admin_users` | `APITOOL` | Get All |
+| `mealie_get_admin_users_item_id` | `APITOOL` | Get One |
+| `mealie_get_all_empty` | `APITOOL` | Get All Empty |
+| `mealie_get_all_households` | `APITOOL` | Get All Households |
+| `mealie_get_app_info` | `APITOOL` | Get App Info |
+| `mealie_get_app_statistics` | `APITOOL` | Get App Statistics |
+| `mealie_get_app_theme` | `APITOOL` | Get App Theme |
+| `mealie_get_comments` | `APITOOL` | Get All |
+| `mealie_get_comments_item_id` | `APITOOL` | Get One |
+| `mealie_get_empty_tags` | `APITOOL` | Get Empty Tags |
+| `mealie_get_explore_groups_group_slug_cookbooks` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_cookbooks_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_foods` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_foods_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_households` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_organizers_categories` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_organizers_categories_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_organizers_tags` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_organizers_tags_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_organizers_tools` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_organizers_tools_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_recipes` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_recipes_suggestions` | `APITOOL` | Suggest Recipes |
+| `mealie_get_exported_data` | `APITOOL` | Get Exported Data |
+| `mealie_get_exported_data_token` | `APITOOL` | Get Exported Data Token |
+| `mealie_get_favorites` | `APITOOL` | Get Favorites |
+| `mealie_get_foods` | `APITOOL` | Get All |
+| `mealie_get_foods_item_id` | `APITOOL` | Get One |
+| `mealie_get_group_member` | `APITOOL` | Get Group Member |
+| `mealie_get_group_members` | `APITOOL` | Get Group Members |
+| `mealie_get_group_preferences` | `APITOOL` | Get Group Preferences |
+| `mealie_get_groups_labels` | `APITOOL` | Get All |
+| `mealie_get_groups_labels_item_id` | `APITOOL` | Get One |
+| `mealie_get_groups_reports` | `APITOOL` | Get All |
+| `mealie_get_groups_reports_item_id` | `APITOOL` | Get One |
+| `mealie_get_household` | `APITOOL` | Get Household |
+| `mealie_get_household_members` | `APITOOL` | Get Household Members |
+| `mealie_get_household_preferences` | `APITOOL` | Get Household Preferences |
+| `mealie_get_household_recipe` | `APITOOL` | Get Household Recipe |
+| `mealie_get_households_cookbooks` | `APITOOL` | Get All |
+| `mealie_get_households_cookbooks_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_events_notifications` | `APITOOL` | Get All |
+| `mealie_get_households_events_notifications_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_mealplans` | `APITOOL` | Get All |
+| `mealie_get_households_mealplans_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_mealplans_rules` | `APITOOL` | Get All |
+| `mealie_get_households_mealplans_rules_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_recipe_actions` | `APITOOL` | Get All |
+| `mealie_get_households_recipe_actions_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_shopping_items` | `APITOOL` | Get All |
+| `mealie_get_households_shopping_items_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_shopping_lists` | `APITOOL` | Get All |
+| `mealie_get_households_shopping_lists_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_webhooks` | `APITOOL` | Get All |
+| `mealie_get_households_webhooks_item_id` | `APITOOL` | Get One |
+| `mealie_get_invite_tokens` | `APITOOL` | Get Invite Tokens |
+| `mealie_get_logged_in_user` | `APITOOL` | Get Logged In User |
+| `mealie_get_logged_in_user_favorites` | `APITOOL` | Get Logged In User Favorites |
+| `mealie_get_logged_in_user_group` | `APITOOL` | Get Logged In User Group |
+| `mealie_get_logged_in_user_household` | `APITOOL` | Get Logged In User Household |
+| `mealie_get_logged_in_user_rating_for_recipe` | `APITOOL` | Get Logged In User Rating For Recipe |
+| `mealie_get_logged_in_user_ratings` | `APITOOL` | Get Logged In User Ratings |
+| `mealie_get_maintenance_summary` | `APITOOL` | Get Maintenance Summary |
+| `mealie_get_one_household` | `APITOOL` | Get One Household |
+| `mealie_get_organizers_categories` | `APITOOL` | Get All |
+| `mealie_get_organizers_categories_item_id` | `APITOOL` | Get One |
+| `mealie_get_organizers_categories_slug_category_slug` | `APITOOL` | Get One By Slug |
+| `mealie_get_organizers_tags` | `APITOOL` | Get All |
+| `mealie_get_organizers_tags_item_id` | `APITOOL` | Get One |
+| `mealie_get_organizers_tags_slug_tag_slug` | `APITOOL` | Get One By Slug |
+| `mealie_get_organizers_tools` | `APITOOL` | Get All |
+| `mealie_get_organizers_tools_item_id` | `APITOOL` | Get One |
+| `mealie_get_organizers_tools_slug_tool_slug` | `APITOOL` | Get One By Slug |
+| `mealie_get_ratings` | `APITOOL` | Get Ratings |
+| `mealie_get_recipe` | `APITOOL` | Get Recipe |
+| `mealie_get_recipe_as_format` | `APITOOL` | Get Recipe As Format |
+| `mealie_get_recipe_asset` | `APITOOL` | Get Recipe Asset |
+| `mealie_get_recipe_comments` | `APITOOL` | Get Recipe Comments |
+| `mealie_get_recipe_formats_and_templates` | `APITOOL` | Get Recipe Formats And Templates |
+| `mealie_get_recipe_img` | `APITOOL` | Get Recipe Img |
+| `mealie_get_recipe_timeline_event_img` | `APITOOL` | Get Recipe Timeline Event Img |
+| `mealie_get_recipes` | `APITOOL` | Get All |
+| `mealie_get_recipes_slug` | `APITOOL` | Get One |
+| `mealie_get_recipes_suggestions` | `APITOOL` | Suggest Recipes |
+| `mealie_get_recipes_timeline_events` | `APITOOL` | Get All |
+| `mealie_get_recipes_timeline_events_item_id` | `APITOOL` | Get One |
+| `mealie_get_shared_recipe` | `APITOOL` | Get Shared Recipe |
+| `mealie_get_shared_recipe_as_zip` | `APITOOL` | Get Shared Recipe As Zip |
+| `mealie_get_shared_recipes` | `APITOOL` | Get All |
+| `mealie_get_shared_recipes_item_id` | `APITOOL` | Get One |
+| `mealie_get_startup_info` | `APITOOL` | Get Startup Info |
+| `mealie_get_statistics` | `APITOOL` | Get Statistics |
+| `mealie_get_storage` | `APITOOL` | Get Storage |
+| `mealie_get_storage_details` | `APITOOL` | Get Storage Details |
+| `mealie_get_todays_meals` | `APITOOL` | Get Todays Meals |
+| `mealie_get_token` | `APITOOL` | Get Token |
+| `mealie_get_units` | `APITOOL` | Get All |
+| `mealie_get_units_item_id` | `APITOOL` | Get One |
+| `mealie_get_user_image` | `APITOOL` | Get User Image |
+| `mealie_get_validation_text` | `APITOOL` | Get Validation Text |
+| `mealie_import_one` | `APITOOL` | Import One |
+| `mealie_logout` | `APITOOL` | Logout |
+| `mealie_oauth_callback` | `APITOOL` | Oauth Callback |
+| `mealie_oauth_login` | `APITOOL` | Oauth Login |
+| `mealie_parse_ingredient` | `APITOOL` | Parse Ingredient |
+| `mealie_parse_ingredients` | `APITOOL` | Parse Ingredients |
+| `mealie_parse_recipe_url` | `APITOOL` | Parse Recipe Url |
+| `mealie_parse_recipe_url_bulk` | `APITOOL` | Parse Recipe Url Bulk |
+| `mealie_patch_many` | `APITOOL` | Patch Many |
+| `mealie_patch_one` | `APITOOL` | Patch One |
+| `mealie_post_admin_backups` | `APITOOL` | Create One |
+| `mealie_post_admin_groups` | `APITOOL` | Create One |
+| `mealie_post_admin_households` | `APITOOL` | Create One |
+| `mealie_post_admin_users` | `APITOOL` | Create One |
+| `mealie_post_comments` | `APITOOL` | Create One |
+| `mealie_post_foods` | `APITOOL` | Create One |
+| `mealie_post_groups_labels` | `APITOOL` | Create One |
+| `mealie_post_households_cookbooks` | `APITOOL` | Create One |
+| `mealie_post_households_events_notifications` | `APITOOL` | Create One |
+| `mealie_post_households_mealplans` | `APITOOL` | Create One |
+| `mealie_post_households_mealplans_rules` | `APITOOL` | Create One |
+| `mealie_post_households_recipe_actions` | `APITOOL` | Create One |
+| `mealie_post_households_shopping_items` | `APITOOL` | Create One |
+| `mealie_post_households_shopping_items_create_bulk` | `APITOOL` | Create Many |
+| `mealie_post_households_shopping_lists` | `APITOOL` | Create One |
+| `mealie_post_households_webhooks` | `APITOOL` | Create One |
+| `mealie_post_organizers_categories` | `APITOOL` | Create One |
+| `mealie_post_organizers_tags` | `APITOOL` | Create One |
+| `mealie_post_organizers_tools` | `APITOOL` | Create One |
+| `mealie_post_parser_ingredient` | `APITOOL` | Delete One |
+| `mealie_post_recipes` | `APITOOL` | Create One |
+| `mealie_post_recipes_timeline_events` | `APITOOL` | Create One |
+| `mealie_post_shared_recipes` | `APITOOL` | Create One |
+| `mealie_post_units` | `APITOOL` | Create One |
+| `mealie_purge_export_data` | `APITOOL` | Purge Export Data |
+| `mealie_put_admin_groups_item_id` | `APITOOL` | Update One |
+| `mealie_put_admin_households_item_id` | `APITOOL` | Update One |
+| `mealie_put_admin_users_item_id` | `APITOOL` | Update One |
+| `mealie_put_comments_item_id` | `APITOOL` | Update One |
+| `mealie_put_foods_item_id` | `APITOOL` | Update One |
+| `mealie_put_foods_merge` | `APITOOL` | Merge One |
+| `mealie_put_groups_labels_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_cookbooks` | `APITOOL` | Update Many |
+| `mealie_put_households_cookbooks_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_events_notifications_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_mealplans_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_mealplans_rules_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_recipe_actions_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_shopping_items` | `APITOOL` | Update Many |
+| `mealie_put_households_shopping_items_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_shopping_lists_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_webhooks_item_id` | `APITOOL` | Update One |
+| `mealie_put_organizers_categories_item_id` | `APITOOL` | Update One |
+| `mealie_put_organizers_tags_item_id` | `APITOOL` | Update One |
+| `mealie_put_organizers_tools_item_id` | `APITOOL` | Update One |
+| `mealie_put_recipes` | `APITOOL` | Update Many |
+| `mealie_put_recipes_slug` | `APITOOL` | Update One |
+| `mealie_put_recipes_timeline_events_item_id` | `APITOOL` | Update One |
+| `mealie_put_units_item_id` | `APITOOL` | Update One |
+| `mealie_put_units_merge` | `APITOOL` | Merge One |
+| `mealie_refresh_token` | `APITOOL` | Refresh Token |
+| `mealie_register_new_user` | `APITOOL` | Register New User |
+| `mealie_remove_favorite` | `APITOOL` | Remove Favorite |
+| `mealie_remove_recipe_ingredients_from_list` | `APITOOL` | Remove Recipe Ingredients From List |
+| `mealie_request` | `BASE_API_CLIENTTOOL` | Invoke the request operation. |
+| `mealie_rerun_webhooks` | `APITOOL` | Rerun Webhooks |
+| `mealie_reset_password` | `APITOOL` | Reset Password |
+| `mealie_scrape_image_url` | `APITOOL` | Scrape Image Url |
+| `mealie_seed_foods` | `APITOOL` | Seed Foods |
+| `mealie_seed_labels` | `APITOOL` | Seed Labels |
+| `mealie_seed_units` | `APITOOL` | Seed Units |
+| `mealie_send_test_email` | `APITOOL` | Send Test Email |
+| `mealie_set_member_permissions` | `APITOOL` | Set Member Permissions |
+| `mealie_set_rating` | `APITOOL` | Set Rating |
+| `mealie_start_data_migration` | `APITOOL` | Start Data Migration |
+| `mealie_test_notification` | `APITOOL` | Test Notification |
+| `mealie_test_one` | `APITOOL` | Test One |
+| `mealie_test_parse_recipe_url` | `APITOOL` | Test Parse Recipe Url |
+| `mealie_trigger_action` | `APITOOL` | Trigger Action |
+| `mealie_unlock_users` | `APITOOL` | Unlock Users |
+| `mealie_update_event_image` | `APITOOL` | Update Event Image |
+| `mealie_update_group_preferences` | `APITOOL` | Update Group Preferences |
+| `mealie_update_household_preferences` | `APITOOL` | Update Household Preferences |
+| `mealie_update_label_settings` | `APITOOL` | Update Label Settings |
+| `mealie_update_last_made` | `APITOOL` | Update Last Made |
+| `mealie_update_password` | `APITOOL` | Update Password |
+| `mealie_update_recipe_image` | `APITOOL` | Update Recipe Image |
+| `mealie_update_user` | `APITOOL` | Update User |
+| `mealie_update_user_image` | `APITOOL` | Update User Image |
+| `mealie_upload_one` | `APITOOL` | Upload One |
+| `mealie_upload_recipe_asset` | `APITOOL` | Upload Recipe Asset |
+
+</details>
+
+_10 action-routed tool(s) (default) · 247 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
@@ -120,8 +379,9 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
         "mealie-mcp"
       ],
       "env": {
-        "MEALIE_ENDPOINT": "your_mealie_endpoint_here",
-        "MEALIE_API_KEY": "your_mealie_api_key_here"
+        "MEALIE_BASE_URL": "your_mealie_base_url_here",
+        "MEALIE_TOKEN": "your_mealie_token_here",
+        "MEALIE_SSL_VERIFY": "False"
       }
     }
   }
@@ -145,8 +405,9 @@ Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx
         "TRANSPORT": "streamable-http",
         "HOST": "0.0.0.0",
         "PORT": "8000",
-        "MEALIE_ENDPOINT": "your_mealie_endpoint_here",
-        "MEALIE_API_KEY": "your_mealie_api_key_here"
+        "MEALIE_BASE_URL": "your_mealie_base_url_here",
+        "MEALIE_TOKEN": "your_mealie_token_here",
+        "MEALIE_SSL_VERIFY": "False"
       }
     }
   }
@@ -173,8 +434,9 @@ docker run -d \
   -p 8000:8000 \
   -e TRANSPORT=streamable-http \
   -e PORT=8000 \
-  -e MEALIE_ENDPOINT="your_value" \
-  -e MEALIE_API_KEY="your_value" \
+  -e MEALIE_BASE_URL="your_value" \
+  -e MEALIE_TOKEN="your_value" \
+  -e MEALIE_SSL_VERIFY="False" \
   knucklessg1/mealie-mcp:mcp
 ```
 
@@ -211,8 +473,9 @@ To start the interactive command-line agent:
 
 ```bash
 # Set credentials
-export MEALIE_ENDPOINT="your_value"
-export MEALIE_API_KEY="your_value"
+export MEALIE_BASE_URL="your_value"
+export MEALIE_TOKEN="your_value"
+export MEALIE_SSL_VERIFY="False"
 
 # Run the agent server
 mealie-agent --provider openai --model-id gpt-4o
@@ -327,8 +590,9 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
-| `MEALIE_ENDPOINT` | `http://localhost:8025` |  |
-| `MEALIE_API_KEY` | `your_api_key_here` |  |
+| `MEALIE_BASE_URL` | `http://localhost:8025` | Base URL of your Mealie instance |
+| `MEALIE_TOKEN` | `your_token_here` | Mealie API token |
+| `MEALIE_SSL_VERIFY` | `False` | verify TLS certs when calling Mealie |
 | `APPTOOL` | `True` |  |
 | `USERSTOOL` | `True` |  |
 | `HOUSEHOLDSTOOL` | `True` |  |
@@ -359,7 +623,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_23 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_24 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 
@@ -369,8 +633,9 @@ Every variable the server reads. A local template is supplied inside
 ### Connection & Credentials
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `MEALIE_ENDPOINT` | Base URL of your Mealie instance | `http://localhost:8025` |
-| `MEALIE_API_KEY` | Mealie API key / token | — |
+| `MEALIE_BASE_URL` | Base URL of your Mealie instance | `http://localhost:8025` |
+| `MEALIE_TOKEN` | Mealie API token | — |
+| `MEALIE_SSL_VERIFY` | Verify TLS certs when calling Mealie | `False` |
 
 ### MCP server / transport
 | Variable | Description | Default |

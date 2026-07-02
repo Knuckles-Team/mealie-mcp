@@ -357,16 +357,15 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ### MCP Configuration Examples
 
-> **Install the slim `[mcp]` extra.** All examples below install
-> `mealie-mcp[mcp]` — the MCP-server extra that pulls only the FastMCP /
-> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
-> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
-> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
-> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
-> (see [Installation](#installation)).
+<!-- MCP-CONFIG-EXAMPLES:START -->
 
-#### stdio Transport (Recommended for local IDEs e.g., Cursor, Claude Desktop)
-Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
+> **Install the slim `[mcp]` extra.** All examples install `mealie-mcp[mcp]` — the
+> MCP-server extra that pulls only the FastMCP / FastAPI tooling (`agent-utilities[mcp]`).
+> It deliberately **excludes** the heavy agent runtime (`pydantic-ai`, the epistemic-graph
+> engine, `dspy`, `llama-index`), so `uvx` / container installs are far smaller. Use the
+> full `[agent]` extra only when you need the integrated Pydantic AI agent.
+
+#### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
 ```json
 {
@@ -379,17 +378,26 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
         "mealie-mcp"
       ],
       "env": {
-        "MEALIE_BASE_URL": "your_mealie_base_url_here",
-        "MEALIE_TOKEN": "your_mealie_token_here",
-        "MEALIE_SSL_VERIFY": "False"
+        "MCP_TOOL_MODE": "condensed",
+        "ADMINTOOL": "True",
+        "APPTOOL": "True",
+        "EXPLORETOOL": "True",
+        "GROUPSTOOL": "True",
+        "HOUSEHOLDSTOOL": "True",
+        "MEALIE_BASE_URL": "http://localhost:8025",
+        "MEALIE_TOKEN": "your_token_here",
+        "ORGANIZERTOOL": "True",
+        "RECIPESTOOL": "True",
+        "SHAREDTOOL": "True",
+        "USERSTOOL": "True",
+        "UTILSTOOL": "True"
       }
     }
   }
 }
 ```
 
-#### Streamable-HTTP Transport (Recommended for production deployments)
-Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx` with explicit host and port definition:
+#### Streamable-HTTP Transport (networked / production)
 
 ```json
 {
@@ -399,22 +407,36 @@ Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx
       "args": [
         "--from",
         "mealie-mcp[mcp]",
-        "mealie-mcp"
+        "mealie-mcp",
+        "--transport",
+        "streamable-http",
+        "--port",
+        "8000"
       ],
       "env": {
         "TRANSPORT": "streamable-http",
         "HOST": "0.0.0.0",
         "PORT": "8000",
-        "MEALIE_BASE_URL": "your_mealie_base_url_here",
-        "MEALIE_TOKEN": "your_mealie_token_here",
-        "MEALIE_SSL_VERIFY": "False"
+        "MCP_TOOL_MODE": "condensed",
+        "ADMINTOOL": "True",
+        "APPTOOL": "True",
+        "EXPLORETOOL": "True",
+        "GROUPSTOOL": "True",
+        "HOUSEHOLDSTOOL": "True",
+        "MEALIE_BASE_URL": "http://localhost:8025",
+        "MEALIE_TOKEN": "your_token_here",
+        "ORGANIZERTOOL": "True",
+        "RECIPESTOOL": "True",
+        "SHAREDTOOL": "True",
+        "USERSTOOL": "True",
+        "UTILSTOOL": "True"
       }
     }
   }
 }
 ```
 
-Alternatively, connect to a pre-deployed remote or local Streamable-HTTP instance:
+Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 
 ```json
 {
@@ -433,21 +455,26 @@ docker run -d \
   --name mealie-mcp-mcp \
   -p 8000:8000 \
   -e TRANSPORT=streamable-http \
+  -e HOST=0.0.0.0 \
   -e PORT=8000 \
-  -e MEALIE_BASE_URL="your_value" \
-  -e MEALIE_TOKEN="your_value" \
-  -e MEALIE_SSL_VERIFY="False" \
+  -e MCP_TOOL_MODE=condensed \
+  -e ADMINTOOL=True \
+  -e APPTOOL=True \
+  -e EXPLORETOOL=True \
+  -e GROUPSTOOL=True \
+  -e HOUSEHOLDSTOOL=True \
+  -e MEALIE_BASE_URL=http://localhost:8025 \
+  -e MEALIE_TOKEN=your_token_here \
+  -e ORGANIZERTOOL=True \
+  -e RECIPESTOOL=True \
+  -e SHAREDTOOL=True \
+  -e USERSTOOL=True \
+  -e UTILSTOOL=True \
   knucklessg1/mealie-mcp:mcp
 ```
 
-> The `:mcp` tag is the **slim MCP-server image** (built from
-> `docker/Dockerfile --target mcp`, installing `mealie-mcp[mcp]`). The default
-> `:latest` tag is the **full agent image** (`--target agent`, `mealie-mcp[agent]`)
-> which also bundles the Pydantic AI agent and the epistemic-graph engine — use it
-> when you run `mealie-agent` (the agent), not just the MCP server. See
-> [Container images](#container-images-mcp-vs-agent).
-
----
+_Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
+<!-- MCP-CONFIG-EXAMPLES:END -->
 
 <!-- BEGIN GENERATED: additional-deployment-options -->
 ### Additional Deployment Options

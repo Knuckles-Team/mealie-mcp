@@ -1,0 +1,177 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix : <http://knuckles.team/kg#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Mealie recipe-manager ontology — recipes, their ingredients (food + unit), the
+# organizer catalog (categories/tags/tools), meal plans, cookbooks and shopping lists.
+# All classes and properties live in the SHARED `:` (kg#) namespace; only the
+# owl:Ontology node gets the per-package IRI. Reuses the hub's :Person, :MediaAsset,
+# :Blob and :Document — never redefined here. Backs the mealie-mcp condensed tool
+# surface (mealie_recipes / mealie_organizer / mealie_households / mealie_explore).
+
+# --- classes (owl:Class) ---
+
+:Recipe a owl:Class ;
+    rdfs:label "Recipe" ;
+    rdfs:comment "A Mealie recipe: name, yield, timings, ingredients and instructions (mealie_recipes)." .
+
+:Ingredient a owl:Class ;
+    rdfs:label "Ingredient" ;
+    rdfs:comment "One line item of a recipe — a quantity of a Food in a Unit, with an optional note." .
+
+:Food a owl:Class ;
+    rdfs:label "Food" ;
+    rdfs:comment "A reusable food/ingredient entity in the Mealie food catalog (mealie_recipes get_foods)." .
+
+:Unit a owl:Class ;
+    rdfs:label "Unit" ;
+    rdfs:comment "A unit of measure used to quantify a Food in a recipe ingredient (mealie_recipes get_units)." .
+
+:RecipeCategory a owl:Class ;
+    rdfs:label "Recipe Category" ;
+    rdfs:comment "An organizer category grouping recipes (mealie_organizer categories)." .
+
+:Tag a owl:Class ;
+    rdfs:label "Tag" ;
+    rdfs:comment "An organizer tag applied to recipes (mealie_organizer tags)." .
+
+:RecipeTool a owl:Class ;
+    rdfs:label "Recipe Tool" ;
+    rdfs:comment "A kitchen tool/equipment organizer associated with recipes (mealie_organizer tools)." .
+
+:Cookbook a owl:Class ;
+    rdfs:label "Cookbook" ;
+    rdfs:comment "A saved, filter-defined collection of recipes within a household (mealie_households cookbooks)." .
+
+:MealPlan a owl:Class ;
+    rdfs:label "Meal Plan" ;
+    rdfs:comment "A scheduled meal-plan entry placing a recipe on a date (mealie_households mealplans)." .
+
+:ShoppingList a owl:Class ;
+    rdfs:label "Shopping List" ;
+    rdfs:comment "A household shopping list aggregating shopping items (mealie_households shopping_lists)." .
+
+:Household a owl:Class ;
+    rdfs:label "Household" ;
+    rdfs:comment "A Mealie household that owns recipes, cookbooks, meal plans and shopping lists." .
+
+# --- links (owl:ObjectProperty) ---
+
+:hasIngredient a owl:ObjectProperty ;
+    rdfs:label "has ingredient" ;
+    rdfs:comment "Links a Recipe to one of its Ingredient line items." ;
+    rdfs:domain :Recipe ;
+    rdfs:range :Ingredient .
+
+:usesFood a owl:ObjectProperty ;
+    rdfs:label "uses food" ;
+    rdfs:comment "Links an Ingredient to the Food it references." ;
+    rdfs:domain :Ingredient ;
+    rdfs:range :Food .
+
+:measuredIn a owl:ObjectProperty ;
+    rdfs:label "measured in" ;
+    rdfs:comment "Links an Ingredient to the Unit its quantity is expressed in." ;
+    rdfs:domain :Ingredient ;
+    rdfs:range :Unit .
+
+:hasCategory a owl:ObjectProperty ;
+    rdfs:label "has category" ;
+    rdfs:comment "Links a Recipe to a RecipeCategory it belongs to." ;
+    rdfs:domain :Recipe ;
+    rdfs:range :RecipeCategory .
+
+:hasTag a owl:ObjectProperty ;
+    rdfs:label "has tag" ;
+    rdfs:comment "Links a Recipe to a Tag applied to it." ;
+    rdfs:domain :Recipe ;
+    rdfs:range :Tag .
+
+:usesTool a owl:ObjectProperty ;
+    rdfs:label "uses tool" ;
+    rdfs:comment "Links a Recipe to a RecipeTool it requires." ;
+    rdfs:domain :Recipe ;
+    rdfs:range :RecipeTool .
+
+:hasImage a owl:ObjectProperty ;
+    rdfs:label "has image" ;
+    rdfs:comment "Links a Recipe to its stored :MediaAsset image blob." ;
+    rdfs:domain :Recipe ;
+    rdfs:range :MediaAsset .
+
+:plansRecipe a owl:ObjectProperty ;
+    rdfs:label "plans recipe" ;
+    rdfs:comment "Links a MealPlan entry to the Recipe scheduled for that date." ;
+    rdfs:domain :MealPlan ;
+    rdfs:range :Recipe .
+
+:inCookbook a owl:ObjectProperty ;
+    rdfs:label "in cookbook" ;
+    rdfs:comment "Links a Recipe to a Cookbook that collects it." ;
+    rdfs:domain :Recipe ;
+    rdfs:range :Cookbook .
+
+:inHousehold a owl:ObjectProperty ;
+    rdfs:label "in household" ;
+    rdfs:comment "Links a Recipe, Cookbook, MealPlan or ShoppingList to its owning Household." ;
+    rdfs:range :Household .
+
+:createdBy a owl:ObjectProperty ;
+    rdfs:label "created by" ;
+    rdfs:comment "Links a Recipe to the Person (Mealie user) who authored it." ;
+    rdfs:domain :Recipe ;
+    rdfs:range :Person .
+
+# --- fields (owl:DatatypeProperty) ---
+
+:slug a owl:DatatypeProperty ;
+    rdfs:label "slug" ;
+    rdfs:comment "URL-safe unique slug of a Recipe, Category, Tag or Tool." ;
+    rdfs:range xsd:string .
+
+:recipeYield a owl:DatatypeProperty ;
+    rdfs:label "recipe yield" ;
+    rdfs:comment "Human-readable yield/servings text of a Recipe (recipeYield)." ;
+    rdfs:range xsd:string .
+
+:prepTime a owl:DatatypeProperty ;
+    rdfs:label "prep time" ;
+    rdfs:comment "Preparation time of a Recipe (prepTime)." ;
+    rdfs:range xsd:string .
+
+:cookTime a owl:DatatypeProperty ;
+    rdfs:label "cook time" ;
+    rdfs:comment "Cooking time of a Recipe (cookTime / performTime)." ;
+    rdfs:range xsd:string .
+
+:totalTime a owl:DatatypeProperty ;
+    rdfs:label "total time" ;
+    rdfs:comment "Total time of a Recipe (totalTime)." ;
+    rdfs:range xsd:string .
+
+:rating a owl:DatatypeProperty ;
+    rdfs:label "rating" ;
+    rdfs:comment "User rating of a Recipe (rating)." ;
+    rdfs:range xsd:decimal .
+
+:quantity a owl:DatatypeProperty ;
+    rdfs:label "quantity" ;
+    rdfs:comment "Numeric quantity of a Food in an Ingredient line." ;
+    rdfs:range xsd:decimal .
+
+:mealieId a owl:DatatypeProperty ;
+    rdfs:label "mealie id" ;
+    rdfs:comment "External Mealie identifier (UUID) of the resource." ;
+    rdfs:range xsd:string .
+
+<http://knuckles.team/kg/mealie> a owl:Ontology ;
+    rdfs:label "Mealie Recipe Ontology" ;
+    rdfs:comment """Mealie recipe-management model — recipes, ingredients (food + unit),
+    the organizer catalog (categories, tags, tools), cookbooks, meal plans and shopping
+    lists, plus recipe image blobs — federated into the agent-utilities knowledge-graph
+    hub. Reuses the shared :Person, :MediaAsset, :Blob and :Document classes.""" ;
+    owl:imports <http://knuckles.team/kg> .

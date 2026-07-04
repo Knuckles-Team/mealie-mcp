@@ -1,0 +1,14 @@
+{
+  "_comment": "Tier-1 mcp_tool source preset(s) for mealie-mcp (AU-KG.ingest.mcp-tool-connector). Declarative: server + condensed tool + action + field map. Contributed presets win over the central MCP_TOOL_PRESETS. Recipes are the primary durable modality; the mealie_ingest_recipes tool is the richer native (typed :Recipe + :Ingredient + image blobs) path.",
+  "mealie-recipes": {
+    "server": "mealie-mcp",
+    "tool": "mealie_recipes",
+    "action": "get_recipes",
+    "records_path": "items",
+    "id_field": "id",
+    "title_field": "name",
+    "text_field": "description",
+    "updated_field": "updateAt",
+    "doc_type": "recipe"
+  }
+}

@@ -1246,6 +1246,67 @@ def register_utils_tools(mcp: FastMCP):
         raise ValueError(f"Unknown action: {action}")
 
 
+def register_kg_tools(mcp: FastMCP):
+    @mcp.tool(tags={"kg"})
+    async def mealie_ingest_recipes(
+        params_json: str = Field(
+            default="{}",
+            description="JSON string of get_recipes filters (e.g. {\"per_page\": 100, \"categories\": \"Dinner\"}).",
+        ),
+        ingest_images: bool = Field(
+            default=False,
+            description="Also fetch each recipe image and store it as a :MediaAsset blob.",
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> dict:
+        """Natively ingest Mealie recipes into epistemic-graph as typed :Recipe nodes.
+
+        Lists recipes via the Mealie API and pushes them (with their :Ingredient,
+        :Food, :Unit, :RecipeCategory, :Tag and :RecipeTool nodes + links) into the
+        knowledge graph via the fast engine client. With ``ingest_images`` the raw
+        image bytes are stored as content-addressed :MediaAsset blobs. Best-effort:
+        returns ``{"ingested": None}`` when no engine is reachable.
+        CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        """
+        import json as _json
+
+        from mealie_mcp.kg_ingest import ingest_recipes
+        from mealie_mcp.kg_media import fetch_recipe_image_bytes, ingest_recipe_image
+
+        if ctx:
+            ctx.info("Listing recipes for KG ingestion...")
+        try:
+            kwargs = _json.loads(params_json) if params_json else {}
+        except Exception as e:  # noqa: BLE001
+            return {"error": f"Invalid params_json: {e}"}
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resp = await run_blocking(client.get_recipes, **kwargs)
+        data = resp.get("items", resp) if isinstance(resp, dict) else resp
+        records = data if isinstance(data, list) else [data]
+        recipes = [r for r in records if isinstance(r, dict) and r.get("id")]
+
+        result = ingest_recipes(recipes)
+
+        images = 0
+        if ingest_images:
+            for recipe in recipes:
+                image_bytes = await run_blocking(
+                    fetch_recipe_image_bytes, client, str(recipe["id"])
+                )
+                if not image_bytes:
+                    continue
+                if ingest_recipe_image(recipe, image_bytes=image_bytes) is not None:
+                    images += 1
+
+        return {"listed": len(recipes), "ingested": result, "images_ingested": images}
+
+    return None
+
+
 def get_mcp_instance() -> tuple[Any, ...]:
     """Initialize and return the MCP instance."""
     load_config()

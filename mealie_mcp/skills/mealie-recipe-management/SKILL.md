@@ -1,5 +1,6 @@
 ---
 name: mealie-recipe-management
+skill_type: skill
 description: >-
   Recipe CRUD and import on Mealie via the mealie-mcp MCP server — list/search
   recipes, read one by slug, create from a URL/HTML/image, update, duplicate,

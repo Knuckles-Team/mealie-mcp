@@ -1,5 +1,6 @@
 ---
 name: mealie-organizer-catalog
+skill_type: skill
 description: >-
   Maintain the Mealie taxonomy via the mealie-mcp MCP server — categories, tags
   and tools with the `mealie_organizer` tool, plus the foods and units catalog on

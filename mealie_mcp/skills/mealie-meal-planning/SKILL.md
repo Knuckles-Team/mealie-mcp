@@ -1,5 +1,6 @@
 ---
 name: mealie-meal-planning
+skill_type: skill
 description: >-
   Household meal planning, cookbooks and shopping lists on Mealie via the
   mealie-mcp MCP server — schedule recipes onto dates, browse/get today's meals,

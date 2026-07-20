@@ -1,5 +1,6 @@
 ---
 name: mealie-mcp-operations
+skill_type: skill
 description: >-
   Operate mealie-mcp through its governed MCP and GraphOS capabilities, including mealie meal planning, mealie organizer catalog, mealie recipe management. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
 ---

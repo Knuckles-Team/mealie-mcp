@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mealie MCP Operations"
+  short_description: "Help with Mealie MCP Operations tasks"
+  default_prompt: "Use $mealie-mcp-operations to complete a governed provider workflow."

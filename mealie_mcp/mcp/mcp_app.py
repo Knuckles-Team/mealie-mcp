@@ -3,11 +3,18 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
+from agent_utilities.mcp.action_dispatch import resolve_action
+from agent_utilities.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+
+VALID_APP_ACTIONS = (
+    "get_startup_info",
+    "get_app_theme",
+)
 
 
 def register_app_tools(mcp: FastMCP):
@@ -32,12 +39,17 @@ def register_app_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(action, VALID_APP_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get_startup_info":
-            return client.get_startup_info(**kwargs)
+            return await run_blocking(client.get_startup_info, **kwargs)
         if action == "get_app_theme":
-            return client.get_app_theme(**kwargs)
+            return await run_blocking(client.get_app_theme, **kwargs)
         raise ValueError(f"Unknown action: {action}")

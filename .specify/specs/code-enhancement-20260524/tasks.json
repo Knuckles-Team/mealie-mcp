@@ -392,7 +392,7 @@
   {
     "id": "T031",
     "title": "[Environment Variables] 4 Python env vars not in .env.example: DEFAULT_AGENT_NAME, MEALIE_BASE_URL, MEAL",
-    "description": "4 Python env vars not in .env.example: DEFAULT_AGENT_NAME, MEALIE_BASE_URL, MEALIE_SSL_VERIFY, MEALIE_TOKEN",
+    "description": "Runtime connection configuration must document DEFAULT_AGENT_NAME, MEALIE_BASE_URL, MEALIE_TOKEN, and AgentConfig TLS profile references",
     "domain": "Environment Variables",
     "priority": "P2-Medium",
     "effort": "Medium",

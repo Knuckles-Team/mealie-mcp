@@ -1,0 +1,37 @@
+{
+  "api_version": "graphos.io/v1",
+  "artifacts": {
+    "a2a.json": "be1cb810de83f90c80e3e14d292486d429396b18cd692a6aabd8d4d754b356ab",
+    "connector_manifest.yml": "9c47ad35a79db0c669451678a72c02afc0bf1d4f8be3188aabce66ef1d11a31d",
+    "mealie_mcp/connectors/mcp_source_presets.json": "586be2b0e51dc55478bd6a338ff1f4e9be57fa4db1e35db6cd03b86ff36347d4",
+    "mealie_mcp/connectors/tool_schema_fingerprints.json": "5474316bf1f61deef034bd5ea1002e760f3b5b2f4d79c2484d0b4b91cd8f79d0",
+    "mealie_mcp/ontology/fixtures/records.json": "469b13abf9a4758c8ef8e69956bae6c1775bcdeb6b4365be492b5b0f52efbb77",
+    "mealie_mcp/ontology/mappings/source.yaml": "702a652dc684351e3b49f687615a5a9ac01fe78632be483ecdcbe2688134928d",
+    "mealie_mcp/ontology/mealie.ttl": "b674a629eddc5711a2545d2ec8554aa9f126e2862b3f982b92d9aadea4bfdfab",
+    "mealie_mcp/ontology/migrations/manifest.json": "53797b3301db50a298e59b04b17d1ceafc459f52c3dd02c14ef51df40bef526c",
+    "mealie_mcp/ontology/shapes/connector.shacl.ttl": "9543296c206e4745e19e77df5af2e1ffff65dc7bffcec60362dd093d5d9e9088"
+  },
+  "checks": {
+    "declared_tool_schema": "passed",
+    "manifest_integrity": "passed",
+    "privacy_contract": "passed",
+    "shacl_parse": "passed",
+    "synthetic_fixture_contract": "passed"
+  },
+  "compatibility": {
+    "agent_utilities": ">=1.27.1,<2",
+    "bundle_schema": "2",
+    "epistemic_graph": ">=2.23.1,<3"
+  },
+  "connector": "mealie-mcp",
+  "kind": "ConnectorSourceAttestation",
+  "live_certified": false,
+  "mode": "offline-source",
+  "schema_version": "2",
+  "signature": "6gxcwYDrcRfbOeryQS63YPQLPHpIYYBmT0KU1DccePnXff84olQxJAJeKun-sBoMKlEA3dPnjwyeIEi-6BKgAA",
+  "signature_algorithm": "ed25519",
+  "signer": "ontology-manifest-generator",
+  "signing_public_key": "q0Cp7bmQMqJhbofGKKw8xXC6KbFzukBDDke0UYVi8y4",
+  "status": "source-validated",
+  "validated_at": "2026-07-18T00:00:00Z"
+}

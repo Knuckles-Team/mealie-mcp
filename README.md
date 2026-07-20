@@ -20,11 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/mealie-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/mealie-mcp)
 
-*Version: 0.41.0*
-
-> **Documentation** — Installation, deployment, usage across the API, CLI, MCP, and
-> agent interfaces, and guidance for provisioning the Mealie platform are maintained in
-> the [official documentation](https://knuckles-team.github.io/mealie-mcp/).
+*Version: 1.0.1*
 
 ---
 
@@ -56,20 +52,287 @@ Detailed instructions on how to use the underlying API wrappers, extended schema
 This server utilizes dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
 
 ### Available MCP Tools
-| Tool Module | Toggle Env Var | Enabled by Default | Description & Nested Methods |
-|-------------|----------------|--------------------|------------------------------|
-| **App** | `APP_TOOL` | `True` | Manage mealie app operations. Action-routed methods: `get_app_theme`, `get_startup_info`. |
-| **Users** | `USERS_TOOL` | `True` | Manage mealie users operations. Action-routed methods: `add_favorite`, `create`, `delete`, `forgot_password`, `get_favorites`, `get_logged_in_user`, `get_logged_in_user_favorites`, `get_logged_in_user_rating_for_recipe`, `get_logged_in_user_ratings`, `get_ratings`, `get_token`, `logout`, `oauth_callback`, `oauth_login`, `refresh_token`, `register_new_user`, `remove_favorite`, `reset_password`, `set_rating`, `update_password`, `update_user`, `update_user_image`. |
-| **Households** | `HOUSEHOLDS_TOOL` | `True` | Manage mealie households operations. Action-routed methods: `add_recipe_ingredients_to_list`, `add_single_recipe_ingredients_to_list`, `create_invite_token`, `create_random_meal`, `delete_households_cookbooks_item_id`, `delete_households_events_notifications_item_id`, `delete_households_mealplans_item_id`, `delete_households_mealplans_rules_item_id`, `delete_households_recipe_actions_item_id`, `delete_households_shopping_items`, `delete_households_shopping_items_item_id`, `delete_households_shopping_lists_item_id`, `delete_households_webhooks_item_id`, `email_invitation`, `get_household_members`, `get_household_preferences`, `get_household_recipe`, `get_households_cookbooks`, `get_households_cookbooks_item_id`, `get_households_events_notifications`, `get_households_events_notifications_item_id`, `get_households_mealplans`, `get_households_mealplans_item_id`, `get_households_mealplans_rules`, `get_households_mealplans_rules_item_id`, `get_households_recipe_actions`, `get_households_recipe_actions_item_id`, `get_households_shopping_items`, `get_households_shopping_items_item_id`, `get_households_shopping_lists`, `get_households_shopping_lists_item_id`, `get_households_webhooks`, `get_households_webhooks_item_id`, `get_invite_tokens`, `get_logged_in_user_household`, `get_statistics`, `get_todays_meals`, `post_households_cookbooks`, `post_households_events_notifications`, `post_households_mealplans`, `post_households_mealplans_rules`, `post_households_recipe_actions`, `post_households_shopping_items`, `post_households_shopping_items_create_bulk`, `post_households_shopping_lists`, `post_households_webhooks`, `put_households_cookbooks`, `put_households_cookbooks_item_id`, `put_households_events_notifications_item_id`, `put_households_mealplans_item_id`, `put_households_mealplans_rules_item_id`, `put_households_recipe_actions_item_id`, `put_households_shopping_items`, `put_households_shopping_items_item_id`, `put_households_shopping_lists_item_id`, `put_households_webhooks_item_id`, `remove_recipe_ingredients_from_list`, `rerun_webhooks`, `set_member_permissions`, `test_notification`, `test_one`, `trigger_action`, `update_household_preferences`, `update_label_settings`. |
-| **Groups** | `GROUPS_TOOL` | `True` | Manage mealie groups operations. Action-routed methods: `delete_groups_labels_item_id`, `delete_groups_reports_item_id`, `get_all_households`, `get_group_member`, `get_group_members`, `get_group_preferences`, `get_groups_labels`, `get_groups_labels_item_id`, `get_groups_reports`, `get_groups_reports_item_id`, `get_logged_in_user_group`, `get_one_household`, `get_storage`, `post_groups_labels`, `put_groups_labels_item_id`, `seed_foods`, `seed_labels`, `seed_units`, `start_data_migration`, `update_group_preferences`. |
-| **Recipes** | `RECIPES_TOOL` | `True` | Manage mealie recipes operations. Action-routed methods: `bulk_categorize_recipes`, `bulk_delete_recipes`, `bulk_export_recipes`, `bulk_settings_recipes`, `bulk_tag_recipes`, `create_recipe_from_html_or_json`, `create_recipe_from_image`, `create_recipe_from_zip`, `delete_foods_item_id`, `delete_recipe_image`, `delete_recipes_slug`, `delete_recipes_timeline_events_item_id`, `delete_units_item_id`, `duplicate_one`, `get_comments`, `get_comments_item_id`, `get_exported_data`, `get_exported_data_token`, `get_foods`, `get_foods_item_id`, `get_recipe_as_format`, `get_recipe_asset`, `get_recipe_comments`, `get_recipe_formats_and_templates`, `get_recipe_img`, `get_recipe_timeline_event_img`, `get_recipes`, `get_recipes_slug`, `get_recipes_suggestions`, `get_recipes_timeline_events`, `get_recipes_timeline_events_item_id`, `get_shared_recipe`, `get_shared_recipe_as_zip`, `get_units`, `get_units_item_id`, `get_user_image`, `get_validation_text`, `parse_ingredient`, `parse_ingredients`, `parse_recipe_url`, `parse_recipe_url_bulk`, `patch_many`, `patch_one`, `post_comments`, `post_foods`, `post_parser_ingredient`, `post_recipes`, `post_recipes_timeline_events`, `post_units`, `purge_export_data`, `put_comments_item_id`, `put_foods_item_id`, `put_foods_merge`, `put_recipes`, `put_recipes_slug`, `put_recipes_timeline_events_item_id`, `put_units_item_id`, `put_units_merge`, `scrape_image_url`, `test_parse_recipe_url`, `update_event_image`, `update_last_made`, `update_recipe_image`, `upload_recipe_asset`. |
-| **Organizer** | `ORGANIZER_TOOL` | `True` | Manage mealie organizer operations. Action-routed methods: `delete_organizers_categories_item_id`, `delete_organizerss_item_id`, `delete_recipe_tag`, `get_all_empty`, `get_empty_tags`, `get_organizers_categories`, `get_organizers_categories_item_id`, `get_organizers_categories_slug_category_slug`, `get_organizers_tags`, `get_organizers_tags_item_id`, `get_organizers_tags_slug_tag_slug`, `get_organizerss`, `get_organizerss_item_id`, `get_organizerss_slug_slug`, `post_organizers_categories`, `post_organizers_tags`, `post_organizerss`, `put_organizers_categories_item_id`, `put_organizers_tags_item_id`, `put_organizerss_item_id`. |
-| **Shared** | `SHARED_TOOL` | `True` | Manage mealie shared operations. Action-routed methods: `delete_shared_recipes_item_id`, `get_shared_recipes`, `get_shared_recipes_item_id`, `post_shared_recipes`. |
-| **Admin** | `ADMIN_TOOL` | `True` | Manage mealie admin operations. Action-routed methods: `check_app_config`, `check_email_config`, `clean_images`, `clean_recipe_folders`, `clean_temp`, `debug_openai`, `delete_admin_backups_file_name`, `delete_admin_groups_item_id`, `delete_admin_households_item_id`, `delete_admin_users_item_id`, `generate_token`, `get_admin_backups`, `get_admin_backups_file_name`, `get_admin_groups`, `get_admin_groups_item_id`, `get_admin_households`, `get_admin_households_item_id`, `get_admin_users`, `get_admin_users_item_id`, `get_app_info`, `get_app_statistics`, `get_maintenance_summary`, `get_storage_details`, `import_one`, `post_admin_backups`, `post_admin_groups`, `post_admin_households`, `post_admin_users`, `put_admin_groups_item_id`, `put_admin_households_item_id`, `put_admin_users_item_id`, `send_test_email`, `unlock_users`, `upload_one`. |
-| **Explore** | `EXPLORE_TOOL` | `True` | Manage mealie explore operations. Action-routed methods: `get_explore_groups_group_slug_cookbooks`, `get_explore_groups_group_slug_cookbooks_item_id`, `get_explore_groups_group_slug_foods`, `get_explore_groups_group_slug_foods_item_id`, `get_explore_groups_group_slug_households`, `get_explore_groups_group_slug_organizers_categories`, `get_explore_groups_group_slug_organizers_categories_item_id`, `get_explore_groups_group_slug_organizers_tags`, `get_explore_groups_group_slug_organizers_tags_item_id`, `get_explore_groups_group_slug_organizerss`, `get_explore_groups_group_slug_organizerss_item_id`, `get_explore_groups_group_slug_recipes`, `get_explore_groups_group_slug_recipes_suggestions`, `get_household`, `get_recipe`. |
-| **Utils** | `UTILS_TOOL` | `True` | Manage mealie utils operations. Action-routed methods: `download_file`. |
 
-Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
+<!-- This table is auto-generated by `python -m agent_utilities.mcp.readme_tools` — do not edit by hand. -->
+
+<!-- MCP-TOOLS-TABLE:START -->
+
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `mealie_admin` | `ADMINTOOL` | Manage mealie admin operations. |
+| `mealie_app` | `APPTOOL` | Manage mealie app operations. |
+| `mealie_explore` | `EXPLORETOOL` | Manage mealie explore operations. |
+| `mealie_groups` | `GROUPSTOOL` | Manage mealie groups operations. |
+| `mealie_households` | `HOUSEHOLDSTOOL` | Manage mealie households operations. |
+| `mealie_organizer` | `ORGANIZERTOOL` | Manage mealie organizer operations. |
+| `mealie_recipes` | `RECIPESTOOL` | Manage mealie recipes operations. |
+| `mealie_shared` | `SHAREDTOOL` | Manage mealie shared operations. |
+| `mealie_users` | `USERSTOOL` | Manage mealie users operations. |
+| `mealie_utils` | `UTILSTOOL` | Manage mealie utils operations. |
+
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>247 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `mealie_add_favorite` | `APITOOL` | Add Favorite |
+| `mealie_add_recipe_ingredients_to_list` | `APITOOL` | Add Recipe Ingredients To List |
+| `mealie_add_single_recipe_ingredients_to_list` | `APITOOL` | Add Single Recipe Ingredients To List |
+| `mealie_bulk_categorize_recipes` | `APITOOL` | Bulk Categorize Recipes |
+| `mealie_bulk_delete_recipes` | `APITOOL` | Bulk Delete Recipes |
+| `mealie_bulk_export_recipes` | `APITOOL` | Bulk Export Recipes |
+| `mealie_bulk_settings_recipes` | `APITOOL` | Bulk Settings Recipes |
+| `mealie_bulk_tag_recipes` | `APITOOL` | Bulk Tag Recipes |
+| `mealie_check_app_config` | `APITOOL` | Check App Config |
+| `mealie_check_email_config` | `APITOOL` | Check Email Config |
+| `mealie_clean_images` | `APITOOL` | Clean Images |
+| `mealie_clean_recipe_folders` | `APITOOL` | Clean Recipe Folders |
+| `mealie_clean_temp` | `APITOOL` | Clean Temp |
+| `mealie_create` | `APITOOL` | Create Api Token |
+| `mealie_create_invite_token` | `APITOOL` | Create Invite Token |
+| `mealie_create_random_meal` | `APITOOL` | Create Random Meal |
+| `mealie_create_recipe_from_html_or_json` | `APITOOL` | Create Recipe From Html Or Json |
+| `mealie_create_recipe_from_image` | `APITOOL` | Create Recipe From Image |
+| `mealie_create_recipe_from_zip` | `APITOOL` | Create Recipe From Zip |
+| `mealie_debug_openai` | `APITOOL` | Debug Openai |
+| `mealie_delete` | `APITOOL` | Delete Api Token |
+| `mealie_delete_admin_backups_file_name` | `APITOOL` | Delete One |
+| `mealie_delete_admin_groups_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_admin_households_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_admin_users_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_foods_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_groups_labels_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_groups_reports_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_cookbooks_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_events_notifications_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_mealplans_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_mealplans_rules_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_recipe_actions_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_shopping_items` | `APITOOL` | Delete Many |
+| `mealie_delete_households_shopping_items_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_shopping_lists_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_households_webhooks_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_organizers_categories_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_organizers_tools_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_recipe_image` | `APITOOL` | Delete Recipe Image |
+| `mealie_delete_recipe_tag` | `APITOOL` | Delete Recipe Tag |
+| `mealie_delete_recipes_slug` | `APITOOL` | Delete One |
+| `mealie_delete_recipes_timeline_events_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_shared_recipes_item_id` | `APITOOL` | Delete One |
+| `mealie_delete_units_item_id` | `APITOOL` | Delete One |
+| `mealie_download_file` | `APITOOL` | Download File |
+| `mealie_duplicate_one` | `APITOOL` | Duplicate One |
+| `mealie_email_invitation` | `APITOOL` | Email Invitation |
+| `mealie_forgot_password` | `APITOOL` | Forgot Password |
+| `mealie_generate_token` | `APITOOL` | Generate Token |
+| `mealie_get_admin_backups` | `APITOOL` | Get All |
+| `mealie_get_admin_backups_file_name` | `APITOOL` | Get One |
+| `mealie_get_admin_groups` | `APITOOL` | Get All |
+| `mealie_get_admin_groups_item_id` | `APITOOL` | Get One |
+| `mealie_get_admin_households` | `APITOOL` | Get All |
+| `mealie_get_admin_households_item_id` | `APITOOL` | Get One |
+| `mealie_get_admin_users` | `APITOOL` | Get All |
+| `mealie_get_admin_users_item_id` | `APITOOL` | Get One |
+| `mealie_get_all_empty` | `APITOOL` | Get All Empty |
+| `mealie_get_all_households` | `APITOOL` | Get All Households |
+| `mealie_get_app_info` | `APITOOL` | Get App Info |
+| `mealie_get_app_statistics` | `APITOOL` | Get App Statistics |
+| `mealie_get_app_theme` | `APITOOL` | Get App Theme |
+| `mealie_get_comments` | `APITOOL` | Get All |
+| `mealie_get_comments_item_id` | `APITOOL` | Get One |
+| `mealie_get_empty_tags` | `APITOOL` | Get Empty Tags |
+| `mealie_get_explore_groups_group_slug_cookbooks` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_cookbooks_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_foods` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_foods_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_households` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_organizers_categories` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_organizers_categories_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_organizers_tags` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_organizers_tags_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_organizers_tools` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_organizers_tools_item_id` | `APITOOL` | Get One |
+| `mealie_get_explore_groups_group_slug_recipes` | `APITOOL` | Get All |
+| `mealie_get_explore_groups_group_slug_recipes_suggestions` | `APITOOL` | Suggest Recipes |
+| `mealie_get_exported_data` | `APITOOL` | Get Exported Data |
+| `mealie_get_exported_data_token` | `APITOOL` | Get Exported Data Token |
+| `mealie_get_favorites` | `APITOOL` | Get Favorites |
+| `mealie_get_foods` | `APITOOL` | Get All |
+| `mealie_get_foods_item_id` | `APITOOL` | Get One |
+| `mealie_get_group_member` | `APITOOL` | Get Group Member |
+| `mealie_get_group_members` | `APITOOL` | Get Group Members |
+| `mealie_get_group_preferences` | `APITOOL` | Get Group Preferences |
+| `mealie_get_groups_labels` | `APITOOL` | Get All |
+| `mealie_get_groups_labels_item_id` | `APITOOL` | Get One |
+| `mealie_get_groups_reports` | `APITOOL` | Get All |
+| `mealie_get_groups_reports_item_id` | `APITOOL` | Get One |
+| `mealie_get_household` | `APITOOL` | Get Household |
+| `mealie_get_household_members` | `APITOOL` | Get Household Members |
+| `mealie_get_household_preferences` | `APITOOL` | Get Household Preferences |
+| `mealie_get_household_recipe` | `APITOOL` | Get Household Recipe |
+| `mealie_get_households_cookbooks` | `APITOOL` | Get All |
+| `mealie_get_households_cookbooks_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_events_notifications` | `APITOOL` | Get All |
+| `mealie_get_households_events_notifications_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_mealplans` | `APITOOL` | Get All |
+| `mealie_get_households_mealplans_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_mealplans_rules` | `APITOOL` | Get All |
+| `mealie_get_households_mealplans_rules_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_recipe_actions` | `APITOOL` | Get All |
+| `mealie_get_households_recipe_actions_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_shopping_items` | `APITOOL` | Get All |
+| `mealie_get_households_shopping_items_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_shopping_lists` | `APITOOL` | Get All |
+| `mealie_get_households_shopping_lists_item_id` | `APITOOL` | Get One |
+| `mealie_get_households_webhooks` | `APITOOL` | Get All |
+| `mealie_get_households_webhooks_item_id` | `APITOOL` | Get One |
+| `mealie_get_invite_tokens` | `APITOOL` | Get Invite Tokens |
+| `mealie_get_logged_in_user` | `APITOOL` | Get Logged In User |
+| `mealie_get_logged_in_user_favorites` | `APITOOL` | Get Logged In User Favorites |
+| `mealie_get_logged_in_user_group` | `APITOOL` | Get Logged In User Group |
+| `mealie_get_logged_in_user_household` | `APITOOL` | Get Logged In User Household |
+| `mealie_get_logged_in_user_rating_for_recipe` | `APITOOL` | Get Logged In User Rating For Recipe |
+| `mealie_get_logged_in_user_ratings` | `APITOOL` | Get Logged In User Ratings |
+| `mealie_get_maintenance_summary` | `APITOOL` | Get Maintenance Summary |
+| `mealie_get_one_household` | `APITOOL` | Get One Household |
+| `mealie_get_organizers_categories` | `APITOOL` | Get All |
+| `mealie_get_organizers_categories_item_id` | `APITOOL` | Get One |
+| `mealie_get_organizers_categories_slug_category_slug` | `APITOOL` | Get One By Slug |
+| `mealie_get_organizers_tags` | `APITOOL` | Get All |
+| `mealie_get_organizers_tags_item_id` | `APITOOL` | Get One |
+| `mealie_get_organizers_tags_slug_tag_slug` | `APITOOL` | Get One By Slug |
+| `mealie_get_organizers_tools` | `APITOOL` | Get All |
+| `mealie_get_organizers_tools_item_id` | `APITOOL` | Get One |
+| `mealie_get_organizers_tools_slug_tool_slug` | `APITOOL` | Get One By Slug |
+| `mealie_get_ratings` | `APITOOL` | Get Ratings |
+| `mealie_get_recipe` | `APITOOL` | Get Recipe |
+| `mealie_get_recipe_as_format` | `APITOOL` | Get Recipe As Format |
+| `mealie_get_recipe_asset` | `APITOOL` | Get Recipe Asset |
+| `mealie_get_recipe_comments` | `APITOOL` | Get Recipe Comments |
+| `mealie_get_recipe_formats_and_templates` | `APITOOL` | Get Recipe Formats And Templates |
+| `mealie_get_recipe_img` | `APITOOL` | Get Recipe Img |
+| `mealie_get_recipe_timeline_event_img` | `APITOOL` | Get Recipe Timeline Event Img |
+| `mealie_get_recipes` | `APITOOL` | Get All |
+| `mealie_get_recipes_slug` | `APITOOL` | Get One |
+| `mealie_get_recipes_suggestions` | `APITOOL` | Suggest Recipes |
+| `mealie_get_recipes_timeline_events` | `APITOOL` | Get All |
+| `mealie_get_recipes_timeline_events_item_id` | `APITOOL` | Get One |
+| `mealie_get_shared_recipe` | `APITOOL` | Get Shared Recipe |
+| `mealie_get_shared_recipe_as_zip` | `APITOOL` | Get Shared Recipe As Zip |
+| `mealie_get_shared_recipes` | `APITOOL` | Get All |
+| `mealie_get_shared_recipes_item_id` | `APITOOL` | Get One |
+| `mealie_get_startup_info` | `APITOOL` | Get Startup Info |
+| `mealie_get_statistics` | `APITOOL` | Get Statistics |
+| `mealie_get_storage` | `APITOOL` | Get Storage |
+| `mealie_get_storage_details` | `APITOOL` | Get Storage Details |
+| `mealie_get_todays_meals` | `APITOOL` | Get Todays Meals |
+| `mealie_get_token` | `APITOOL` | Get Token |
+| `mealie_get_units` | `APITOOL` | Get All |
+| `mealie_get_units_item_id` | `APITOOL` | Get One |
+| `mealie_get_user_image` | `APITOOL` | Get User Image |
+| `mealie_get_validation_text` | `APITOOL` | Get Validation Text |
+| `mealie_import_one` | `APITOOL` | Import One |
+| `mealie_logout` | `APITOOL` | Logout |
+| `mealie_oauth_callback` | `APITOOL` | Oauth Callback |
+| `mealie_oauth_login` | `APITOOL` | Oauth Login |
+| `mealie_parse_ingredient` | `APITOOL` | Parse Ingredient |
+| `mealie_parse_ingredients` | `APITOOL` | Parse Ingredients |
+| `mealie_parse_recipe_url` | `APITOOL` | Parse Recipe Url |
+| `mealie_parse_recipe_url_bulk` | `APITOOL` | Parse Recipe Url Bulk |
+| `mealie_patch_many` | `APITOOL` | Patch Many |
+| `mealie_patch_one` | `APITOOL` | Patch One |
+| `mealie_post_admin_backups` | `APITOOL` | Create One |
+| `mealie_post_admin_groups` | `APITOOL` | Create One |
+| `mealie_post_admin_households` | `APITOOL` | Create One |
+| `mealie_post_admin_users` | `APITOOL` | Create One |
+| `mealie_post_comments` | `APITOOL` | Create One |
+| `mealie_post_foods` | `APITOOL` | Create One |
+| `mealie_post_groups_labels` | `APITOOL` | Create One |
+| `mealie_post_households_cookbooks` | `APITOOL` | Create One |
+| `mealie_post_households_events_notifications` | `APITOOL` | Create One |
+| `mealie_post_households_mealplans` | `APITOOL` | Create One |
+| `mealie_post_households_mealplans_rules` | `APITOOL` | Create One |
+| `mealie_post_households_recipe_actions` | `APITOOL` | Create One |
+| `mealie_post_households_shopping_items` | `APITOOL` | Create One |
+| `mealie_post_households_shopping_items_create_bulk` | `APITOOL` | Create Many |
+| `mealie_post_households_shopping_lists` | `APITOOL` | Create One |
+| `mealie_post_households_webhooks` | `APITOOL` | Create One |
+| `mealie_post_organizers_categories` | `APITOOL` | Create One |
+| `mealie_post_organizers_tags` | `APITOOL` | Create One |
+| `mealie_post_organizers_tools` | `APITOOL` | Create One |
+| `mealie_post_parser_ingredient` | `APITOOL` | Delete One |
+| `mealie_post_recipes` | `APITOOL` | Create One |
+| `mealie_post_recipes_timeline_events` | `APITOOL` | Create One |
+| `mealie_post_shared_recipes` | `APITOOL` | Create One |
+| `mealie_post_units` | `APITOOL` | Create One |
+| `mealie_purge_export_data` | `APITOOL` | Purge Export Data |
+| `mealie_put_admin_groups_item_id` | `APITOOL` | Update One |
+| `mealie_put_admin_households_item_id` | `APITOOL` | Update One |
+| `mealie_put_admin_users_item_id` | `APITOOL` | Update One |
+| `mealie_put_comments_item_id` | `APITOOL` | Update One |
+| `mealie_put_foods_item_id` | `APITOOL` | Update One |
+| `mealie_put_foods_merge` | `APITOOL` | Merge One |
+| `mealie_put_groups_labels_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_cookbooks` | `APITOOL` | Update Many |
+| `mealie_put_households_cookbooks_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_events_notifications_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_mealplans_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_mealplans_rules_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_recipe_actions_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_shopping_items` | `APITOOL` | Update Many |
+| `mealie_put_households_shopping_items_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_shopping_lists_item_id` | `APITOOL` | Update One |
+| `mealie_put_households_webhooks_item_id` | `APITOOL` | Update One |
+| `mealie_put_organizers_categories_item_id` | `APITOOL` | Update One |
+| `mealie_put_organizers_tags_item_id` | `APITOOL` | Update One |
+| `mealie_put_organizers_tools_item_id` | `APITOOL` | Update One |
+| `mealie_put_recipes` | `APITOOL` | Update Many |
+| `mealie_put_recipes_slug` | `APITOOL` | Update One |
+| `mealie_put_recipes_timeline_events_item_id` | `APITOOL` | Update One |
+| `mealie_put_units_item_id` | `APITOOL` | Update One |
+| `mealie_put_units_merge` | `APITOOL` | Merge One |
+| `mealie_refresh_token` | `APITOOL` | Refresh Token |
+| `mealie_register_new_user` | `APITOOL` | Register New User |
+| `mealie_remove_favorite` | `APITOOL` | Remove Favorite |
+| `mealie_remove_recipe_ingredients_from_list` | `APITOOL` | Remove Recipe Ingredients From List |
+| `mealie_request` | `BASE_API_CLIENTTOOL` | Invoke the request operation. |
+| `mealie_rerun_webhooks` | `APITOOL` | Rerun Webhooks |
+| `mealie_reset_password` | `APITOOL` | Reset Password |
+| `mealie_scrape_image_url` | `APITOOL` | Scrape Image Url |
+| `mealie_seed_foods` | `APITOOL` | Seed Foods |
+| `mealie_seed_labels` | `APITOOL` | Seed Labels |
+| `mealie_seed_units` | `APITOOL` | Seed Units |
+| `mealie_send_test_email` | `APITOOL` | Send Test Email |
+| `mealie_set_member_permissions` | `APITOOL` | Set Member Permissions |
+| `mealie_set_rating` | `APITOOL` | Set Rating |
+| `mealie_start_data_migration` | `APITOOL` | Start Data Migration |
+| `mealie_test_notification` | `APITOOL` | Test Notification |
+| `mealie_test_one` | `APITOOL` | Test One |
+| `mealie_test_parse_recipe_url` | `APITOOL` | Test Parse Recipe Url |
+| `mealie_trigger_action` | `APITOOL` | Trigger Action |
+| `mealie_unlock_users` | `APITOOL` | Unlock Users |
+| `mealie_update_event_image` | `APITOOL` | Update Event Image |
+| `mealie_update_group_preferences` | `APITOOL` | Update Group Preferences |
+| `mealie_update_household_preferences` | `APITOOL` | Update Household Preferences |
+| `mealie_update_label_settings` | `APITOOL` | Update Label Settings |
+| `mealie_update_last_made` | `APITOOL` | Update Last Made |
+| `mealie_update_password` | `APITOOL` | Update Password |
+| `mealie_update_recipe_image` | `APITOOL` | Update Recipe Image |
+| `mealie_update_user` | `APITOOL` | Update User |
+| `mealie_update_user_image` | `APITOOL` | Update User Image |
+| `mealie_upload_one` | `APITOOL` | Upload One |
+| `mealie_upload_recipe_asset` | `APITOOL` | Upload Recipe Asset |
+
+</details>
+
+_10 action-routed tool(s) (default) · 247 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+<!-- MCP-TOOLS-TABLE:END -->
+
+Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/usage.md](docs/usage.md).
 
 ### Dynamic Tool Selection & Visibility
 
@@ -94,8 +357,14 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ### MCP Configuration Examples
 
-#### stdio Transport (Recommended for local IDEs e.g., Cursor, Claude Desktop)
-Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
+<!-- MCP-CONFIG-EXAMPLES:START -->
+
+> **Install the connector-focused `[mcp]` extra.** Examples use `mealie-mcp[mcp]` to add
+> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
+> enables model orchestration.
+
+#### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
 ```json
 {
@@ -104,20 +373,34 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
       "command": "uvx",
       "args": [
         "--from",
-        "mealie-mcp",
+        "mealie-mcp[mcp]",
         "mealie-mcp"
       ],
       "env": {
-        "MEALIE_ENDPOINT": "your_mealie_endpoint_here",
-        "MEALIE_API_KEY": "your_mealie_api_key_here"
+        "MCP_TOOL_MODE": "intent",
+        "ADMINTOOL": "True",
+        "APPTOOL": "True",
+        "EXPLORETOOL": "True",
+        "GROUPSTOOL": "True",
+        "HOUSEHOLDSTOOL": "True",
+        "MEALIE_BASE_URL": "http://localhost:8025",
+        "MEALIE_TOKEN": "your_token_here",
+        "ORGANIZERTOOL": "True",
+        "RECIPESTOOL": "True",
+        "SHAREDTOOL": "True",
+        "USERSTOOL": "True",
+        "UTILSTOOL": "True"
       }
     }
   }
 }
 ```
 
-#### Streamable-HTTP Transport (Recommended for production deployments)
-Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx` with explicit host and port definition:
+Runtime references require an alias-aware launcher such as GraphOS. Other
+launchers must omit those entries and inject the resolved values through their
+own runtime secret boundary.
+
+#### Streamable-HTTP Transport (networked / production)
 
 ```json
 {
@@ -126,22 +409,37 @@ Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx
       "command": "uvx",
       "args": [
         "--from",
+        "mealie-mcp[mcp]",
         "mealie-mcp",
-        "mealie-mcp"
+        "--transport",
+        "streamable-http",
+        "--port",
+        "8000"
       ],
       "env": {
         "TRANSPORT": "streamable-http",
-        "HOST": "0.0.0.0",
+        "HOST": "127.0.0.1",
         "PORT": "8000",
-        "MEALIE_ENDPOINT": "your_mealie_endpoint_here",
-        "MEALIE_API_KEY": "your_mealie_api_key_here"
+        "MCP_TOOL_MODE": "intent",
+        "ADMINTOOL": "True",
+        "APPTOOL": "True",
+        "EXPLORETOOL": "True",
+        "GROUPSTOOL": "True",
+        "HOUSEHOLDSTOOL": "True",
+        "MEALIE_BASE_URL": "http://localhost:8025",
+        "MEALIE_TOKEN": "your_token_here",
+        "ORGANIZERTOOL": "True",
+        "RECIPESTOOL": "True",
+        "SHAREDTOOL": "True",
+        "USERSTOOL": "True",
+        "UTILSTOOL": "True"
       }
     }
   }
 }
 ```
 
-Alternatively, connect to a pre-deployed remote or local Streamable-HTTP instance:
+Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 
 ```json
 {
@@ -153,20 +451,55 @@ Alternatively, connect to a pre-deployed remote or local Streamable-HTTP instanc
 }
 ```
 
-Deploying the Streamable-HTTP server via Docker:
+Run a reviewed container image as a least-privilege stdio child (no
+listener or published port):
 
 ```bash
-docker run -d \
-  --name mealie-mcp-mcp \
-  -p 8000:8000 \
-  -e TRANSPORT=streamable-http \
-  -e PORT=8000 \
-  -e MEALIE_ENDPOINT="your_value" \
-  -e MEALIE_API_KEY="your_value" \
-  knucklessg1/mealie-mcp:latest
+docker run -i --rm \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  --pids-limit=256 \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+  -e TRANSPORT=stdio \
+  -e MCP_TOOL_MODE=intent \
+  -e ADMINTOOL=True \
+  -e APPTOOL=True \
+  -e EXPLORETOOL=True \
+  -e GROUPSTOOL=True \
+  -e HOUSEHOLDSTOOL=True \
+  -e MEALIE_BASE_URL=http://localhost:8025 \
+  -e MEALIE_TOKEN=your_token_here \
+  -e ORGANIZERTOOL=True \
+  -e RECIPESTOOL=True \
+  -e SHAREDTOOL=True \
+  -e USERSTOOL=True \
+  -e UTILSTOOL=True \
+  registry.example.invalid/mealie-mcp@sha256:<digest> mealie-mcp
 ```
 
----
+For containerized network HTTP, supply an authenticated TLS ingress (or
+direct server TLS), exact `MCP_ALLOWED_HOSTS`, and an exact trusted-proxy
+CIDR policy through the operator-owned deployment profile. The generator
+does not emit an unauthenticated non-loopback listener.
+
+_Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
+<!-- MCP-CONFIG-EXAMPLES:END -->
+
+<!-- BEGIN GENERATED: additional-deployment-options -->
+### Additional Deployment Options
+
+`mealie-mcp` can run as a local stdio process or container, or behind a remote
+network boundary. The
+[Deployment guide](https://knuckles-team.github.io/mealie-mcp/deployment/) carries
+the detailed transport contract.
+
+- **Local container** — launch a reviewed immutable image as a least-privilege
+  stdio child with no listener or published port.
+- **Remote URL** — connect through an operator-supplied authenticated HTTPS
+  ingress. Keep its URL, outbound identity references, trust profile, and exact
+  `MCP_ALLOWED_HOSTS` in `AgentConfig`.
+<!-- END GENERATED: additional-deployment-options -->
 
 ## Agent
 
@@ -177,8 +510,8 @@ To start the interactive command-line agent:
 
 ```bash
 # Set credentials
-export MEALIE_ENDPOINT="your_value"
-export MEALIE_API_KEY="your_value"
+export MEALIE_BASE_URL="your_value"
+export MEALIE_TOKEN="your_value"
 
 # Run the agent server
 mealie-agent --provider openai --model-id gpt-4o
@@ -192,7 +525,7 @@ version: '3.8'
 
 services:
   mealie-mcp-mcp:
-    image: knucklessg1/mealie-mcp:latest
+    image: example/mealie-mcp@sha256:<digest>
     container_name: mealie-mcp-mcp
     hostname: mealie-mcp-mcp
     restart: always
@@ -218,7 +551,7 @@ services:
         max-file: "3"
 
   mealie-mcp-agent:
-    image: knucklessg1/mealie-mcp:latest
+    image: example/mealie-mcp@sha256:<digest>
     container_name: mealie-mcp-agent
     hostname: mealie-mcp-agent
     restart: always
@@ -252,7 +585,7 @@ services:
 
 ```
 
-Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/agent.md](docs/agent.md).
+Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/deployment.md](docs/deployment.md).
 
 ---
 
@@ -274,43 +607,168 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 
 ---
 
-## Installation
+## Environment Variables
 
-Install the Python package locally:
+<!-- ENV-VARS-TABLE:START -->
 
-```bash
-# Using uv (highly recommended)
-uv pip install mealie-mcp[all]
+#### Package environment variables
 
-# Using standard pip
-python -m pip install mealie-mcp[all]
-```
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `HOST` | `0.0.0.0` |  |
+| `PORT` | `8000` |  |
+| `TRANSPORT` | `stdio` | options: stdio, streamable-http, sse |
+| `ENABLE_OTEL` | `True` |  |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:8080/api/public/otel` |  |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` | `pk-...` |  |
+| `OTEL_EXPORTER_OTLP_SECRET_KEY` | `sk-...` |  |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` |  |
+| `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
+| `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
+| `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
+| `MEALIE_BASE_URL` | `http://localhost:8025` | Base URL of your Mealie instance |
+| `MEALIE_TOKEN` | `your_token_here` | Mealie API token |
+| `MEALIE_TLS_PROFILE` | — | Named runtime TLS profile |
+| `MEALIE_TLS_PROFILE_REF` | — | Secret reference containing a TLS profile |
+| `APPTOOL` | `True` |  |
+| `USERSTOOL` | `True` |  |
+| `HOUSEHOLDSTOOL` | `True` |  |
+| `GROUPSTOOL` | `True` |  |
+| `RECIPESTOOL` | `True` |  |
+| `ORGANIZERTOOL` | `True` |  |
+| `SHAREDTOOL` | `True` |  |
+| `ADMINTOOL` | `True` |  |
+| `EXPLORETOOL` | `True` |  |
+| `UTILSTOOL` | `True` |  |
+
+#### Inherited agent-utilities variables (apply to every connector)
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `MCP_TOOL_MODE` | `condensed` | Tool surface: `condensed` | `verbose` | `both` |
+| `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
+| `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
+| `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
+| `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP auth (`oidc-client-credentials` for fleet calls) |
+| `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
+| `OIDC_CLIENT_SECRET` | — | OIDC client secret (service-account auth) |
+| `DEBUG` | `False` | Verbose logging |
+| `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
+| `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
+| `PROVIDER` | `openai` | LLM provider for the agent |
+| `MODEL_ID` | `gpt-4o` | Model id for the agent |
+| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
+
+_24 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+<!-- ENV-VARS-TABLE:END -->
+
+
+Every variable the server reads. A local template is supplied inside
+[.env.example](.env.example) — copy it to `.env` and fill in your endpoint/credentials.
+
+### Connection & Credentials
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MEALIE_BASE_URL` | Base URL of your Mealie instance | `http://localhost:8025` |
+| `MEALIE_TOKEN` | Mealie API token | — |
+| `MEALIE_TLS_PROFILE` | Named TLS profile for private PKI, mTLS, or proxy policy | — |
+| `MEALIE_TLS_PROFILE_REF` | Secret reference containing the TLS profile | — |
+
+### MCP server / transport
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TRANSPORT` | `stdio`, `streamable-http`, or `sse` | `stdio` |
+| `HOST` | Bind host (HTTP transports) | `0.0.0.0` |
+| `PORT` | Bind port (HTTP transports) | `8000` |
+| `MCP_TOOL_MODE` | Tool surface: `condensed`, `verbose`, or `both` | `condensed` |
+| `MCP_ENABLED_TOOLS` / `MCP_DISABLED_TOOLS` | Comma-separated tool allow/deny list | — |
+| `MCP_ENABLED_TAGS` / `MCP_DISABLED_TAGS` | Comma-separated tag allow/deny list | — |
+| `PYTHONUNBUFFERED` | Unbuffered stdout (recommended in containers) | `1` |
+
+### Telemetry & governance
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENABLE_OTEL` | Enable OpenTelemetry export | `True` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP collector endpoint | — |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` / `OTEL_EXPORTER_OTLP_SECRET_KEY` | OTLP auth keys | — |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | OTLP protocol (e.g. `http/protobuf`) | — |
+| `EUNOMIA_TYPE` | Authorization mode: `none`, `embedded`, `remote` | `none` |
+| `EUNOMIA_POLICY_FILE` | Embedded policy file | `mcp_policies.json` |
+| `EUNOMIA_REMOTE_URL` | Remote Eunomia server URL | — |
+
+### Tool toggles
+Each action-routed tool can be disabled individually via its toggle env var (set to `false`).
+The full list is in the [Available MCP Tools](#available-mcp-tools) table above
+(e.g. `RECIPESTOOL`, `USERSTOOL`, `ORGANIZERTOOL`, `ADMINTOOL`).
+
+### Agent CLI (full `[agent]` runtime only)
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MCP_URL` | URL of the MCP server the agent connects to | `http://localhost:8000/mcp` |
+| `PROVIDER` | LLM provider (e.g. `openai`) | `openai` |
+| `MODEL_ID` | Model id (e.g. `gpt-4o`) | `gpt-4o` |
+| `ENABLE_WEB_UI` | Serve the AG-UI web interface | `True` |
 
 ---
 
-## Documentation
+## Installation
 
-The complete documentation is published as the
-[official documentation site](https://knuckles-team.github.io/mealie-mcp/) and is the
-recommended reference for installation, deployment, and day-to-day operation.
+Pick the extra that matches what you want to run:
 
-| Page | Contents |
-|---|---|
-| [Installation](https://knuckles-team.github.io/mealie-mcp/installation/) | pip, source, extras, prebuilt Docker image |
-| [Deployment](https://knuckles-team.github.io/mealie-mcp/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
-| [Usage](https://knuckles-team.github.io/mealie-mcp/usage/) | the MCP tools, the `Api` client, the CLI |
-| [Backing Platform](https://knuckles-team.github.io/mealie-mcp/platform/) | deploy Mealie with Docker |
-| [Overview](https://knuckles-team.github.io/mealie-mcp/overview/) | the layered client and agent-package pattern |
-| [Concepts](https://knuckles-team.github.io/mealie-mcp/concepts/) | concept registry (`CONCEPT:MEAL-*`) |
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `mealie-mcp[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | You only run the **MCP server** (smallest install / image) |
+| `mealie-mcp[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
+| `mealie-mcp[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
+
+```bash
+# Connector-focused MCP server (includes the shared graph engine)
+uv pip install "mealie-mcp[mcp]"
+
+# Agent runtime (adds model orchestration to the shared graph engine)
+uv pip install "mealie-mcp[agent]"
+
+# Everything (development)
+uv pip install "mealie-mcp[all]"      # or: python -m pip install "mealie-mcp[all]"
+```
+
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `example/mealie-mcp:mcp` | `--target mcp` | `mealie-mcp[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `mealie-mcp` |
+| `example/mealie-mcp@sha256:<digest>` | `--target agent` (default) | `mealie-mcp[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `mealie-agent` |
+
+```bash
+docker build --target mcp   -t example/mealie-mcp:mcp    docker/   # connector-focused MCP server
+docker build --target agent -t example/mealie-mcp:agent-local docker/   # agent runtime
+```
+
+`docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
+agent (`immutable agent digest`) with a co-located `:mcp` sidecar.
+
+### Knowledge-graph database (`epistemic-graph`)
+
+Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
+Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
+the server connector-focused; `[agent]` additionally enables model orchestration. Local
+deployments can use the bundled engine. For production or shared state, run
+**epistemic-graph as a dedicated database service** and configure the runtime to use it.
+Deployment recipes (single-node + Raft HA), connection configuration, and architecture
+diagrams are documented in the
+[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
 
 ---
 
 ## Repository Owners
 
-<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=Knucklessg1&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
 
-![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
-![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+![GitHub followers](https://img.shields.io/github/followers/example)
+![GitHub User's stars](https://img.shields.io/github/stars/example)
 
 ---
 
@@ -321,3 +779,42 @@ Contributions are welcome! Please ensure code quality by executing local checks 
 - Lint code using `ruff check .`
 - Validate type-safety with `mypy .`
 - Execute test suites using `pytest`
+
+
+<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
+
+## Deploy with `agent-utilities-deployment`
+
+Provision this package with the consolidated **`agent-utilities-deployment`**
+workflow. It selects an installed-package, editable-source, or immutable-container
+path; records only runtime secret and TLS-profile references in `AgentConfig`; and
+runs doctor, registration, policy, observability, and rollback gates. Ask your agent
+to **"deploy `mealie-mcp` with agent-utilities-deployment"**.
+
+| Install mode | Command |
+|------|---------|
+| Installed package | `uv tool install "mealie-mcp[mcp]"`, then run `mealie-mcp` |
+| Editable source | `uv pip install -e ".[agent]"`, then run `mealie-mcp` |
+| Immutable container | deploy `registry.example.invalid/mealie-mcp@sha256:<digest>` through the operator-selected orchestrator |
+
+The repository embeds no deployment profile, credential value, certificate path, or
+environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
+configured secret provider.
+
+<!-- END agent-utilities-deployment -->
+
+<!-- GOVERNED-CAPABILITY:START -->
+## Governed capability contract
+
+This package ships a compact canonical skill surface with specialist procedures
+kept as referenced workflows. The current MCP tools, skill metadata,
+`connector_manifest.yml`, ontology, mappings, shapes, fixtures, migrations,
+tool-schema fingerprints, and certification metadata form one versioned
+capability contract. Validate them together; do not rely on stale tool names or
+historical per-task skill wrappers.
+
+Runtime endpoints, credentials, certificate trust, tenant identity, retention,
+and observability policy are deployment inputs and are never packaged values.
+See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
+network transport, connector ingestion, GraphOS delegation, or trace export.
+<!-- GOVERNED-CAPABILITY:END -->

@@ -3,11 +3,38 @@
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
+from agent_utilities.mcp.action_dispatch import resolve_action
+from agent_utilities.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+
+VALID_USERS_ACTIONS = (
+    "get_token",
+    "oauth_login",
+    "oauth_callback",
+    "refresh_token",
+    "logout",
+    "register_new_user",
+    "get_logged_in_user",
+    "get_logged_in_user_ratings",
+    "get_logged_in_user_rating_for_recipe",
+    "get_logged_in_user_favorites",
+    "update_password",
+    "update_user",
+    "forgot_password",
+    "reset_password",
+    "update_user_image",
+    "create",
+    "delete",
+    "get_ratings",
+    "get_favorites",
+    "set_rating",
+    "add_favorite",
+    "remove_favorite",
+)
 
 
 def register_users_tools(mcp: FastMCP):
@@ -32,52 +59,59 @@ def register_users_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(action, VALID_USERS_ACTIONS, service="mealie-mcp")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get_token":
-            return client.get_token(**kwargs)
+            return await run_blocking(client.get_token, **kwargs)
         if action == "oauth_login":
-            return client.oauth_login(**kwargs)
+            return await run_blocking(client.oauth_login, **kwargs)
         if action == "oauth_callback":
-            return client.oauth_callback(**kwargs)
+            return await run_blocking(client.oauth_callback, **kwargs)
         if action == "refresh_token":
-            return client.refresh_token(**kwargs)
+            return await run_blocking(client.refresh_token, **kwargs)
         if action == "logout":
-            return client.logout(**kwargs)
+            return await run_blocking(client.logout, **kwargs)
         if action == "register_new_user":
-            return client.register_new_user(**kwargs)
+            return await run_blocking(client.register_new_user, **kwargs)
         if action == "get_logged_in_user":
-            return client.get_logged_in_user(**kwargs)
+            return await run_blocking(client.get_logged_in_user, **kwargs)
         if action == "get_logged_in_user_ratings":
-            return client.get_logged_in_user_ratings(**kwargs)
+            return await run_blocking(client.get_logged_in_user_ratings, **kwargs)
         if action == "get_logged_in_user_rating_for_recipe":
-            return client.get_logged_in_user_rating_for_recipe(**kwargs)
+            return await run_blocking(
+                client.get_logged_in_user_rating_for_recipe, **kwargs
+            )
         if action == "get_logged_in_user_favorites":
-            return client.get_logged_in_user_favorites(**kwargs)
+            return await run_blocking(client.get_logged_in_user_favorites, **kwargs)
         if action == "update_password":
-            return client.update_password(**kwargs)
+            return await run_blocking(client.update_password, **kwargs)
         if action == "update_user":
-            return client.update_user(**kwargs)
+            return await run_blocking(client.update_user, **kwargs)
         if action == "forgot_password":
-            return client.forgot_password(**kwargs)
+            return await run_blocking(client.forgot_password, **kwargs)
         if action == "reset_password":
-            return client.reset_password(**kwargs)
+            return await run_blocking(client.reset_password, **kwargs)
         if action == "update_user_image":
-            return client.update_user_image(**kwargs)
+            return await run_blocking(client.update_user_image, **kwargs)
         if action == "create":
-            return client.create(**kwargs)
+            return await run_blocking(client.create, **kwargs)
         if action == "delete":
-            return client.delete(**kwargs)
+            return await run_blocking(client.delete, **kwargs)
         if action == "get_ratings":
-            return client.get_ratings(**kwargs)
+            return await run_blocking(client.get_ratings, **kwargs)
         if action == "get_favorites":
-            return client.get_favorites(**kwargs)
+            return await run_blocking(client.get_favorites, **kwargs)
         if action == "set_rating":
-            return client.set_rating(**kwargs)
+            return await run_blocking(client.set_rating, **kwargs)
         if action == "add_favorite":
-            return client.add_favorite(**kwargs)
+            return await run_blocking(client.add_favorite, **kwargs)
         if action == "remove_favorite":
-            return client.remove_favorite(**kwargs)
+            return await run_blocking(client.remove_favorite, **kwargs)
         raise ValueError(f"Unknown action: {action}")

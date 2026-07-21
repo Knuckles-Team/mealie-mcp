@@ -256,7 +256,7 @@ This package also includes an A2A agent server that can be used to interact with
 | `--reload`        | Enable auto-reload                                             | `False`                  |
 | `--provider`      | LLM Provider (openai, anthropic, google, huggingface)          | `openai`                 |
 | `--model-id`      | LLM Model ID                                                   | `nvidia/nemotron-3-super`     |
-| `--base-url`      | LLM Base URL (for OpenAI compatible providers)                 | `http://ollama.arpa/v1`  |
+| `--base-url`      | LLM Base URL (for OpenAI compatible providers)                 | `http://ollama.example.invalid/v1`  |
 | `--api-key`       | LLM API Key                                                    | `ollama`                 |
 | `--mcp-url`       | MCP Server URL                                                 | `http://mealie-mcp:8000/mcp` |
 | `--allowed-tools` | List of allowed MCP tools                                      | `web_search`             |
@@ -300,7 +300,7 @@ The Mealie MCP server can be deployed using Docker, with configurable authentica
 #### Using Docker Run
 
 ```bash
-docker pull knucklessg1/mealie-mcp:latest
+docker pull example/mealie-mcp@sha256:<digest>
 
 docker run -d \
   --name mealie-mcp \
@@ -312,8 +312,7 @@ docker run -d \
   -e EUNOMIA_TYPE=none \
   -e MEALIE_BASE_URL=https://mealie.example.com \
   -e MEALIE_TOKEN=your-token \
-  -e MEALIE_SSL_VERIFY=true \
-  knucklessg1/mealie-mcp:latest
+  example/mealie-mcp@sha256:<digest>
 ```
 
 For advanced authentication (e.g., JWT, OAuth Proxy, OIDC Proxy, Remote OAuth) or Eunomia, add the relevant environment variables:
@@ -335,8 +334,7 @@ docker run -d \
   -e EUNOMIA_POLICY_FILE=/app/mcp_policies.json \
   -e MEALIE_BASE_URL=https://mealie.example.com \
   -e MEALIE_TOKEN=your-token \
-  -e MEALIE_SSL_VERIFY=true \
-  knucklessg1/mealie-mcp:latest
+  example/mealie-mcp@sha256:<digest>
 ```
 
 #### Using Docker Compose
@@ -346,7 +344,7 @@ Create a `docker-compose.yml` file:
 ```yaml
 services:
   mealie-mcp:
-    image: knucklessg1/mealie-mcp:latest
+    image: example/mealie-mcp@sha256:<digest>
     environment:
       - HOST=0.0.0.0
       - PORT=8004
@@ -355,7 +353,6 @@ services:
       - EUNOMIA_TYPE=none
       - MEALIE_BASE_URL=https://mealie.example.com
       - MEALIE_TOKEN=your-token
-      - MEALIE_SSL_VERIFY=true
     ports:
       - 8004:8004
 ```
@@ -365,7 +362,7 @@ For advanced setups with authentication and Eunomia:
 ```yaml
 services:
   mealie-mcp:
-    image: knucklessg1/mealie-mcp:latest
+    image: example/mealie-mcp@sha256:<digest>
     environment:
       - HOST=0.0.0.0
       - PORT=8004
@@ -380,7 +377,6 @@ services:
       - EUNOMIA_POLICY_FILE=/app/mcp_policies.json
       - MEALIE_BASE_URL=https://mealie.example.com
       - MEALIE_TOKEN=your-token
-      - MEALIE_SSL_VERIFY=true
     ports:
       - 8004:8004
     volumes:
@@ -408,8 +404,7 @@ docker-compose up -d
       ],
       "env": {
         "MEALIE_BASE_URL": "https://mealie.example.com",
-        "MEALIE_TOKEN": "your-token",
-        "MEALIE_SSL_VERIFY": "true"
+        "MEALIE_TOKEN": "your-token"
       },
       "timeout": 300000
     }
@@ -428,10 +423,10 @@ uv pip install mealie-mcp
 
 ## Repository Owners
 
-<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=Knucklessg1&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
 
-![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
-![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+![GitHub followers](https://img.shields.io/github/followers/example)
+![GitHub User's stars](https://img.shields.io/github/stars/example)
 
 
 ## MCP Configuration Examples

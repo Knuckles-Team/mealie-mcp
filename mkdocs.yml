@@ -46,3 +46,9 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Overview: overview.md
+  - Installation: installation.md
+  - Configuration, trust, and privacy: configuration.md
+  - Deployment: deployment.md
+  - Usage (MCP / API / CLI): usage.md
+  - Backing Platform (Mealie): platform.md
+  - Concepts: concepts.md

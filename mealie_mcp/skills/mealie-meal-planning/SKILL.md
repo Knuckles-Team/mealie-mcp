@@ -43,7 +43,7 @@ Connect via the `mcp-client` skill against the **`mealie-mcp`** MCP server.
 |----------|----------|-------|
 | `MEALIE_BASE_URL` | ✅ | Base URL of the Mealie instance |
 | `MEALIE_TOKEN` | ✅ | Long-lived API token; the token's user fixes the household |
-| `MEALIE_SSL_VERIFY` | optional | TLS verification toggle |
+| `MEALIE_TLS_PROFILE[_REF]` | optional | Runtime TLS profile for private PKI, mTLS, or proxy policy |
 
 `MCP_TOOL_MODE` (`condensed`|`verbose`|`both`) selects the condensed surface vs.
 the one-to-one verbose tools.

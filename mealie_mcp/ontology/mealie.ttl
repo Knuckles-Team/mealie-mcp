@@ -9,7 +9,7 @@
 # Mealie recipe-manager ontology — recipes, their ingredients (food + unit), the
 # organizer catalog (categories/tags/tools), meal plans, cookbooks and shopping lists.
 # All classes and properties live in the SHARED `:` (kg#) namespace; only the
-# owl:Ontology node gets the per-package IRI. Reuses the hub's :Person, :MediaAsset,
+# owl:Ontology node gets the per-package IRI. Reuses the hub's :Person, :AssetOccurrence,
 # :Blob and :Document — never redefined here. Backs the mealie-mcp condensed tool
 # surface (mealie_recipes / mealie_organizer / mealie_households / mealie_explore).
 
@@ -99,9 +99,9 @@
 
 :hasImage a owl:ObjectProperty ;
     rdfs:label "has image" ;
-    rdfs:comment "Links a Recipe to its stored :MediaAsset image blob." ;
+    rdfs:comment "Links a Recipe to its stored :AssetOccurrence image blob." ;
     rdfs:domain :Recipe ;
-    rdfs:range :MediaAsset .
+    rdfs:range :AssetOccurrence .
 
 :plansRecipe a owl:ObjectProperty ;
     rdfs:label "plans recipe" ;
@@ -173,5 +173,5 @@
     rdfs:comment """Mealie recipe-management model — recipes, ingredients (food + unit),
     the organizer catalog (categories, tags, tools), cookbooks, meal plans and shopping
     lists, plus recipe image blobs — federated into the agent-utilities knowledge-graph
-    hub. Reuses the shared :Person, :MediaAsset, :Blob and :Document classes.""" ;
+    hub. Reuses the shared :Person, :AssetOccurrence, :Blob and :Document classes.""" ;
     owl:imports <http://knuckles.team/kg> .

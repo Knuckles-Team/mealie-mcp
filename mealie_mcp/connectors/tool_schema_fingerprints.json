@@ -1,0 +1,8 @@
+{
+  "algorithm": "agent-utilities:mcp-tool-schema-compat:v1",
+  "connector": "mealie-mcp",
+  "schema_version": "1",
+  "tools": {
+    "mealie_recipes": "b1664d58fda025917a00a4642371f7699d000461c6e8dca01f7f2471aa0b1821"
+  }
+}

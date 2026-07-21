@@ -1,0 +1,20 @@
+schema_version: '1'
+connector: mealie-mcp
+ontology_source: mealie
+sync:
+- preset: mealie-recipes
+  server: mealie-mcp
+  tool: mealie_recipes
+  action: get_recipes
+  records_path: items
+  id_field: id
+  title_field: name
+  text_field: description
+  updated_field: updateAt
+  doc_type: recipe
+  tool_schema_sha256: b1664d58fda025917a00a4642371f7699d000461c6e8dca01f7f2471aa0b1821
+governance:
+  default_acl: quarantine
+  identity: opaque-reference
+  tenant: required-at-materialization
+  provenance: required-at-materialization

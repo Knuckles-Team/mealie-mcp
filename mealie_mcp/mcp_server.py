@@ -1,7 +1,9 @@
 #!/usr/bin/python
 import warnings
 
-from agent_utilities.mcp_utilities import load_config, resolve_action, run_blocking
+from agent_utilities.core.config import load_config
+from agent_utilities.mcp.action_dispatch import resolve_action
+from agent_utilities.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from fastmcp.utilities.logging import get_logger
@@ -24,7 +26,8 @@ import logging
 import sys
 from typing import Any
 
-from agent_utilities.mcp_utilities import create_mcp_server, register_tool_surface
+from agent_utilities.mcp.server_factory import create_mcp_server
+from agent_utilities.mcp.verbose_tools import register_tool_surface
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -64,8 +67,8 @@ def register_app_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -128,8 +131,8 @@ def register_users_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -276,8 +279,8 @@ def register_households_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -510,8 +513,8 @@ def register_groups_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -652,8 +655,8 @@ def register_recipes_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -844,8 +847,8 @@ def register_organizer_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -936,8 +939,8 @@ def register_shared_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1016,8 +1019,8 @@ def register_admin_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1137,8 +1140,8 @@ def register_explore_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1231,8 +1234,8 @@ def register_utils_tools(mcp: FastMCP):
 
         try:
             kwargs = json.loads(params_json)
-        except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1251,11 +1254,11 @@ def register_kg_tools(mcp: FastMCP):
     async def mealie_ingest_recipes(
         params_json: str = Field(
             default="{}",
-            description="JSON string of get_recipes filters (e.g. {\"per_page\": 100, \"categories\": \"Dinner\"}).",
+            description='JSON string of get_recipes filters (e.g. {"per_page": 100, "categories": "Dinner"}).',
         ),
         ingest_images: bool = Field(
             default=False,
-            description="Also fetch each recipe image and store it as a :MediaAsset blob.",
+            description="Also fetch each recipe image and store it as a :AssetOccurrence blob.",
         ),
         client=Depends(get_client),
         ctx: Context | None = Field(
@@ -1267,7 +1270,7 @@ def register_kg_tools(mcp: FastMCP):
         Lists recipes via the Mealie API and pushes them (with their :Ingredient,
         :Food, :Unit, :RecipeCategory, :Tag and :RecipeTool nodes + links) into the
         knowledge graph via the fast engine client. With ``ingest_images`` the raw
-        image bytes are stored as content-addressed :MediaAsset blobs. Best-effort:
+        image bytes are stored as content-addressed :AssetOccurrence blobs. Best-effort:
         returns ``{"ingested": None}`` when no engine is reachable.
         CONCEPT:AU-KG.ingest.enterprise-source-extractor.
         """
@@ -1280,8 +1283,8 @@ def register_kg_tools(mcp: FastMCP):
             ctx.info("Listing recipes for KG ingestion...")
         try:
             kwargs = _json.loads(params_json) if params_json else {}
-        except Exception as e:  # noqa: BLE001
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:  # noqa: BLE001
+            return {"error": "Operation failed"}
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resp = await run_blocking(client.get_recipes, **kwargs)

@@ -7,7 +7,7 @@
         "mealie-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
         "ADMINTOOL": "True",
         "APPTOOL": "True",
         "EXPLORETOOL": "True",

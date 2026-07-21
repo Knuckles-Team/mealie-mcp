@@ -3,7 +3,10 @@ from typing import Any
 from urllib.parse import urljoin
 
 import requests
-import urllib3
+from agent_utilities.core.transport_security import (
+    ResolvedTLSProfile,
+    resolve_configured_tls_profile,
+)
 
 
 class BaseApiClient:
@@ -11,20 +14,14 @@ class BaseApiClient:
         self,
         base_url: str | None,
         token: str | None = None,
-        verify: bool = False,
-        proxies: dict | None = None,
+        tls_profile: ResolvedTLSProfile | None = None,
         debug: bool = False,
     ):
         self.base_url = base_url
         self.token = token
-        self.verify = verify
-        self.proxies = proxies or {}
         self.debug = debug
-        self._session = requests.Session()
-        self._session.verify = verify
-
-        if not verify:
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        self.tls_profile = tls_profile or resolve_configured_tls_profile("mealie")
+        self._session = self.tls_profile.configure_requests_session(requests.Session())
 
         if token:
             self._session.headers.update({"Authorization": f"Bearer {token}"})
@@ -45,11 +42,10 @@ class BaseApiClient:
             params=params,
             json=data,
             files=files,
-            proxies=self.proxies,
         )
 
         if response.status_code >= 400:
-            raise Exception(f"API error: {response.status_code} - {response.text}")
+            raise Exception(f"API error: {response.status_code}")
 
         if response.status_code == 204:
             return {"status": "success"}
@@ -58,3 +54,8 @@ class BaseApiClient:
             return response.json()
         except Exception:
             return {"status": "success", "text": response.text}
+
+    def close(self) -> None:
+        """Release transport resources and runtime-only TLS material."""
+        self._session.close()
+        self.tls_profile.cleanup()

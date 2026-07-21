@@ -3,6 +3,7 @@
 > **Prefix**: `CONCEPT:MEAL-*`
 > **Version**: 0.15.0
 > **Bridge**: [`CONCEPT:AU-ECO.messaging.native-backend-abstraction`](../../agent-utilities/docs/concepts.md) (Unified Toolkit Ingestion)
+> **Bridge**: `CONCEPT:AU-ECO.messaging.native-backend-abstraction` in the Agent Utilities concept registry (Unified Toolkit Ingestion)
 
 ---
 

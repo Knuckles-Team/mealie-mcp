@@ -46,7 +46,7 @@ Connect via the `mcp-client` skill against the **`mealie-mcp`** MCP server.
 |----------|----------|-------|
 | `MEALIE_BASE_URL` | ✅ | Base URL of the Mealie instance |
 | `MEALIE_TOKEN` | ✅ | Long-lived API token (Settings → API Tokens) |
-| `MEALIE_SSL_VERIFY` | optional | TLS verification toggle (default off) |
+| `MEALIE_TLS_PROFILE[_REF]` | optional | Runtime TLS profile for private PKI, mTLS, or proxy policy |
 
 `MCP_TOOL_MODE` (`condensed`|`verbose`|`both`) selects the condensed surface (used
 below) vs. the one-to-one verbose tools.
@@ -94,7 +94,7 @@ Import a recipe from the web:
 
 ## Related
 - `mealie_ingest_recipes` pulls recipes into the knowledge graph as typed
-  `:Recipe`/`:Ingredient`/`:Food`/`:Unit` nodes (+ optional `:MediaAsset` image
+  `:Recipe`/`:Ingredient`/`:Food`/`:Unit` nodes (+ optional `:AssetOccurrence` image
   blobs); use it for ingestion, not for the browse/edit recipes above.
 - **Downstream:** `mealie-meal-planning` schedules these recipes;
   `mealie-organizer-catalog` maintains the categories/tags they are filed under.

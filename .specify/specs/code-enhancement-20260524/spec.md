@@ -46,7 +46,7 @@
 - **FR-028**: 3 tests have no assertions
 - **FR-029**: Only 25% of env vars documented in README.md
 - **FR-030**: Undocumented env vars: ADMINTOOL, APPTOOL, AUTH_TYPE, DEFAULT_AGENT_NAME, EUNOMIA_POLICY_FILE, EUNOMIA_TYPE, EXPLORETOOL, GROUPSTOOL, HOUSEHOLDSTOOL, MEALIE_BASE_URL
-- **FR-031**: 4 Python env vars not in .env.example: DEFAULT_AGENT_NAME, MEALIE_BASE_URL, MEALIE_SSL_VERIFY, MEALIE_TOKEN
+- **FR-031**: Runtime connection configuration must document DEFAULT_AGENT_NAME, MEALIE_BASE_URL, MEALIE_TOKEN, and the AgentConfig TLS profile references.
 - **FR-032**: Analysis error: No module named 'agent_utilities.knowledge_graph'
 
 ## Success Criteria

@@ -1,7 +1,7 @@
 """Native epistemic-graph blob ingestion for Mealie recipe images.
 
 CONCEPT:AU-KG.ingest.list-durable-media. A recipe's image is stored as a
-content-addressed **blob** with a ``:MediaAsset`` graph node (carrying the recipe id +
+content-addressed **blob** with a ``:AssetOccurrence`` graph node (carrying the recipe id +
 slug), in ONE cross-modal ACID commit, via the agent-utilities ``MediaStore`` obtained
 through the shared ``native_ingest.media_store`` primitive. This makes the raw image
 bytes — not just a URL — durable, deduped and queryable inside the knowledge graph.
@@ -34,14 +34,14 @@ def media_store() -> Any | None:
         if store is not None:
             return store
     except Exception as e:  # noqa: BLE001 — shared primitive absent, fall back
-        logger.debug("mealie KG media: shared primitive unavailable: %s", e)
+        logger.debug("Operation failed: error_type=%s", type(e).__name__)
     try:
         from agent_utilities.knowledge_graph.core.graph_compute import (
             GraphComputeEngine,
         )
         from agent_utilities.knowledge_graph.memory.media_store import MediaStore
     except Exception as e:  # noqa: BLE001 — KG stack absent
-        logger.debug("mealie KG media unavailable (import): %s", e)
+        logger.debug("Operation failed: error_type=%s", type(e).__name__)
         return None
     try:
         engine = GraphComputeEngine()
@@ -49,7 +49,7 @@ def media_store() -> Any | None:
             return None
         return MediaStore(engine)
     except Exception as e:  # noqa: BLE001 — engine unreachable
-        logger.debug("mealie KG media: engine unreachable: %s", e)
+        logger.debug("Operation failed: error_type=%s", type(e).__name__)
         return None
 
 
@@ -67,13 +67,15 @@ def fetch_recipe_image_bytes(
         if session is None:
             return None
         url = urljoin(base_url, f"/api/media/recipes/{recipe_id}/images/{file_name}")
-        resp = session.get(url, proxies=getattr(client, "proxies", None))
+        resp = session.get(url)
         if resp.status_code >= 400:
-            logger.debug("mealie KG media: image fetch %s -> %s", url, resp.status_code)
+            logger.debug(
+                "Mealie KG media fetch failed: status_code=%s", resp.status_code
+            )
             return None
         return resp.content
     except Exception as e:  # noqa: BLE001 — network/attr error is non-fatal
-        logger.debug("mealie KG media: image fetch failed: %s", e)
+        logger.debug("Mealie KG media fetch failed: error_type=%s", type(e).__name__)
         return None
 
 
@@ -85,7 +87,7 @@ def ingest_recipe_image(
     source: str = _SOURCE,
     store: Any | None = None,
 ) -> dict[str, Any] | None:
-    """Store a recipe image as a blob + ``:MediaAsset`` in the knowledge graph.
+    """Store a recipe image as a blob + ``:AssetOccurrence`` in the knowledge graph.
 
     Returns ``{asset_id, digest, size_bytes, recipe_node_id}`` on success, or ``None``
     when there is no engine, no bytes, or the store failed (never raises). ``store``
@@ -121,7 +123,7 @@ def ingest_recipe_image(
             extra=extra,
         )
     except Exception as e:  # noqa: BLE001 — engine/store failure is non-fatal
-        logger.warning("mealie KG media: store_media failed: %s", e)
+        logger.warning("Mealie KG media store failed: error_type=%s", type(e).__name__)
         return None
     if stored is None:
         return None

@@ -1,0 +1,6 @@
+{
+  "connector": "mealie-mcp",
+  "current_ontology_source": "mealie",
+  "migrations": [],
+  "schema_version": "1"
+}

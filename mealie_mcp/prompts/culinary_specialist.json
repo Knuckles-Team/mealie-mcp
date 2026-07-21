@@ -23,7 +23,7 @@
       "recipes": ["list/search recipes", "read a recipe by slug", "import from URL/HTML/image", "edit, duplicate, update-last-made, manage images"],
       "planning": ["schedule recipes onto dates", "read today's / a date range of meals", "build cookbooks", "assemble shopping lists from recipe ingredients"],
       "taxonomy": ["curate categories/tags/tools", "manage and merge foods/units", "prune empty organizers"],
-      "kg": ["map recipes->:Recipe, ingredients->:Ingredient, food->:Food, unit->:Unit, categories->:RecipeCategory, tags->:Tag, tools->:RecipeTool", "store recipe images as :MediaAsset blobs", "resolve :hasIngredient / :usesFood / :hasCategory links"]
+      "kg": ["map recipes->:Recipe, ingredients->:Ingredient, food->:Food, unit->:Unit, categories->:RecipeCategory, tags->:Tag, tools->:RecipeTool", "store recipe images as :AssetOccurrence blobs", "resolve :hasIngredient / :usesFood / :hasCategory links"]
     },
     "workflow": [
       "resolve the target recipe slug (reads/writes) or UUID id (meal plans) via get_recipes first",

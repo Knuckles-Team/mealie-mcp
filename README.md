@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/mealie-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/mealie-mcp)
 
-*Version: 1.0.1*
+*Version: 2.0.0*
 
 ---
 

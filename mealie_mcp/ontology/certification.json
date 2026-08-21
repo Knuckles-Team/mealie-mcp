@@ -1,8 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "a2a.json": "6462ba8da26e1d1d877003b0b61070660ef6b1c134c3cc38d48ff35f44c6d817",
-    "connector_manifest.yml": "0eecc6256f14bedb3962d15e19723ca721893f7f978ddfc77173102a17970461",
+    "connector_manifest.yml": "a58765cf6f35ffc5121184fa060576b9f5751592be0391f052e54326f30af36a",
     "mealie_mcp/connectors/mcp_source_presets.json": "586be2b0e51dc55478bd6a338ff1f4e9be57fa4db1e35db6cd03b86ff36347d4",
     "mealie_mcp/connectors/tool_schema_fingerprints.json": "5474316bf1f61deef034bd5ea1002e760f3b5b2f4d79c2484d0b4b91cd8f79d0",
     "mealie_mcp/ontology/fixtures/records.json": "469b13abf9a4758c8ef8e69956bae6c1775bcdeb6b4365be492b5b0f52efbb77",
@@ -19,19 +18,19 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.1.0,<3",
+    "agent_utilities": ">=2.4.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.23.0,<3"
+    "epistemic_graph": ">=2.26.0,<3"
   },
   "connector": "mealie-mcp",
   "kind": "ConnectorSourceAttestation",
   "live_certified": false,
   "mode": "offline-source",
   "schema_version": "2",
-  "signature": "wdouT_Z30b4r-r51XGfUxvqEm4u4fBsJtZ4N8e8vox-A26fM8KoEEr0Siw3kMXhUYf_MBveb-iQqa-iWWW-6Dw",
-  "signature_algorithm": "ed25519",
-  "signer": "ontology-manifest-generator",
-  "signing_public_key": "QkigdPNpcUU7x7NcSkwCsUXIQpaFncMQbYSoiSgI2SY",
+  "signature": null,
+  "signature_algorithm": "none",
+  "signer": "UNSIGNED-PREVIEW",
+  "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-07-31T04:00:00Z"
+  "validated_at": "2026-08-21T04:30:39Z"
 }

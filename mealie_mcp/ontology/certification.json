@@ -1,7 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "a58765cf6f35ffc5121184fa060576b9f5751592be0391f052e54326f30af36a",
+    "connector_manifest.yml": "f7a999220d817a43592df6cafb9be69d0233cc3b0c784a18dfae15f77f9b8b4c",
     "mealie_mcp/connectors/mcp_source_presets.json": "586be2b0e51dc55478bd6a338ff1f4e9be57fa4db1e35db6cd03b86ff36347d4",
     "mealie_mcp/connectors/tool_schema_fingerprints.json": "5474316bf1f61deef034bd5ea1002e760f3b5b2f4d79c2484d0b4b91cd8f79d0",
     "mealie_mcp/ontology/fixtures/records.json": "469b13abf9a4758c8ef8e69956bae6c1775bcdeb6b4365be492b5b0f52efbb77",
@@ -18,9 +18,9 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.4.0,<3",
+    "agent_utilities": ">=2.5.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.26.0,<3"
+    "epistemic_graph": ">=2.27.0,<3"
   },
   "connector": "mealie-mcp",
   "kind": "ConnectorSourceAttestation",
@@ -32,5 +32,5 @@
   "signer": "UNSIGNED-PREVIEW",
   "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-08-21T04:30:39Z"
+  "validated_at": "2026-08-26T13:42:55Z"
 }

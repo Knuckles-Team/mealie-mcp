@@ -53,7 +53,7 @@ def register_users_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie users operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:

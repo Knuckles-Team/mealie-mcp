@@ -51,7 +51,7 @@ def register_organizer_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie organizer operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:

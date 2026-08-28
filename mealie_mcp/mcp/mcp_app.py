@@ -33,7 +33,7 @@ def register_app_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie app operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:

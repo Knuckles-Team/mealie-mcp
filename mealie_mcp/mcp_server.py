@@ -22,6 +22,7 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
+import json
 import logging
 import sys
 from typing import Any
@@ -38,6 +39,32 @@ __version__ = "2.1.0"
 
 logger = get_logger(name="mealie-mcp")
 logger.setLevel(logging.INFO)
+
+
+def parse_params_kwargs(params_json: str) -> dict[str, Any]:
+    """Parse a tool's ``params_json`` into a kwargs dict, dropping ``None`` values.
+
+    BUG-CX-043: every tool used to do this inline as
+    ``try: kwargs = json.loads(params_json) except Exception: return
+    {"error": "Operation failed"}`` -- which swallows the real
+    ``JSONDecodeError`` message, AND the subsequent
+    ``kwargs.items()`` filter ran OUTSIDE that try block, so a
+    syntactically-valid-but-non-object payload (e.g. ``"[]"`` or ``"5"``)
+    crashed uncaught instead of returning an error. This raises ``ValueError``
+    with a real message for both cases so a single ``except ValueError``
+    at each call site can report it instead of masking or crashing.
+    """
+    if not params_json:
+        return {}
+    try:
+        parsed = json.loads(params_json)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid params_json: {e}") from e
+    if not isinstance(parsed, dict):
+        raise ValueError(
+            f"params_json must decode to a JSON object, got {type(parsed).__name__}"
+        )
+    return {k: v for k, v in parsed.items() if v is not None}
 
 
 VALID_APP_ACTIONS = (
@@ -63,14 +90,10 @@ def register_app_tools(mcp: FastMCP):
         """Manage mealie app operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_APP_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -127,14 +150,10 @@ def register_users_tools(mcp: FastMCP):
         """Manage mealie users operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_USERS_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -609,14 +628,10 @@ def register_households_tools(mcp: FastMCP):
         """Manage mealie households operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(
             action, VALID_HOUSEHOLDS_ACTIONS, service="mealie-mcp"
@@ -672,14 +687,10 @@ def register_groups_tools(mcp: FastMCP):
         """Manage mealie groups operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_GROUPS_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -1138,14 +1149,10 @@ def register_recipes_tools(mcp: FastMCP):
         """Manage mealie recipes operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_RECIPES_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -1199,14 +1206,10 @@ def register_organizer_tools(mcp: FastMCP):
         """Manage mealie organizer operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_ORGANIZER_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -1291,14 +1294,10 @@ def register_shared_tools(mcp: FastMCP):
         """Manage mealie shared operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_SHARED_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -1371,14 +1370,10 @@ def register_admin_tools(mcp: FastMCP):
         """Manage mealie admin operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_ADMIN_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -1492,14 +1487,10 @@ def register_explore_tools(mcp: FastMCP):
         """Manage mealie explore operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_EXPLORE_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -1586,14 +1577,10 @@ def register_utils_tools(mcp: FastMCP):
         """Manage mealie utils operations."""
         if ctx:
             await ctx.info("Executing tool...")
-        import json
-
         try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resolved = resolve_action(action, VALID_UTILS_ACTIONS, service="mealie-mcp")
         if isinstance(resolved, dict):
@@ -1630,18 +1617,15 @@ def register_kg_tools(mcp: FastMCP):
         returns ``{"ingested": None}`` when no engine is reachable.
         CONCEPT:AU-KG.ingest.enterprise-source-extractor.
         """
-        import json as _json
-
         from mealie_mcp.kg_ingest import ingest_recipes
         from mealie_mcp.kg_media import fetch_recipe_image_bytes, ingest_recipe_image
 
         if ctx:
             await ctx.info("Listing recipes for KG ingestion...")
         try:
-            kwargs = _json.loads(params_json) if params_json else {}
-        except Exception:  # noqa: BLE001
-            return {"error": "Operation failed"}
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+            kwargs = parse_params_kwargs(params_json)
+        except ValueError as e:
+            return {"error": str(e)}
 
         resp = await run_blocking(client.get_recipes, **kwargs)
         data = resp.get("items", resp) if isinstance(resp, dict) else resp

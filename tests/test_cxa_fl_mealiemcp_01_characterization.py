@@ -25,11 +25,17 @@ refactor and are separately written up as BUGS FOUND in
      raising "coroutine was never awaited". All four targets now call
      ``await ctx.info(...)``; see ``test_ctx_info_is_called_and_awaited``
      below.
-  2. A JSON payload that decodes to something other than a dict (e.g. a JSON
-     array or a bare number) crashes with an uncaught ``AttributeError`` from
-     ``kwargs.items()`` — the ``try/except`` only wraps ``json.loads``, not
-     the ``.items()`` call, so this is not turned into a graceful error
-     response.
+  2. (FIXED under BUG-CX-043, lane WD10-B-SMALL, live ``mcp_server.py``
+     only) A JSON payload that decodes to something other than a dict (e.g. a
+     JSON array or a bare number) used to crash with an uncaught
+     ``AttributeError`` from ``kwargs.items()`` — the ``try/except`` only
+     wrapped ``json.loads``, not the ``.items()`` call. Both server targets
+     now route through the shared ``parse_params_kwargs`` helper, which
+     validates the decoded type and surfaces the real ``JSONDecodeError``
+     message instead of a generic "Operation failed". The orphaned
+     ``mealie_mcp/mcp/`` mirror (BUG-CX-044 hold-for-human-decision list) is
+     intentionally left unfixed — see the ``_mirror`` variants of these
+     tests below.
   3. An explicit JSON ``null`` value for any params_json key is silently
      stripped before being forwarded to the underlying client method.
 
@@ -60,13 +66,16 @@ from mealie_mcp.mcp.mcp_recipes import (
     register_recipes_tools as mirror_register_recipes_tools,
 )
 
-TARGETS = [
+SERVER_TARGETS = [
     pytest.param(
         server_register_households_tools, SERVER_HOUSEHOLDS_ACTIONS, id="server_households"
     ),
     pytest.param(
         server_register_recipes_tools, SERVER_RECIPES_ACTIONS, id="server_recipes"
     ),
+]
+
+MIRROR_TARGETS = [
     pytest.param(
         mirror_register_households_tools, MIRROR_HOUSEHOLDS_ACTIONS, id="mirror_households"
     ),
@@ -74,6 +83,8 @@ TARGETS = [
         mirror_register_recipes_tools, MIRROR_RECIPES_ACTIONS, id="mirror_recipes"
     ),
 ]
+
+TARGETS = SERVER_TARGETS + MIRROR_TARGETS
 
 
 class _CaptureMCP:
@@ -149,11 +160,34 @@ def test_unknown_action_raises_resolve_actions_rich_error(register_fn, actions):
     mock_client.assert_not_called()
 
 
-@pytest.mark.parametrize("register_fn,actions", TARGETS)
-def test_invalid_json_returns_generic_error_and_swallows_cause(register_fn, actions):
-    """BUG (pinned, not fixed in this lane): the real json.JSONDecodeError is
-    discarded and replaced with a generic message. See BUGS FOUND in the lane
-    report."""
+@pytest.mark.parametrize("register_fn,actions", SERVER_TARGETS)
+def test_invalid_json_reports_the_real_parse_error(register_fn, actions):
+    """BUG-CX-043 (fixed, live ``mealie_mcp/mcp_server.py`` only): the real
+    ``json.JSONDecodeError`` used to be discarded and replaced with a generic
+    "Operation failed" message via ``parse_params_kwargs``'s shared helper.
+    It is now surfaced verbatim. See lane report WD10-B-SMALL."""
+    fn = _register(register_fn)
+    mock_client = MagicMock()
+    result = asyncio.run(
+        fn(
+            action=actions[0],
+            params_json="{not-json",
+            client=mock_client,
+            ctx=None,
+        )
+    )
+    assert result != {"error": "Operation failed"}
+    assert result["error"].startswith("Invalid params_json:")
+    mock_client.assert_not_called()
+
+
+@pytest.mark.parametrize("register_fn,actions", MIRROR_TARGETS)
+def test_invalid_json_returns_generic_error_and_swallows_cause_mirror(register_fn, actions):
+    """BUG (pinned, NOT fixed in this lane): the ``mealie_mcp/mcp/`` mirror is
+    orphaned dead code on the BUG-CX-044 hold-for-human-decision list (never
+    imported by the live entry point) and is intentionally left unchanged --
+    only the live ``mcp_server.py`` path was fixed under BUG-CX-043. See lane
+    report WD10-B-SMALL."""
     fn = _register(register_fn)
     mock_client = MagicMock()
     result = asyncio.run(
@@ -168,12 +202,33 @@ def test_invalid_json_returns_generic_error_and_swallows_cause(register_fn, acti
     mock_client.assert_not_called()
 
 
-@pytest.mark.parametrize("register_fn,actions", TARGETS)
-def test_non_object_json_crashes_uncaught(register_fn, actions):
-    """BUG (pinned, not fixed in this lane): a JSON array (or any non-dict
-    JSON value) is NOT rejected gracefully — ``kwargs.items()`` is called
-    outside the try/except that wraps ``json.loads``, so this raises a raw
-    AttributeError straight out of the tool function. See BUGS FOUND."""
+@pytest.mark.parametrize("register_fn,actions", SERVER_TARGETS)
+def test_non_object_json_returns_a_graceful_error(register_fn, actions):
+    """BUG-CX-043 (fixed, live ``mealie_mcp/mcp_server.py`` only): a JSON
+    array (or any non-dict JSON value) used to crash with an uncaught
+    ``AttributeError`` from ``kwargs.items()`` because the filter ran outside
+    the ``try`` that wrapped ``json.loads``. ``parse_params_kwargs`` now
+    validates the decoded type and returns a graceful error instead."""
+    fn = _register(register_fn)
+    mock_client = MagicMock()
+    result = asyncio.run(
+        fn(
+            action=actions[0],
+            params_json="[1, 2, 3]",
+            client=mock_client,
+            ctx=None,
+        )
+    )
+    assert "must decode to a JSON object" in result["error"]
+    mock_client.assert_not_called()
+
+
+@pytest.mark.parametrize("register_fn,actions", MIRROR_TARGETS)
+def test_non_object_json_crashes_uncaught_mirror(register_fn, actions):
+    """BUG (pinned, NOT fixed in this lane): same orphaned-mirror scope note
+    as ``test_invalid_json_returns_generic_error_and_swallows_cause_mirror``
+    -- ``kwargs.items()`` still runs outside the try/except in the dead
+    ``mealie_mcp/mcp/`` copy and still raises a raw ``AttributeError``."""
     fn = _register(register_fn)
     mock_client = MagicMock()
     with pytest.raises(AttributeError, match="items"):

@@ -18,10 +18,13 @@ These pin several systemic behaviors that are preserved (NOT fixed) by the
 refactor and are separately written up as BUGS FOUND in
 ``plans/complex/lane-reports/CXA-FL-MEALIEMCP-01.md``:
 
-  1. ``ctx.info("Executing tool...")`` is called but never awaited —
-     ``fastmcp.Context.info`` is a coroutine function, so this line creates a
-     coroutine object that is immediately discarded. Progress reporting is a
-     silent no-op and Python raises "coroutine was never awaited".
+  1. (FIXED under BUG-CX-046, lane WD9-BUG-FLEET) ``ctx.info("Executing
+     tool...")`` used to be called but never awaited — ``fastmcp.Context.info``
+     is a coroutine function, so the bare call created a coroutine object that
+     was immediately discarded, silently no-oping progress reporting and
+     raising "coroutine was never awaited". All four targets now call
+     ``await ctx.info(...)``; see ``test_ctx_info_is_called_and_awaited``
+     below.
   2. A JSON payload that decodes to something other than a dict (e.g. a JSON
      array or a bare number) crashes with an uncaught ``AttributeError`` from
      ``kwargs.items()`` — the ``try/except`` only wraps ``json.loads``, not
@@ -195,12 +198,12 @@ def test_empty_params_json_defaults_to_empty_kwargs(register_fn, actions):
 
 
 @pytest.mark.parametrize("register_fn,actions", TARGETS)
-def test_ctx_info_is_called_but_never_awaited(register_fn, actions):
-    """BUG (pinned, not fixed in this lane): ``ctx.info(...)`` is a coroutine
-    function (fastmcp.Context.info is async) but is invoked without
-    ``await``. The call happens (the mock records it) but the coroutine is
-    never awaited, so it never actually runs, and Python emits
-    "coroutine was never awaited". See BUGS FOUND."""
+def test_ctx_info_is_called_and_awaited(register_fn, actions):
+    """FIXED under BUG-CX-046 (lane WD9-BUG-FLEET): ``ctx.info(...)`` is a
+    coroutine function (fastmcp.Context.info is async) and must be awaited.
+    Previously the bare (un-awaited) call still recorded on the mock but
+    never actually ran, and Python emitted "coroutine was never awaited".
+    Now it is awaited exactly once and no such warning fires."""
     fn = _register(register_fn)
     mock_client = MagicMock()
     ctx = AsyncMock()
@@ -208,12 +211,11 @@ def test_ctx_info_is_called_but_never_awaited(register_fn, actions):
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
         asyncio.run(fn(action=action, params_json="{}", client=mock_client, ctx=ctx))
-    assert ctx.info.called, "ctx.info(...) should still be invoked (call happens)"
-    assert ctx.info.await_count == 0, "ctx.info(...) is never actually awaited"
-    assert any(
+    assert ctx.info.await_count == 1, "ctx.info(...) must be awaited exactly once"
+    assert not any(
         issubclass(w.category, RuntimeWarning) and "never awaited" in str(w.message)
         for w in caught
-    ), "expected a 'coroutine ... was never awaited' RuntimeWarning"
+    ), "ctx.info(...) coroutine must not be left un-awaited"
 
 
 @pytest.mark.parametrize("register_fn,actions", TARGETS)

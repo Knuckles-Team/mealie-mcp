@@ -419,7 +419,7 @@ def register_recipes_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie recipes operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:

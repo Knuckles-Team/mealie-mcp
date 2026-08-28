@@ -51,7 +51,7 @@ def register_groups_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie groups operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:

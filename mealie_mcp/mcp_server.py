@@ -62,7 +62,7 @@ def register_app_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie app operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -126,7 +126,7 @@ def register_users_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie users operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -608,7 +608,7 @@ def register_households_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie households operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -671,7 +671,7 @@ def register_groups_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie groups operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -1137,7 +1137,7 @@ def register_recipes_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie recipes operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -1198,7 +1198,7 @@ def register_organizer_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie organizer operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -1290,7 +1290,7 @@ def register_shared_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie shared operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -1370,7 +1370,7 @@ def register_admin_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie admin operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -1491,7 +1491,7 @@ def register_explore_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie explore operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -1585,7 +1585,7 @@ def register_utils_tools(mcp: FastMCP):
     ) -> dict:
         """Manage mealie utils operations."""
         if ctx:
-            ctx.info("Executing tool...")
+            await ctx.info("Executing tool...")
         import json
 
         try:
@@ -1636,7 +1636,7 @@ def register_kg_tools(mcp: FastMCP):
         from mealie_mcp.kg_media import fetch_recipe_image_bytes, ingest_recipe_image
 
         if ctx:
-            ctx.info("Listing recipes for KG ingestion...")
+            await ctx.info("Listing recipes for KG ingestion...")
         try:
             kwargs = _json.loads(params_json) if params_json else {}
         except Exception:  # noqa: BLE001

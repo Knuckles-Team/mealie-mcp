@@ -66,44 +66,4 @@ def register_groups_tools(mcp: FastMCP):
             return resolved
         action = resolved
 
-        if action == "get_all_households":
-            return await run_blocking(client.get_all_households, **kwargs)
-        if action == "get_one_household":
-            return await run_blocking(client.get_one_household, **kwargs)
-        if action == "get_logged_in_user_group":
-            return await run_blocking(client.get_logged_in_user_group, **kwargs)
-        if action == "get_group_members":
-            return await run_blocking(client.get_group_members, **kwargs)
-        if action == "get_group_member":
-            return await run_blocking(client.get_group_member, **kwargs)
-        if action == "get_group_preferences":
-            return await run_blocking(client.get_group_preferences, **kwargs)
-        if action == "update_group_preferences":
-            return await run_blocking(client.update_group_preferences, **kwargs)
-        if action == "get_storage":
-            return await run_blocking(client.get_storage, **kwargs)
-        if action == "start_data_migration":
-            return await run_blocking(client.start_data_migration, **kwargs)
-        if action == "get_groups_reports":
-            return await run_blocking(client.get_groups_reports, **kwargs)
-        if action == "get_groups_reports_item_id":
-            return await run_blocking(client.get_groups_reports_item_id, **kwargs)
-        if action == "delete_groups_reports_item_id":
-            return await run_blocking(client.delete_groups_reports_item_id, **kwargs)
-        if action == "get_groups_labels":
-            return await run_blocking(client.get_groups_labels, **kwargs)
-        if action == "post_groups_labels":
-            return await run_blocking(client.post_groups_labels, **kwargs)
-        if action == "get_groups_labels_item_id":
-            return await run_blocking(client.get_groups_labels_item_id, **kwargs)
-        if action == "put_groups_labels_item_id":
-            return await run_blocking(client.put_groups_labels_item_id, **kwargs)
-        if action == "delete_groups_labels_item_id":
-            return await run_blocking(client.delete_groups_labels_item_id, **kwargs)
-        if action == "seed_foods":
-            return await run_blocking(client.seed_foods, **kwargs)
-        if action == "seed_labels":
-            return await run_blocking(client.seed_labels, **kwargs)
-        if action == "seed_units":
-            return await run_blocking(client.seed_units, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
+        return await run_blocking(getattr(client, action), **kwargs)

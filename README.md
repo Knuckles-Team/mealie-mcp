@@ -383,6 +383,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "EXPLORETOOL": "True",
         "GROUPSTOOL": "True",
         "HOUSEHOLDSTOOL": "True",
+        "KGTOOL": "True",
         "MEALIE_BASE_URL": "http://localhost:8025",
         "MEALIE_TOKEN": "your_token_here",
         "ORGANIZERTOOL": "True",
@@ -426,6 +427,7 @@ own runtime secret boundary.
         "EXPLORETOOL": "True",
         "GROUPSTOOL": "True",
         "HOUSEHOLDSTOOL": "True",
+        "KGTOOL": "True",
         "MEALIE_BASE_URL": "http://localhost:8025",
         "MEALIE_TOKEN": "your_token_here",
         "ORGANIZERTOOL": "True",
@@ -468,6 +470,7 @@ docker run -i --rm \
   -e EXPLORETOOL=True \
   -e GROUPSTOOL=True \
   -e HOUSEHOLDSTOOL=True \
+  -e KGTOOL=True \
   -e MEALIE_BASE_URL=http://localhost:8025 \
   -e MEALIE_TOKEN=your_token_here \
   -e ORGANIZERTOOL=True \
@@ -621,8 +624,8 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `TRANSPORT` | `stdio` | options: stdio, streamable-http, sse |
 | `ENABLE_OTEL` | `True` |  |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:8080/api/public/otel` |  |
-| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` | secret-injected |  |
-| `OTEL_EXPORTER_OTLP_SECRET_KEY` | secret-injected |  |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY_REF` | `secret://runtime/otel-public-key` |  |
+| `OTEL_EXPORTER_OTLP_SECRET_KEY_REF` | `secret://runtime/otel-secret-key` |  |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` |  |
 | `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
@@ -641,6 +644,9 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `ADMINTOOL` | `True` |  |
 | `EXPLORETOOL` | `True` |  |
 | `UTILSTOOL` | `True` |  |
+| `KGTOOL` | `True` |  |
+| `MEALIE_MCP_MCP_IMAGE` | — | e.g. registry.example.invalid/mealie-mcp@sha256:<digest> |
+| `MEALIE_MCP_AGENT_IMAGE` | — | e.g. registry.example.invalid/mealie-mcp@sha256:<digest> |
 
 #### Inherited agent-utilities variables (apply to every connector)
 
@@ -659,11 +665,11 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `DEBUG` | `False` | Verbose logging |
 | `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
 | `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
-| `PROVIDER` | `openai` | LLM provider for the agent |
-| `MODEL_ID` | `gpt-4o` | Model id for the agent |
+| `PROVIDER` | — | Operator-configured LLM provider for the agent |
+| `MODEL_ID` | — | Operator-configured model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_25 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_28 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 
@@ -743,15 +749,15 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
 | `knucklessg1/mealie-mcp:mcp` | `--target mcp` | `mealie-mcp[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `mealie-mcp` |
-| `knucklessg1/mealie-mcp:latest` | `--target agent` (default) | `mealie-mcp[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `mealie-agent` |
+| `knucklessg1/mealie-mcp@sha256:<digest>` (agent build) | `--target agent` (default) | `mealie-mcp[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `mealie-agent` |
 
 ```bash
-docker build --target mcp   -t knucklessg1/mealie-mcp:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t knucklessg1/mealie-mcp:latest docker/   # agent runtime
+docker build --target mcp   -t knucklessg1/mealie-mcp:mcp   docker/   # connector-focused MCP server
+docker build --target agent -t knucklessg1/mealie-mcp:local docker/   # agent runtime (local build; publish/pin a digest via your release process)
 ```
 
 `docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
-agent (`:latest`) with a co-located `:mcp` sidecar. Both compose files require an explicit
+agent (default build) with a co-located `:mcp` sidecar. Both compose files require an explicit
 `@sha256` digest-pinned image, plus a read-only root filesystem, dropped capabilities, and a
 non-root user — resolve the digest for the tag you built/pulled rather than deploying a floating tag.
 

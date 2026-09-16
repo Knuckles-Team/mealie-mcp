@@ -102,7 +102,7 @@ services:
     volumes: ["mealie-data:/app/data/"]
 
   mealie-mcp:
-    image: knucklessg1/mealie-mcp:latest
+    image: knucklessg1/mealie-mcp@sha256:<digest>  # resolve via `docker manifest inspect knucklessg1/mealie-mcp:mcp` or your release process
     depends_on: [mealie]
     environment:
       - MEALIE_BASE_URL=http://mealie:9000

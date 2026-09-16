@@ -6,16 +6,17 @@
 #                              (agent-utilities[agent-runtime]: pydantic-ai + skills;
 #                              the full epistemic-graph engine is a base dependency).
 #                              The provider's [agent] also includes [mcp], so this image
-#                              can run EITHER the agent OR the mcp server. Push as the
-#                              default tags: latest / main / <version>.
+#                              can run EITHER the agent OR the mcp server. Published
+#                              under the branch/commit tags your release pipeline
+#                              emits; deploy by digest, never by a moving branch tag.
 #
 #   --target mcp               installs mealie-mcp[mcp]   = MCP-server tooling ONLY
 #                              (agent-utilities[mcp]: FastMCP/FastAPI plus the mandatory
 #                              full epistemic-graph base runtime). It omits the optional
 #                              provider agent/frontends. Push as the :mcp / :mcp-<version> tag.
 #
-#   docker build --target agent -t mealie-mcp:latest .
-#   docker build --target mcp   -t mealie-mcp:mcp    .
+#   docker build --target agent -t mealie-mcp:local .
+#   docker build --target mcp   -t mealie-mcp:mcp   .
 FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS builder-base
 COPY --from=ghcr.io/astral-sh/uv:0.11.7@sha256:240fb85ab0f263ef12f492d8476aa3a2e4e1e333f7d67fbdd923d00a506a516a /uv /uvx /bin/
 ENV UV_COMPILE_BYTECODE=1 \

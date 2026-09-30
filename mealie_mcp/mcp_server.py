@@ -33,6 +33,9 @@ from starlette.responses import JSONResponse
 
 from mealie_mcp.api_client import Api
 from mealie_mcp.auth import get_client
+from mealie_mcp.recipe_tools import (
+    add_recipe_write_tools as _add_recipe_write_tools,
+)
 
 __version__ = "2.1.0"
 
@@ -1122,6 +1125,8 @@ _RECIPES_ACTION_HANDLERS = {
 
 
 def register_recipes_tools(mcp: FastMCP):
+    _add_recipe_write_tools(mcp)
+
     @mcp.tool(tags={"recipes"})
     async def mealie_recipes(
         action: str = Field(

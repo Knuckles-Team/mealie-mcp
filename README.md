@@ -68,6 +68,13 @@ This server utilizes dynamic Action-Routed tools to optimize token overhead and 
 | `mealie_households` | `HOUSEHOLDSTOOL` | Manage mealie households operations. |
 | `mealie_ingest_recipes` | `KGTOOL` | Natively ingest Mealie recipes into epistemic-graph as typed :Recipe nodes. |
 | `mealie_organizer` | `ORGANIZERTOOL` | Manage mealie organizer operations. |
+| `mealie_recipe_create` | `RECIPESTOOL` | Create a recipe with {name}; returns its slug. Then use mealie_recipe_update |
+| `mealie_recipe_food_create` | `RECIPESTOOL` | Create a food record for recipe ingredients; look up existing foods first. |
+| `mealie_recipe_foods` | `RECIPESTOOL` | Find existing food records by name; use the returned records in ingredient food. |
+| `mealie_recipe_patch` | `RECIPESTOOL` | Patch only supplied recipe fields via native PATCH. Lists such as |
+| `mealie_recipe_unit_create` | `RECIPESTOOL` | Create a unit record for recipe ingredients; look up existing units first. |
+| `mealie_recipe_units` | `RECIPESTOOL` | Find existing unit records by name; use the returned records in ingredient unit. |
+| `mealie_recipe_update` | `RECIPESTOOL` | Replace a recipe via native PUT. Fetch the current recipe first, preserve |
 | `mealie_recipes` | `RECIPESTOOL` | Manage mealie recipes operations. |
 | `mealie_shared` | `SHAREDTOOL` | Manage mealie shared operations. |
 | `mealie_users` | `USERSTOOL` | Manage mealie users operations. |
@@ -329,7 +336,7 @@ This server utilizes dynamic Action-Routed tools to optimize token overhead and 
 
 </details>
 
-_11 action-routed tool(s) · 246 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_18 action-routed tool(s) · 246 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/usage.md](docs/usage.md).
@@ -830,3 +837,40 @@ and observability policy are deployment inputs and are never packaged values.
 See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
 network transport, connector ingestion, GraphOS delegation, or trace export.
 <!-- GOVERNED-CAPABILITY:END -->
+
+### Typed recipe writes
+
+The recipes domain also provides `mealie_recipe_create`, `mealie_recipe_update`,
+`mealie_recipe_patch`, `mealie_recipe_foods`, `mealie_recipe_units`,
+`mealie_recipe_food_create` and `mealie_recipe_unit_create`. These accept JSON
+objects with discoverable nested schemas. They follow the existing recipes tool
+visibility policy: directly available in condensed/both mode, and available
+through granular tool loading when the shared intent surface gates the domain.
+The existing `mealie_recipes(action, params_json)` remains compatible.
+
+Creation uses Mealie's native two-stage workflow:
+
+1. Call `mealie_recipe_create` with `{"data":{"name":"Vegetable soup"}}`.
+   This makes one POST and returns the recipe slug.
+2. Use that slug with `mealie_recipe_patch`, for example:
+
+   ```json
+   {
+     "slug": "vegetable-soup",
+     "data": {
+       "recipeIngredient": [
+         {"quantity": 2, "food": {"name": "carrot"}, "unit": {"name": "cup"},
+          "title": "Soup", "note": "diced"}
+       ]
+     }
+   }
+   ```
+
+Search foods/units before creating records; pass existing returned objects or
+create-record objects into ingredients, rather than bare IDs. Ingredient `title`
+is a **section heading**, not ingredient text. PATCH sends only supplied fields
+and preserves explicit nulls; ingredient lists are replaced as a whole. For PUT,
+fetch the current recipe via `mealie_recipes` action `get_recipes_slug` and edit
+that full body, since omitted fields can reset on the server. The typed surface
+rejects malformed nested data before an API call. Server business rules still
+apply. See [schema provenance and regeneration](schemas/README.md).

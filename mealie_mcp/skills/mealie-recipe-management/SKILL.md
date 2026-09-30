@@ -51,6 +51,19 @@ Connect via the `mcp-client` skill against the **`mealie-mcp`** MCP server.
 `MCP_TOOL_MODE` (`condensed`|`verbose`|`both`) selects the condensed surface (used
 below) vs. the one-to-one verbose tools.
 
+## Typed native writes
+For structured writes, prefer `mealie_recipe_create`, `mealie_recipe_update` and
+`mealie_recipe_patch`: their `data` argument is a JSON object with nested schema
+validation. Create with `{"data":{"name":"Soup"}}`, then populate the returned
+slug using update/patch. Creation performs only the native initial POST.
+Ingredient `title` is a section heading; food/unit accept record objects, not bare
+IDs. Find existing records with `mealie_recipe_foods` / `mealie_recipe_units`, or
+create them with `mealie_recipe_food_create` / `mealie_recipe_unit_create`.
+PATCH preserves omitted fields and explicit nulls; supply complete replacement
+ingredient lists. Fetch the existing recipe before PUT. These tools share the
+recipes visibility policy and can be loaded on demand in intent mode.
+The legacy action tool below remains available.
+
 ## Tools & actions
 Prefer the **condensed** tool; it takes `action` + a `params_json` **JSON string**
 whose keys are passed straight to the client method.

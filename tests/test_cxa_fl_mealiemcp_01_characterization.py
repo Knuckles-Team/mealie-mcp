@@ -93,8 +93,9 @@ class _CaptureMCP:
 def _register(register_fn):
     cap = _CaptureMCP()
     register_fn(cap)
-    assert len(cap.fns) == 1, "expected exactly one tool registered"
-    return cap.fns[0]
+    legacy = [fn for fn in cap.fns if fn.__name__ in {"mealie_recipes", "mealie_households"}]
+    assert len(legacy) == 1, "expected exactly one legacy action tool registered"
+    return legacy[0]
 
 
 @pytest.mark.parametrize("register_fn,actions", TARGETS)

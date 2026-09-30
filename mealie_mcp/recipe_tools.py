@@ -5,8 +5,9 @@ from typing import Annotated, Any
 from agent_utilities.mcp.concurrency import run_blocking
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
-from pydantic import BaseModel, Field
+from pydantic import AfterValidator, BaseModel, Field
 
+from mealie_mcp.api.path_parameters import validate_recipe_slug
 from mealie_mcp.auth import get_client
 from mealie_mcp.recipe_models import (
     CreateIngredientFood,
@@ -16,7 +17,12 @@ from mealie_mcp.recipe_models import (
 )
 
 Slug = Annotated[
-    str, Field(min_length=1, description="Recipe slug returned by creation or lookup.")
+    str,
+    Field(
+        min_length=1,
+        description="Recipe slug returned by creation or lookup; a single safe URL path segment.",
+    ),
+    AfterValidator(validate_recipe_slug),
 ]
 
 

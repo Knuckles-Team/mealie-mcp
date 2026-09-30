@@ -2,6 +2,7 @@
 from typing import Any
 
 from mealie_mcp.api.api_client_base import BaseApiClient
+from mealie_mcp.api.path_parameters import recipe_slug_segment
 
 
 class Api(BaseApiClient):
@@ -20,7 +21,10 @@ class Api(BaseApiClient):
         if template_name is not None:
             params["template_name"] = template_name
         return self.request(
-            "GET", f"/api/recipes/{slug}/exports", params=params, data=None
+            "GET",
+            f"/api/recipes/{recipe_slug_segment(slug)}/exports",
+            params=params,
+            data=None,
         )
 
     def test_parse_recipe_url(
@@ -200,26 +204,40 @@ class Api(BaseApiClient):
     def get_recipes_slug(self, slug: str, accept_language: Any | None = None) -> Any:
         """Get One"""
         params = None
-        return self.request("GET", f"/api/recipes/{slug}", params=params, data=None)
+        return self.request(
+            "GET", f"/api/recipes/{recipe_slug_segment(slug)}", params=params, data=None
+        )
 
     def put_recipes_slug(
         self, slug: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Update One"""
         params = None
-        return self.request("PUT", f"/api/recipes/{slug}", params=params, data=data)
+        return self.request(
+            "PUT", f"/api/recipes/{recipe_slug_segment(slug)}", params=params, data=data
+        )
 
     def patch_one(
         self, slug: str, data: dict, accept_language: Any | None = None
     ) -> Any:
         """Patch One"""
         params = None
-        return self.request("PATCH", f"/api/recipes/{slug}", params=params, data=data)
+        return self.request(
+            "PATCH",
+            f"/api/recipes/{recipe_slug_segment(slug)}",
+            params=params,
+            data=data,
+        )
 
     def delete_recipes_slug(self, slug: str, accept_language: Any | None = None) -> Any:
         """Delete One"""
         params = None
-        return self.request("DELETE", f"/api/recipes/{slug}", params=params, data=None)
+        return self.request(
+            "DELETE",
+            f"/api/recipes/{recipe_slug_segment(slug)}",
+            params=params,
+            data=None,
+        )
 
     def duplicate_one(
         self, slug: str, data: dict, accept_language: Any | None = None
@@ -227,7 +245,10 @@ class Api(BaseApiClient):
         """Duplicate One"""
         params = None
         return self.request(
-            "POST", f"/api/recipes/{slug}/duplicate", params=params, data=data
+            "POST",
+            f"/api/recipes/{recipe_slug_segment(slug)}/duplicate",
+            params=params,
+            data=data,
         )
 
     def update_last_made(
@@ -236,7 +257,10 @@ class Api(BaseApiClient):
         """Update Last Made"""
         params = None
         return self.request(
-            "PATCH", f"/api/recipes/{slug}/last-made", params=params, data=data
+            "PATCH",
+            f"/api/recipes/{recipe_slug_segment(slug)}/last-made",
+            params=params,
+            data=data,
         )
 
     def scrape_image_url(
@@ -245,7 +269,10 @@ class Api(BaseApiClient):
         """Scrape Image Url"""
         params = None
         return self.request(
-            "POST", f"/api/recipes/{slug}/image", params=params, data=data
+            "POST",
+            f"/api/recipes/{recipe_slug_segment(slug)}/image",
+            params=params,
+            data=data,
         )
 
     def update_recipe_image(
@@ -254,14 +281,20 @@ class Api(BaseApiClient):
         """Update Recipe Image"""
         params = None
         return self.request(
-            "PUT", f"/api/recipes/{slug}/image", params=params, data=data
+            "PUT",
+            f"/api/recipes/{recipe_slug_segment(slug)}/image",
+            params=params,
+            data=data,
         )
 
     def delete_recipe_image(self, slug: str, accept_language: Any | None = None) -> Any:
         """Delete Recipe Image"""
         params = None
         return self.request(
-            "DELETE", f"/api/recipes/{slug}/image", params=params, data=None
+            "DELETE",
+            f"/api/recipes/{recipe_slug_segment(slug)}/image",
+            params=params,
+            data=None,
         )
 
     def upload_recipe_asset(
@@ -270,14 +303,20 @@ class Api(BaseApiClient):
         """Upload Recipe Asset"""
         params = None
         return self.request(
-            "POST", f"/api/recipes/{slug}/assets", params=params, data=data
+            "POST",
+            f"/api/recipes/{recipe_slug_segment(slug)}/assets",
+            params=params,
+            data=data,
         )
 
     def get_recipe_comments(self, slug: str, accept_language: Any | None = None) -> Any:
         """Get Recipe Comments"""
         params = None
         return self.request(
-            "GET", f"/api/recipes/{slug}/comments", params=params, data=None
+            "GET",
+            f"/api/recipes/{recipe_slug_segment(slug)}/comments",
+            params=params,
+            data=None,
         )
 
     def bulk_tag_recipes(self, data: dict, accept_language: Any | None = None) -> Any:

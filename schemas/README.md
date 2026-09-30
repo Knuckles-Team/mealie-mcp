@@ -48,6 +48,11 @@ neither upstream Mealie nor code-generation packages or network access.
   malformed nested values before invoking the API. Open `extras` dictionaries
   remain open. This is intentionally stricter than Mealie's coercion behavior;
   the existing `params_json` surface remains unchanged.
+- Validate recipe path slugs at the shared client boundary and in typed inputs.
+  Reject path separators, query/fragment delimiters, controls and dot segments,
+  including repeatedly percent-encoded forms, before any request. Encode accepted
+  identifiers as one path segment. Explicit Mealie slugs are not necessarily
+  slugified; Unicode, spaces and ordinary punctuation remain supported.
 
 Upstream Python validators (for example slug normalization and substitution
 business rules) are not represented by OpenAPI and remain server-side. Generated

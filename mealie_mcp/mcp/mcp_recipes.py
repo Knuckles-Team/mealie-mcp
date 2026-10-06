@@ -10,6 +10,9 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from mealie_mcp.auth import get_client
+from mealie_mcp.recipe_tools import (
+    add_recipe_write_tools as _add_recipe_write_tools,
+)
 
 VALID_RECIPES_ACTIONS = (
     "get_recipe_formats_and_templates",
@@ -404,6 +407,8 @@ _RECIPES_ACTION_HANDLERS = {
 
 
 def register_recipes_tools(mcp: FastMCP):
+    _add_recipe_write_tools(mcp)
+
     @mcp.tool(tags={"recipes"})
     async def mealie_recipes(
         action: str = Field(

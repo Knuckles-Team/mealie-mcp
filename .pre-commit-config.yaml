@@ -73,12 +73,12 @@ repos:
 - repo: local
   hooks:
   - id: dependency-readiness
-    name: RELEASE dependency readiness — every declared intra-fleet constraint is installable
+    name: Dependency readiness — every declared intra-fleet constraint is installable
     entry: bash -c 'P=""; d="$PWD"; while [ "$d" != "/" ]; do [ -d "$d/agent-packages/agents/repository-manager" ] && { P="$d/agent-packages/agents/repository-manager"; break; }; d=$(dirname "$d"); done; [ -n "$P" ] || P=repository-manager; uv run --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.dependency_readiness .'
     language: system
     pass_filenames: false
     always_run: true
-    stages: [manual]
+    stages: [manual, pre-push]
   - id: uv-lock
     name: uv-lock (verify, never mutate)
     entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else au_d="$repo"; root=""; while [ "$au_d" != "/" ]; do if [ -d "$au_d/agent-utilities/scripts" ]; then root="$au_d/agent-utilities"; break; fi; au_d=$(dirname "$au_d"); done; fi; if [ -d "$root" ] && [ "$repo" != "$root" ]; then mkdir -p .uv-workspace-siblings && ln -sfn "$root" .uv-workspace-siblings/agent-utilities; fi; uv lock --check'

@@ -27,9 +27,9 @@
 
 Mealie MCP Server + A2A Server
 
-It includes a Model Context Protocol (MCP) server and an out of the box Agent2Agent (A2A) agent
+It includes a Model Context Protocol (MCP) server and an by default Agent2Agent (A2A) agent
 
-Manage your self-hosted Mealie instance through an MCP server!
+Manage the operator's self-hosted Mealie instance through an MCP server!
 
 This repository is actively maintained - Contributions are welcome!
 
@@ -169,7 +169,7 @@ stateDiagram-v2
 
 | Short Flag | Long Flag                          | Description                                                                 |
 |------------|------------------------------------|-----------------------------------------------------------------------------|
-| -h         | --help                             | Display help information                                                    |
+| -h         | --help                             | Show help information                                                    |
 | -t         | --transport                        | Transport method: 'stdio', 'http', or 'sse' [legacy] (default: stdio)       |
 | -s         | --host                             | Host address for HTTP transport (default: 0.0.0.0)                          |
 | -p         | --port                             | Port number for HTTP transport (default: 8000)                              |
@@ -202,7 +202,7 @@ stateDiagram-v2
 
 | Short Flag | Long Flag         | Description                                                            |
 |------------|-------------------|------------------------------------------------------------------------|
-| -h         | --help            | Display help information                                               |
+| -h         | --help            | Show help information                                               |
 |            | --host            | Host to bind the server to (default: 0.0.0.0)                          |
 |            | --port            | Port to bind the server to (default: 9000)                             |
 |            | --reload          | Enable auto-reload                                                     |

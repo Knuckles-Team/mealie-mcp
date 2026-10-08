@@ -33,7 +33,7 @@
 ## Key Features
 
 - **Consolidated Action-Routed MCP Tools:** Minimizes token overhead and eliminates tool bloat in LLM contexts by grouping methods into optimized, togglable tool modules.
-- **Enterprise-Grade Security:** Comprehensive support for Eunomia policies, OIDC token delegation, and granular execution context tracking.
+- **Enterprise-Grade Security:** Complete support for Eunomia policies, OIDC token delegation, and granular execution context tracking.
 - **Integrated Graph Agent:** Built-in Pydantic AI agent supporting the Agent Control Protocol (ACP) and standard Web interfaces (AG-UI).
 - **Native Telemetry & Tracing:** Out-of-the-box OpenTelemetry exports and native Langfuse tracing.
 
@@ -41,7 +41,7 @@
 
 ## CLI or API
 
-This agent wraps the Mealie MCP Server for Agentic AI! API. You can interact with it programmatically or via its integrated execution entrypoints.
+This agent wraps the Mealie MCP Server for Agentic AI! API. The operator can interact with it programmatically or via its integrated execution entrypoints.
 
 Detailed instructions on how to use the underlying API wrappers, extended schema bindings, and developer SDK references are maintained in [docs/index.md](docs/index.md).
 
@@ -49,7 +49,7 @@ Detailed instructions on how to use the underlying API wrappers, extended schema
 
 ## MCP
 
-This server utilizes dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
+This server use dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
 
 ### Available MCP Tools
 
@@ -343,9 +343,9 @@ Detailed tool schemas, parameter shapes, and validation constraints are preserve
 
 ### Dynamic Tool Selection & Visibility
 
-This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows you to restrict the set of exposed tools in order to prevent blowing up the LLM's context window.
+This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows the operator to restrict the set of exposed tools to prevent blowing up the LLM's context window.
 
-You can configure tool filtering via multiple input channels:
+The operator can configure tool filtering via multiple input channels:
 
 - **CLI Arguments:** Pass `--tools` or `--toolsets` (or their disabled counterparts `--disabled-tools` and `--disabled-toolsets`) during startup.
 - **Environment Variables:** Define standard environment variables:
@@ -354,11 +354,11 @@ You can configure tool filtering via multiple input channels:
 - **HTTP SSE Request Headers:** Pass custom headers during transport initialization:
   - `x-mcp-enabled-tools` / `x-mcp-disabled-tools`
   - `x-mcp-enabled-tags` / `x-mcp-disabled-tags`
-- **HTTP SSE Request Query Parameters:** Append query parameters directly to your transport connection URL:
+- **HTTP SSE Request Query Parameters:** Append query parameters directly to the operator's transport connection URL:
   - `?tools=tool1,tool2`
   - `?tags=tag1`
 
-When query strings or parameters are supplied, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
+When query strings or parameters are provided, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
 
 ---
 
@@ -513,7 +513,7 @@ the detailed transport contract.
 
 ## Agent
 
-This repository features a fully integrated Pydantic AI Graph Agent. It communicates over the **Agent Control Protocol (ACP)** and interacts seamlessly with the **Agent Web UI (AG-UI)** and Terminal interface.
+This repository features a fully integrated Pydantic AI Graph Agent. It communicates over the **Agent Control Protocol (ACP)** and interacts smoothly with the **Agent Web UI (AG-UI)** and Terminal interface.
 
 ### Running the Agent CLI
 To start the interactive command-line agent:
@@ -610,7 +610,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 - **Scoped Credentials:** Execution context runs restricted to the specific caller identity.
 
 ### Runtime Security Grid
-| Feature | Functionality | Enablement |
+| Feature | Feature | Enablement |
 |---------|---------------|------------|
 | **Tool Guard** | Sensitivity inspection with human-in-the-loop validation | Enabled by default |
 | **Prompt Injection Defense** | Input scanning, repetition monitoring, and recursive loop blocks | Enabled by default |
@@ -680,13 +680,13 @@ _28 package + 16 inherited variable(s). Auto-generated from `.env.example` + the
 <!-- ENV-VARS-TABLE:END -->
 
 
-Every variable the server reads. A local template is supplied inside
-[.env.example](.env.example) — copy it to `.env` and fill in your endpoint/credentials.
+Every variable the server reads. A local template is provided inside
+[.env.example](.env.example) — copy it to `.env` and fill in the operator's endpoint/credentials.
 
 ### Connection & Credentials
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `MEALIE_BASE_URL` | Base URL of your Mealie instance | `http://localhost:8025` |
+| `MEALIE_BASE_URL` | Base URL of the operator's Mealie instance | `http://localhost:8025` |
 | `MEALIE_TOKEN` | Mealie API token | — |
 | `MEALIE_TLS_PROFILE` | Named TLS profile for private PKI, mTLS, or proxy policy | — |
 | `MEALIE_TLS_PROFILE_REF` | Secret reference containing the TLS profile | — |
@@ -730,12 +730,12 @@ The full list is in the [Available MCP Tools](#available-mcp-tools) table above
 
 ## Installation
 
-Pick the extra that matches what you want to run:
+Pick the extra that matches what the operator want to run:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `mealie-mcp[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | You only run the **MCP server** (smallest install / image) |
-| `mealie-mcp[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
+| `mealie-mcp[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
+| `mealie-mcp[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
 | `mealie-mcp[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
@@ -766,13 +766,13 @@ docker build --target agent -t knucklessg1/mealie-mcp:local docker/   # agent ru
 `docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
 agent (default build) with a co-located `:mcp` sidecar. Both compose files require an explicit
 `@sha256` digest-pinned image, plus a read-only root filesystem, dropped capabilities, and a
-non-root user — resolve the digest for the tag you built/pulled rather than deploying a floating tag.
+non-root user — resolve the digest for the tag the operator built/pulled rather than deploying a floating tag.
 
 ### Knowledge-graph database (`epistemic-graph`)
 
 Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
 Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
-the server connector-focused; `[agent]` additionally enables model orchestration. Local
+the server connector-focused; `[agent]` also enables model orchestration. Local
 deployments can use the bundled engine. For production — or to share one knowledge graph
 across multiple agents — run **epistemic-graph as its own database container** (or a
 dedicated shared service) and point the runtime at it instead of embedding it. Deployment
@@ -793,11 +793,11 @@ recipes (single-node + Raft HA), connection config, and the full database archit
 
 ## Contribute
 
-Contributions are welcome! Please ensure code quality by executing local checks before submitting pull requests:
+Contributions are welcome! Please ensure code quality by running local checks before submitting pull requests:
 - Format code using `ruff format .`
 - Lint code using `ruff check .`
 - Validate type-safety with `mypy .`
-- Execute test suites using `pytest`
+- Ran test suites using `pytest`
 
 
 <!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
@@ -868,7 +868,7 @@ Creation uses Mealie's native two-stage workflow:
 
 Search foods/units before creating records; pass existing returned objects or
 create-record objects into ingredients, rather than bare IDs. Ingredient `title`
-is a **section heading**, not ingredient text. PATCH sends only supplied fields
+is a **section heading**, not ingredient text. PATCH sends only provided fields
 and preserves explicit nulls; ingredient lists are replaced as a whole. For PUT,
 fetch the current recipe via `mealie_recipes` action `get_recipes_slug` and edit
 that full body, since omitted fields can reset on the server. The typed surface

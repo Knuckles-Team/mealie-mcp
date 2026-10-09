@@ -5,10 +5,9 @@ pushes its data into the ONE epistemic-graph knowledge graph as **typed OWL node
 (``:Recipe``, ``:Ingredient``, ``:Food``, ``:Unit``, ``:RecipeCategory``, ``:Tag``,
 ``:RecipeTool``) + links, matching the classes federated by ``mealie_mcp.ontology``.
 
-This is a thin mapper over the required
-``agent_utilities.knowledge_graph.memory.native_ingest`` transaction primitive. Engine
-failures are explicit, and partial writes are never acknowledged. Node ids follow
-``mealie:<class>:<externalId>``.
+This is a thin mapper over the ``agent_connector_sdk.ingest`` knowledge-ingest
+facade (the generated EG client). Engine failures are explicit, and partial
+writes are never acknowledged. Node ids follow ``mealie:<class>:<externalId>``.
 """
 
 from __future__ import annotations
@@ -16,59 +15,94 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_documents as _native_ingest_documents,
-)
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_entities as _native_ingest_entities,
+from agent_connector_sdk.ingest import (
+    ChangeSet,
+    Document,
+    Entity,
+    IngestBinding,
+    IngestError,
+    KnowledgeIngest,
+    Relationship,
+    current_ingest,
 )
 
 logger = logging.getLogger("mealie_mcp.kg")
 
 _SOURCE = "mealie-mcp"
 _DOMAIN = "mealie"
+_BINDING = IngestBinding(connector="mealie-mcp", stream=_DOMAIN)
 
 
-def ingest_entities(
+def _to_entity(record: dict[str, Any]) -> Entity:
+    return Entity(
+        id=record.get("id"),
+        node_type=record.get("node_type"),
+        properties={
+            k: v for k, v in record.items() if k not in ("id", "node_type")
+        },
+    )
+
+
+def _to_relationship(record: dict[str, Any]) -> Relationship:
+    props = {
+        k: v
+        for k, v in record.items()
+        if k not in ("source", "target", "relationship")
+    }
+    return Relationship(
+        source=record["source"],
+        target=record["target"],
+        relationship=record["relationship"],
+        properties=props or None,
+    )
+
+
+def _to_document(record: dict[str, Any]) -> Document:
+    return Document(
+        id=record.get("id"),
+        text=record.get("text", ""),
+        title=record.get("title"),
+        properties={
+            k: v for k, v in record.items() if k not in ("id", "text", "title")
+        },
+    )
+
+
+async def ingest_entities(
     entities: list[dict[str, Any]],
     relationships: list[dict[str, Any]] | None = None,
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Write typed OWL nodes (+ edges) into epistemic-graph.
 
-    Nodes use ``node_type`` and relationships use ``relationship``. ``client``/``graph``
-    may be injected for isolated validation.
+    Nodes use ``node_type`` and relationships use ``relationship``. ``ingest``
+    may be injected (tests) with a fake transport; otherwise the process-global
+    service from :func:`agent_connector_sdk.ingest.current_ingest` is used.
     """
-    return _native_ingest_entities(
-        entities,
-        relationships,
-        source=source,
-        domain=domain,
-        client=client,
-        graph=graph,
+    if not entities:
+        raise IngestError("ingest_entities needs at least one entity")
+    change_set = ChangeSet(
+        entities=tuple(_to_entity(e) for e in entities),
+        relationships=tuple(_to_relationship(r) for r in relationships or ()),
     )
+    service = ingest or current_ingest()
+    receipt = await service.submit(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
-def ingest_documents(
+async def ingest_documents(
     documents: list[dict[str, Any]],
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Write recipe text as canonical ``:Document`` nodes."""
-    return _native_ingest_documents(
-        documents,
-        source=source,
-        domain=domain,
-        client=client,
-        graph=graph,
-    )
+    if not documents:
+        raise IngestError("ingest_documents needs at least one document")
+    change_set = ChangeSet(documents=tuple(_to_document(d) for d in documents))
+    service = ingest or current_ingest()
+    receipt = await service.submit(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
 # --- domain mappers --------------------------------------------------------------------
@@ -270,13 +304,16 @@ def map_recipe(
     return entities, relationships
 
 
-def ingest_recipes(
+async def ingest_recipes(
     recipes: list[dict[str, Any]],
     *,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int] | None:
-    """Map Mealie recipe records → typed nodes/links and ingest them in one pass."""
+    """Map Mealie recipe records → typed nodes/links and ingest them in one pass.
+
+    Best-effort: returns ``None`` when there is nothing to ingest or no engine
+    is reachable, rather than raising out of the MCP tool handler.
+    """
     all_entities: list[dict[str, Any]] = []
     all_relationships: list[dict[str, Any]] = []
     for recipe in recipes or []:
@@ -285,4 +322,10 @@ def ingest_recipes(
         ents, rels = map_recipe(recipe)
         all_entities.extend(ents)
         all_relationships.extend(rels)
-    return ingest_entities(all_entities, all_relationships, client=client, graph=graph)
+    if not all_entities:
+        return None
+    try:
+        return await ingest_entities(all_entities, all_relationships, ingest=ingest)
+    except IngestError:
+        logger.warning("mealie KG ingest unavailable; skipping ingest_recipes")
+        return None

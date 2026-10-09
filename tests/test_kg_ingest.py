@@ -1,114 +1,46 @@
 """Native epistemic-graph typed-node ingestion — Wire-First coverage.
 
 Exercises the real ``ingest_entities`` / ``ingest_recipes`` seam with a fake
-ChangeEnvelope-capable engine client (no engine required; the same fake shape as
-agent-utilities' own ``tests/knowledge_graph/test_native_ingest.py``), asserting the
-governed-session transaction commit and the Mealie recipe ->
+transport one level below ``agent_connector_sdk.ingest.KnowledgeIngest`` (no
+engine required), so the SDK's own request-building/validation contract runs
+unfaked, and asserts the Mealie recipe ->
 :Recipe/:Ingredient/:Food/:Unit/:RecipeCategory/:Tag mapping.
 CONCEPT:AU-KG.ingest.enterprise-source-extractor.
 """
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from typing import Any
 
-import msgpack
 import pytest
-from agent_utilities.knowledge_graph.core.session import GraphSession, use_session
-from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
-from agent_utilities.security.actor_identity import ActorType
-from agent_utilities.security.brain_context import ActorContext, use_actor
+from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
 
 from mealie_mcp.kg_ingest import ingest_entities, ingest_recipes, map_recipe
 
 
-@pytest.fixture(autouse=True)
-def _governed_session():
-    """Every native-ingest call must inherit an authenticated ambient GraphSession."""
-    actor = ActorContext(
-        actor_id="subject:opaque:synthetic",
-        actor_type=ActorType.AUTOMATED_SERVICE,
-        roles=(),
-        tenant_id="tenant:opaque:synthetic",
-        authenticated=True,
-    )
-    session = GraphSession(
-        actor=actor,
-        tenant=actor.tenant_id,
-        scopes=frozenset({"kg:write"}),
-        graph="graph:opaque:synthetic",
-        policy_version="policy:opaque:synthetic",
-        audience="epistemic-graph",
-    )
-    with use_actor(actor), use_session(session):
-        yield
-
-
-class _FakeNodes:
+class _FakeTransport:
     def __init__(self) -> None:
-        self.values: dict[str, dict[str, Any]] = {}
+        self.requests: list[Any] = []
 
-    def properties(self, node_id: str) -> dict[str, Any] | None:
-        return self.values.get(node_id)
+    async def source_status(self, connector: str, stream: str):
+        return SimpleNamespace(accepted_checkpoint=None)
 
-    def list(self) -> list[tuple[str, dict[str, Any]]]:
-        return list(self.values.items())
+    async def submit(self, request):
+        self.requests.append(request)
+        return SimpleNamespace(
+            affected_count=len(request.records),
+            relationship_count=len(request.relationships),
+        )
 
-
-class _FakeChanges:
-    def __init__(self, nodes: _FakeNodes) -> None:
-        self.nodes = nodes
-        self.edges: list[tuple[str, str, dict[str, Any]]] = []
-        self.applied: list[dict[str, Any]] = []
-        self.records: dict[str, dict[str, Any]] = {}
-        self.versions: dict[str, dict[str, Any]] = {}
-
-    def get(self, envelope_id: str) -> dict[str, Any] | None:
-        return self.records.get(envelope_id)
-
-    def content_version(self, object_id: str) -> dict[str, Any] | None:
-        return self.versions.get(object_id)
-
-    def cursor(self, _source: str, _partition: str = "") -> None:
-        return None
-
-    def apply(self, envelope: dict[str, Any]) -> dict[str, Any]:
-        self.applied.append(envelope)
-        mutation = envelope["mutation"]
-        for operation in mutation["operations"]:
-            method = operation["method"]
-            params = method["params"]
-            properties = msgpack.unpackb(params["properties_msgpack"], raw=False)
-            if method["method"] == "AddNode":
-                self.nodes.values[params["node_id"]] = properties
-            elif method["method"] == "AddEdge":
-                self.edges.append(
-                    (params["source_id"], params["target_id"], properties)
-                )
-        version = envelope["content_version"]
-        self.versions[version["object_id"]] = version
-        self.records[envelope["envelope_id"]] = envelope
-        return {
-            "batch_id": mutation["batch_id"],
-            "replayed": False,
-            "projection_pending": False,
-        }
+    async def store_blob(self, data: bytes) -> str:
+        raise AssertionError("this connector's node/edge ingestion carries no media")
 
 
-class _FakeRdf:
-    def validate_shacl(self, _shapes: str, _data_graph: str) -> dict[str, Any]:
-        return {"conforms": True, "results": []}
-
-
-class _FakeClient:
-    def __init__(self) -> None:
-        self.nodes = _FakeNodes()
-        self.changes = _FakeChanges(self.nodes)
-        self.rdf = _FakeRdf()
-
-    @staticmethod
-    def supports(operation: str) -> bool:
-        return operation == "ApplyChangeEnvelope"
+@pytest.fixture
+def ingest():
+    transport = _FakeTransport()
+    return KnowledgeIngest(transport, loop=None), transport
 
 
 _FULL_RECIPE = {
@@ -134,22 +66,21 @@ _FULL_RECIPE = {
 }
 
 
-def test_ingest_entities_writes_nodes_and_edges():
-    c = _FakeClient()
-    res = ingest_entities(
+async def test_ingest_entities_writes_nodes_and_edges(ingest):
+    service, transport = ingest
+    res = await ingest_entities(
         [
             {"id": "a", "node_type": "Recipe", "name": "p"},
             {"id": "b", "node_type": "RecipeCategory"},
         ],
         [{"source": "a", "target": "b", "relationship": "hasCategory"}],
-        client=c,
+        ingest=service,
     )
     assert res == {"nodes": 2, "edges": 1}
-    assert set(c.nodes.values) == {"a", "b"}
-    # provenance is stamped
-    assert c.nodes.values["a"]["source"] == "mealie-mcp"
-    assert c.nodes.values["a"]["domain"] == "mealie"
-    assert c.changes.edges == [("a", "b", {"relationship": "hasCategory"})]
+    request = transport.requests[0]
+    ids = {record.record_id for record in request.records}
+    assert ids == {"a", "b"}
+    assert len(request.relationships) == 1
 
 
 def test_map_recipe_full_body():
@@ -175,40 +106,45 @@ def test_map_recipe_full_body():
     assert ("mealie:recipe:r-1", "mealie:household:h-2", "inHousehold") in rel_types
 
 
-def test_ingest_recipes_maps_and_writes():
-    c = _FakeClient()
-    res = ingest_recipes([_FULL_RECIPE], client=c)
+async def test_ingest_recipes_maps_and_writes(ingest):
+    service, transport = ingest
+    res = await ingest_recipes([_FULL_RECIPE], ingest=service)
     assert res is not None
-    assert c.nodes.values["mealie:recipe:r-1"]["node_type"] == "Recipe"
-    assert c.nodes.values["mealie:recipe:r-1"]["externalToolId"] == "r-1"
+    request = transport.requests[0]
+    by_id = {record.record_id: record for record in request.records}
+    assert by_id["mealie:recipe:r-1"].mapping_reference.endswith("/Recipe")
     # ingredient food/unit edges were added
-    assert (
-        "mealie:ingredient:r-1:ing-1",
-        "mealie:food:f-1",
-        {"relationship": "usesFood"},
-    ) in c.changes.edges
+    edge_types = {
+        (rel.source.record_id, rel.target.record_id, rel.relation_reference.rsplit("/relations/", 1)[-1])
+        for rel in request.relationships
+    }
+    assert ("mealie:ingredient:r-1:ing-1", "mealie:food:f-1", "usesFood") in edge_types
 
 
-def test_ingest_recipes_summary_shape():
+async def test_ingest_recipes_summary_shape(ingest):
     """A list-shaped summary (no recipeIngredient) still maps the recipe + labels."""
-    c = _FakeClient()
+    service, transport = ingest
     summary = {
         "id": "r-2",
         "name": "Chili",
         "slug": "chili",
         "tags": [{"id": "t-1", "name": "Spicy", "slug": "spicy"}],
     }
-    res = ingest_recipes([summary], client=c)
+    res = await ingest_recipes([summary], ingest=service)
     assert res == {"nodes": 2, "edges": 1}
-    assert c.nodes.values["mealie:recipe:r-2"]["node_type"] == "Recipe"
-    assert c.nodes.values["mealie:tag:t-1"]["node_type"] == "Tag"
+    request = transport.requests[0]
+    by_id = {record.record_id: record for record in request.records}
+    assert by_id["mealie:recipe:r-2"].mapping_reference.endswith("/Recipe")
+    assert by_id["mealie:tag:t-1"].mapping_reference.endswith("/Tag")
 
 
-def test_retired_structural_alias_is_rejected():
-    with pytest.raises(NativeIngestError, match="canonical node_type"):
-        ingest_entities([{"id": "a", "type": "Recipe"}], client=_FakeClient())
+async def test_retired_structural_alias_is_rejected(ingest):
+    service, _ = ingest
+    with pytest.raises(IngestError, match="node_type"):
+        await ingest_entities([{"id": "a", "type": "Recipe"}], ingest=service)
 
 
-def test_empty_native_ingest_is_rejected():
-    with pytest.raises(NativeIngestError, match="at least one entity"):
-        ingest_entities([], client=_FakeClient())
+async def test_empty_native_ingest_is_rejected(ingest):
+    service, _ = ingest
+    with pytest.raises(IngestError, match="at least one entity"):
+        await ingest_entities([], ingest=service)

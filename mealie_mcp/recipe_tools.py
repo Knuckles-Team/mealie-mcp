@@ -2,7 +2,7 @@
 
 from typing import Annotated, Any
 
-from agent_utilities.mcp.concurrency import run_blocking
+from agent_connector_sdk.mcp.concurrency import run_blocking
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import AfterValidator, BaseModel, Field

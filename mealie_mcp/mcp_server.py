@@ -1,9 +1,9 @@
 #!/usr/bin/python
 import warnings
 
-from agent_utilities.core.config import load_config
-from agent_utilities.mcp.action_dispatch import resolve_action
-from agent_utilities.mcp.concurrency import run_blocking
+from agent_connector_sdk.config import load_config
+from agent_connector_sdk.mcp.action_dispatch import resolve_action
+from agent_connector_sdk.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from fastmcp.utilities.logging import get_logger
@@ -26,8 +26,8 @@ import logging
 import sys
 from typing import Any
 
-from agent_utilities.mcp.server_factory import create_mcp_server
-from agent_utilities.mcp.verbose_tools import register_tool_surface
+from agent_connector_sdk.mcp.server import create_mcp_server
+from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
@@ -1653,7 +1653,7 @@ def register_kg_tools(mcp: FastMCP):
         records = data if isinstance(data, list) else [data]
         recipes = [r for r in records if isinstance(r, dict) and r.get("id")]
 
-        result = ingest_recipes(recipes)
+        result = await ingest_recipes(recipes)
 
         images = 0
         if ingest_images:
@@ -1663,7 +1663,10 @@ def register_kg_tools(mcp: FastMCP):
                 )
                 if not image_bytes:
                     continue
-                if ingest_recipe_image(recipe, image_bytes=image_bytes) is not None:
+                if (
+                    await ingest_recipe_image(recipe, image_bytes=image_bytes)
+                    is not None
+                ):
                     images += 1
 
         return {"listed": len(recipes), "ingested": result, "images_ingested": images}

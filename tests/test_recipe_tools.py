@@ -162,26 +162,23 @@ async def test_discovery_and_creation_dispatch(
     getattr(api, method).assert_called_once_with(**expected)
 
 
-@pytest.mark.parametrize("mode", ["condensed", "both", "intent", "verbose"])
-async def test_shared_surface_keeps_legacy_and_tags_typed_tools(monkeypatch, mode):
-    from agent_utilities.mcp.verbose_tools import register_tool_surface
+async def test_shared_surface_keeps_legacy_and_tags_typed_tools(monkeypatch):
+    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
     from mealie_mcp.mcp_server import register_recipes_tools
 
     monkeypatch.setattr(
-        "agent_utilities.core.config.setting", lambda key, default=None: default
+        "agent_connector_sdk.mcp.tool_surface.setting", lambda key, default=None: default
     )
     server = FastMCP("surface contract")
     register_tool_surface(
         server,
         service="mealie-mcp",
         registrars=[("recipes", "RECIPESTOOL", register_recipes_tools)],
-        mode_override=mode,
     )
     assert server._condensed_tool_toggles["mealie_recipe_patch"] == "RECIPESTOOL"
     assert server._condensed_tool_toggles["mealie_recipes"] == "RECIPESTOOL"
-    if mode == "intent":
-        assert {"mealie_recipe_patch", "mealie_recipes"} <= server._intent_gated_tools
+    assert {"mealie_recipe_patch", "mealie_recipes"} <= server._intent_gated_tools
     async with Client(server) as client:
         tools = {tool.name: tool for tool in await client.list_tools()}
     legacy = tools["mealie_recipes"].input_schema["properties"]
@@ -214,12 +211,12 @@ def test_generated_fields_track_pinned_models():
 
 
 async def test_disabled_recipes_domain_registers_no_typed_or_legacy_tools(monkeypatch):
-    from agent_utilities.mcp.verbose_tools import register_tool_surface
+    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
     from mealie_mcp.mcp_server import register_recipes_tools
 
     monkeypatch.setattr(
-        "agent_utilities.core.config.setting",
+        "agent_connector_sdk.mcp.tool_surface.setting",
         lambda key, default=None: False if key == "RECIPESTOOL" else default,
     )
     server = FastMCP("disabled recipes")
@@ -227,47 +224,17 @@ async def test_disabled_recipes_domain_registers_no_typed_or_legacy_tools(monkey
         server,
         service="mealie-mcp",
         registrars=[("recipes", "RECIPESTOOL", register_recipes_tools)],
-        mode_override="intent",
     )
     async with Client(server) as client:
         assert await client.list_tools() == []
 
 
-async def test_intent_loading_reveals_typed_schema(monkeypatch, tmp_path):
-    from agent_utilities.mcp import multiplexer
-    from agent_utilities.mcp.verbose_tools import register_tool_surface
-
-    from mealie_mcp.mcp_server import register_recipes_tools
-
-    monkeypatch.setattr(
-        "agent_utilities.core.config.setting", lambda key, default=None: default
-    )
-    monkeypatch.setattr(multiplexer, "setting", lambda key, default=None: default)
-    monkeypatch.setattr(multiplexer, "_session_key", lambda: "synthetic-session")
-    config = tmp_path / "empty-catalog.json"
-    config.write_text('{"mcpServers": {}}')
-    server = FastMCP("intent loading")
-    register_tool_surface(
-        server,
-        service="mealie-mcp",
-        registrars=[("recipes", "RECIPESTOOL", register_recipes_tools)],
-        mode_override="intent",
-    )
-    mux = multiplexer.attach_fleet_loader(
-        server, config_path=str(config), self_server="mealie-mcp"
-    )
-    try:
-        async with Client(server) as client:
-            assert "mealie_recipe_patch" not in {
-                tool.name for tool in await client.list_tools()
-            }
-            await multiplexer.load_session_tools(
-                server, mux, tools=["mealie_recipe_patch"]
-            )
-            tools = {tool.name: tool for tool in await client.list_tools()}
-            assert "recipeIngredient" in json.dumps(
-                tools["mealie_recipe_patch"].input_schema
-            )
-            assert "mealie_recipes" not in tools
-    finally:
-        await mux.aclose()
+# REMOVED (SDK-CONNECTOR-CONTROL-R009/R020 migration): this test asserted
+# mode_override="intent" deferred a typed tool's registration until the
+# multiplexer explicitly revealed it. agent_connector_sdk.mcp.tool_surface
+# has no mode parameter at all — register_tool_surface always registers the
+# condensed, GATED_TAG-tagged surface (agent-utilities#54's one condensed
+# intent contract); deferred-until-revealed registration is not a behavior
+# the SDK reproduces, so the premise this test checked no longer holds.
+# agent_utilities.mcp.multiplexer itself has no agent_connector_sdk
+# equivalent yet (same documented gap as agent_server.py).

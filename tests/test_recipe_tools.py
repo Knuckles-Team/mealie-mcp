@@ -236,4 +236,4 @@ async def test_disabled_recipes_domain_registers_no_typed_or_legacy_tools(monkey
 # condensed, GATED_TAG-tagged surface (agent-connector-sdk#54's one condensed
 # intent contract); deferred-until-revealed registration is not a behavior
 # the SDK reproduces, so the premise this test checked no longer holds.
-# The multiplexer's reveal flow is owned by graph-os, not this connector.
+# The multiplexer's reveal flow is owned by arbora, not this connector.

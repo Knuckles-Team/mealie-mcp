@@ -233,8 +233,7 @@ async def test_disabled_recipes_domain_registers_no_typed_or_legacy_tools(monkey
 # mode_override="intent" deferred a typed tool's registration until the
 # multiplexer explicitly revealed it. agent_connector_sdk.mcp.tool_surface
 # has no mode parameter at all — register_tool_surface always registers the
-# condensed, GATED_TAG-tagged surface (agent-utilities#54's one condensed
+# condensed, GATED_TAG-tagged surface (agent-connector-sdk#54's one condensed
 # intent contract); deferred-until-revealed registration is not a behavior
 # the SDK reproduces, so the premise this test checked no longer holds.
-# agent_utilities.mcp.multiplexer itself has no agent_connector_sdk
-# equivalent yet (same documented gap as agent_server.py).
+# The multiplexer's reveal flow is owned by arbora, not this connector.

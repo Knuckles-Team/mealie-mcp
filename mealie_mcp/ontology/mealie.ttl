@@ -172,6 +172,6 @@
     rdfs:label "Mealie Recipe Ontology" ;
     rdfs:comment """Mealie recipe-management model — recipes, ingredients (food + unit),
     the organizer catalog (categories, tags, tools), cookbooks, meal plans and shopping
-    lists, plus recipe image blobs — federated into the agent-utilities knowledge-graph
+    lists, plus recipe image blobs — federated into the agent-connector-sdk knowledge-graph
     hub. Reuses the shared :Person, :AssetOccurrence, :Blob and :Document classes.""" ;
     owl:imports <http://knuckles.team/kg> .

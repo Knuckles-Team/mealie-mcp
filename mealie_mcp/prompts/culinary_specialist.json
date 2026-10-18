@@ -4,7 +4,7 @@
   "schema_version": "1.0",
   "prompt_version": "0.1.0",
   "source": "mealie-mcp",
-  "extends": "agent-utilities:base",
+  "extends": "agent-connector-sdk:base",
   "compose": "append",
   "description": "Mealie culinary specialist: recipe management, meal planning and pantry taxonomy over the mealie-mcp MCP server.",
   "metadata": {

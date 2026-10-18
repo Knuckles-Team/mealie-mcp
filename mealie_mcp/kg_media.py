@@ -33,7 +33,9 @@ from agent_connector_sdk.ingest import (
 logger = logging.getLogger("mealie_mcp.kg.media")
 
 _SOURCE = "mealie-mcp"
-_BINDING = IngestBinding(connector="mealie-mcp", stream="mealie", media_type="AssetOccurrence")
+_BINDING = IngestBinding(
+    connector="mealie-mcp", stream="mealie", media_type="AssetOccurrence"
+)
 
 
 def fetch_recipe_image_bytes(

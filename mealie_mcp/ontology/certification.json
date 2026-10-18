@@ -1,9 +1,9 @@
 {
   "api_version": "arbora.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "f7a999220d817a43592df6cafb9be69d0233cc3b0c784a18dfae15f77f9b8b4c",
-    "mealie_mcp/connectors/mcp_source_presets.json": "586be2b0e51dc55478bd6a338ff1f4e9be57fa4db1e35db6cd03b86ff36347d4",
-    "mealie_mcp/connectors/tool_schema_fingerprints.json": "5474316bf1f61deef034bd5ea1002e760f3b5b2f4d79c2484d0b4b91cd8f79d0",
+    "connector_manifest.yml": "7d96f10fc194985274c3d54d3f31f641ce8e8a86eef97f811867b8d859edf797",
+    "mealie_mcp/connectors/mcp_source_presets.json": "685f6a0d655cd93753c22622d321ca16c1f6f4984f7f90b8698fa50d48be4d63",
+    "mealie_mcp/connectors/tool_schema_fingerprints.json": "dd386fda61bbd0ce4362f392f5271c742f779853ce2f37292f84383edc343e63",
     "mealie_mcp/ontology/fixtures/records.json": "469b13abf9a4758c8ef8e69956bae6c1775bcdeb6b4365be492b5b0f52efbb77",
     "mealie_mcp/ontology/mappings/source.yaml": "702a652dc684351e3b49f687615a5a9ac01fe78632be483ecdcbe2688134928d",
     "mealie_mcp/ontology/mealie.ttl": "b674a629eddc5711a2545d2ec8554aa9f126e2862b3f982b92d9aadea4bfdfab",

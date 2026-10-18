@@ -1,8 +1,8 @@
 {
-  "algorithm": "agent-connector-sdk:mcp-tool-schema-compat:v1",
+  "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
   "connector": "mealie-mcp",
   "schema_version": "1",
   "tools": {
-    "mealie_recipes": "b1664d58fda025917a00a4642371f7699d000461c6e8dca01f7f2471aa0b1821"
+    "mealie_get_recipes": "5f0f1e16c3af58e366b8f513e2b82d5c3416a89875f219297653523ddd11634e"
   }
 }

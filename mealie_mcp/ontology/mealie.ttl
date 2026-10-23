@@ -23,9 +23,8 @@
     rdfs:label "Ingredient" ;
     rdfs:comment "One line item of a recipe — a quantity of a Food in a Unit, with an optional note." .
 
-:Food a owl:Class ;
-    rdfs:label "Food" ;
-    rdfs:comment "A reusable food/ingredient entity in the Mealie food catalog (mealie_recipes get_foods)." .
+:Food a owl:Class .
+
 
 :Unit a owl:Class ;
     rdfs:label "Unit" ;
@@ -35,9 +34,8 @@
     rdfs:label "Recipe Category" ;
     rdfs:comment "An organizer category grouping recipes (mealie_organizer categories)." .
 
-:Tag a owl:Class ;
-    rdfs:label "Tag" ;
-    rdfs:comment "An organizer tag applied to recipes (mealie_organizer tags)." .
+:Tag a owl:Class .
+
 
 :RecipeTool a owl:Class ;
     rdfs:label "Recipe Tool" ;
@@ -173,5 +171,7 @@
     rdfs:comment """Mealie recipe-management model — recipes, ingredients (food + unit),
     the organizer catalog (categories, tags, tools), cookbooks, meal plans and shopping
     lists, plus recipe image blobs — federated into the agent-connector-sdk knowledge-graph
-    hub. Reuses the shared :Person, :AssetOccurrence, :Blob and :Document classes.""" ;
-    owl:imports <http://knuckles.team/kg> .
+    hub. Reuses the shared :Person, :AssetOccurrence, :Blob and :Document classes.""" .
+
+# ontology-codemod R3
+<http://knuckles.team/kg#RecipeCategory> rdfs:subClassOf <http://knuckles.team/kg#Category> .

@@ -115,7 +115,7 @@ async def test_ingest_recipes_maps_and_writes(ingest):
     assert by_id["mealie:recipe:r-1"].mapping_reference.endswith("/Recipe")
     # ingredient food/unit edges were added
     edge_types = {
-        (rel.source.record_id, rel.target.record_id, rel.relation_reference.rsplit("/relations/", 1)[-1])
+        (rel.source.record_id, rel.target.record_id, rel.relation_reference.rsplit("/", 1)[-1])
         for rel in request.relationships
     }
     assert ("mealie:ingredient:r-1:ing-1", "mealie:food:f-1", "usesFood") in edge_types

@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/mealie-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/mealie-mcp)
 
-*Version: 2.3.0*
+*Version: 2.3.1*
 
 ---
 
@@ -511,95 +511,6 @@ the detailed transport contract.
   `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
-## Agent
-
-This repository features a fully integrated Pydantic AI Graph Agent. It communicates over the **Agent Control Protocol (ACP)** and interacts smoothly with the **Agent Web UI (AG-UI)** and Terminal interface.
-
-### Running the Agent CLI
-To start the interactive command-line agent:
-
-```bash
-# Set credentials
-export MEALIE_BASE_URL="your_value"
-export MEALIE_TOKEN="your_value"
-export MEALIE_TLS_PROFILE="your_value"  # optional
-
-# Run the agent server
-mealie-agent --provider openai --model-id gpt-4o
-```
-
-### Docker Compose Orchestration
-The following `docker/agent.compose.yml` configures the Agent, Web UI, and Terminal Interface together:
-
-```yaml
-version: '3.8'
-
-services:
-  mealie-mcp-mcp:
-    image: example/mealie-mcp@sha256:<digest>
-    container_name: mealie-mcp-mcp
-    hostname: mealie-mcp-mcp
-    restart: always
-    env_file:
-      - ../.env
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HOST=0.0.0.0
-      - PORT=8000
-      - TRANSPORT=streamable-http
-    ports:
-      - "8000:8000"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  mealie-mcp-agent:
-    image: example/mealie-mcp@sha256:<digest>
-    container_name: mealie-mcp-agent
-    hostname: mealie-mcp-agent
-    restart: always
-    depends_on:
-      - mealie-mcp-mcp
-    env_file:
-      - ../.env
-    command: [ "mealie-agent" ]
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HOST=0.0.0.0
-      - PORT=9013
-      - MCP_URL=http://mealie-mcp-mcp:8000/mcp
-      - PROVIDER=${PROVIDER:-openai}
-      - MODEL_ID=${MODEL_ID:-gpt-4o}
-      - ENABLE_WEB_UI=True
-      - ENABLE_OTEL=True
-    ports:
-      - "9013:9013"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9013/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-```
-
-Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/deployment.md](docs/deployment.md).
-
----
-
 ## Security & Governance
 
 Built directly upon the enterprise-ready [`agent-connector-sdk`](https://github.com/Knuckles-Team/agent-connector-sdk) core, standard security parameters are fully supported:
@@ -653,7 +564,6 @@ Built directly upon the enterprise-ready [`agent-connector-sdk`](https://github.
 | `UTILSTOOL` | `True` |  |
 | `KGTOOL` | `True` |  |
 | `MEALIE_MCP_MCP_IMAGE` | — | e.g. registry.example.invalid/mealie-mcp@sha256:<digest> |
-| `MEALIE_MCP_AGENT_IMAGE` | — | e.g. registry.example.invalid/mealie-mcp@sha256:<digest> |
 
 #### Inherited agent-connector-sdk variables (apply to every connector)
 
@@ -718,14 +628,6 @@ Each action-routed tool can be disabled individually via its toggle env var (set
 The full list is in the [Available MCP Tools](#available-mcp-tools) table above
 (e.g. `RECIPESTOOL`, `USERSTOOL`, `ORGANIZERTOOL`, `ADMINTOOL`).
 
-### Agent CLI (full `[agent]` runtime only)
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MCP_URL` | URL of the MCP server the agent connects to | `http://localhost:8000/mcp` |
-| `PROVIDER` | LLM provider (e.g. `openai`) | `openai` |
-| `MODEL_ID` | Model id (e.g. `gpt-4o`) | `gpt-4o` |
-| `ENABLE_WEB_UI` | Serve the AG-UI web interface | `True` |
-
 ---
 
 ## Installation
@@ -749,23 +651,20 @@ uv pip install "mealie-mcp[agent]"
 uv pip install "mealie-mcp[all]"      # or: python -m pip install "mealie-mcp[all]"
 ```
 
-### Container images (`:mcp` vs `:agent`)
+### Container image (`:mcp`)
 
-One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+`docker/Dockerfile` builds the connector-focused MCP server image (`--target mcp`):
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `knucklessg1/mealie-mcp:mcp` | `--target mcp` | `mealie-mcp[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `mealie-mcp` |
-| `knucklessg1/mealie-mcp@sha256:<digest>` (agent build) | `--target agent` (default) | `mealie-mcp[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `mealie-agent` |
+| `knucklessg1/mealie-mcp:mcp` | `--target mcp` | `mealie-mcp[mcp]` — **connector-focused**, includes `epistemic-graph[full]` | `mealie-mcp` |
 
 ```bash
-docker build --target mcp   -t knucklessg1/mealie-mcp:mcp   docker/   # connector-focused MCP server
-docker build --target agent -t knucklessg1/mealie-mcp:local docker/   # agent runtime (local build; publish/pin a digest via your release process)
+docker build --target mcp -t knucklessg1/mealie-mcp:mcp docker/   # connector-focused MCP server
 ```
 
-`docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
-agent (default build) with a co-located `:mcp` sidecar. Both compose files require an explicit
-`@sha256` digest-pinned image, plus a read-only root filesystem, dropped capabilities, and a
+`docker/mcp.compose.yml` runs the `:mcp` server. It requires an explicit `@sha256`
+digest-pinned image, plus a read-only root filesystem, dropped capabilities, and a
 non-root user — resolve the digest for the tag the operator built/pulled rather than deploying a floating tag.
 
 ### Knowledge-graph database (`epistemic-graph`)

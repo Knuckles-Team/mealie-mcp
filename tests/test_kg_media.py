@@ -22,7 +22,7 @@ class _FakeTransport:
         self.requests: list[Any] = []
         self.blobs: list[bytes] = []
 
-    async def source_status(self, connector: str, stream: str):
+    async def source_status(self, _connector: str, _stream: str):
         return SimpleNamespace(accepted_checkpoint=None)
 
     async def submit(self, request):
@@ -100,7 +100,7 @@ class _FakeSession:
         self._resp = resp
         self.calls = []
 
-    def get(self, url, **kw):
+    def get(self, url, **_kw):
         self.calls.append(url)
         return self._resp
 

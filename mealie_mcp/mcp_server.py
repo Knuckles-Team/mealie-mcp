@@ -37,7 +37,7 @@ from mealie_mcp.recipe_tools import (
     add_recipe_write_tools as _add_recipe_write_tools,
 )
 
-__version__ = "2.3.1"
+__version__ = "2.3.2"
 
 logger = get_logger(name="mealie-mcp")
 logger.setLevel(logging.INFO)

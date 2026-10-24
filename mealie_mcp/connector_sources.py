@@ -7,9 +7,6 @@ Served live as ``connector://resources``. Regenerate by editing the declarations
 from __future__ import annotations
 
 from agent_connector_sdk.ingest.live_declaration import source_meta
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration, IngestSourceSpec
-
-CONNECTOR = "mealie-mcp"
 
 SOURCES = (
     source_meta(
@@ -29,148 +26,64 @@ SOURCES = (
     ),
 )
 
+SCHEMA_VERSION = 2
+
+FIELD_SETS = {
+    "fields_1": {
+        "cookTime": "xsd:string",
+        "mealieId": "xsd:string",
+        "prepTime": "xsd:string",
+        "quantity": "xsd:decimal",
+        "rating": "xsd:decimal",
+        "recipeYield": "xsd:string",
+        "slug": "xsd:string",
+        "totalTime": "xsd:string",
+    },
+}
+
 SCHEMA_MAPPINGS = {
     "Cookbook": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Food": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Household": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Ingredient": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "MealPlan": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Recipe": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "RecipeCategory": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "RecipeTool": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "Tool",
     },
     "ShoppingList": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Tag": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Unit": {
-        "fields": {
-            "cookTime": "xsd:string",
-            "mealieId": "xsd:string",
-            "prepTime": "xsd:string",
-            "quantity": "xsd:decimal",
-            "rating": "xsd:decimal",
-            "recipeYield": "xsd:string",
-            "slug": "xsd:string",
-            "totalTime": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
 }
@@ -232,22 +145,3 @@ RESOURCES = (
         "name": "Unit",
     },
 )
-
-
-def declaration() -> IngestSourceDeclaration:
-    """The declaration the server assembles from this module."""
-    specs = []
-    for item in SOURCES:
-        for entry in item["connector_sources"]:
-            body = {k: v for k, v in entry.items() if k not in ("tool", "mapping")}
-            specs.append(
-                IngestSourceSpec.model_validate({**body, "tools": (entry["tool"],)})
-            )
-    return IngestSourceDeclaration.model_validate(
-        {
-            "connector": CONNECTOR,
-            "sources": specs,
-            "schema_mappings": SCHEMA_MAPPINGS,
-            "resources": RESOURCES,
-        }
-    )

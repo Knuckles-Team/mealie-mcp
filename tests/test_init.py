@@ -3,13 +3,13 @@ from unittest.mock import patch
 
 from fastmcp import FastMCP
 
-from mealie_mcp.mcp_server import get_mcp_instance
+from agent_connector_sdk.connector import build_server
 
 
 def test_mcp_instance_creation():
     """Test that the MCP instance can be created successfully."""
     with patch.object(sys, "argv", [""]):
-        mcp, args, middlewares = get_mcp_instance()
+        _, mcp = build_server("mealie_mcp", command_args=[])
     assert isinstance(mcp, FastMCP)
 
 

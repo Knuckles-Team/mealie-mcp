@@ -25,6 +25,9 @@
 
 ## Overview
 
+The [spec delivery dashboard](spec-delivery/) reports the generated delivery
+status for this connector.
+
 Mealie MCP Server + A2A Server
 
 It includes a Model Context Protocol (MCP) server and an by default Agent2Agent (A2A) agent

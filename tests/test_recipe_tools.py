@@ -168,7 +168,8 @@ async def test_shared_surface_keeps_legacy_and_tags_typed_tools(monkeypatch):
     from mealie_mcp.mcp_server import register_recipes_tools
 
     monkeypatch.setattr(
-        "agent_connector_sdk.mcp.tool_surface.setting", lambda key, default=None: default
+        "agent_connector_sdk.mcp.tool_surface.setting",
+        lambda key, default=None: default,
     )
     server = FastMCP("surface contract")
     register_tool_surface(
@@ -229,7 +230,7 @@ async def test_disabled_recipes_domain_registers_no_typed_or_legacy_tools(monkey
         assert await client.list_tools() == []
 
 
-# REMOVED (SDK-CONNECTOR-CONTROL-R009/R020 migration): this test asserted
+# REMOVED (SCION-CONNECTOR-CONTROL-R009/R020 migration): this test asserted
 # mode_override="intent" deferred a typed tool's registration until the
 # multiplexer explicitly revealed it. agent_connector_sdk.mcp.tool_surface
 # has no mode parameter at all — register_tool_surface always registers the

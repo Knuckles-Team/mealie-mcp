@@ -168,7 +168,8 @@ async def test_shared_surface_keeps_legacy_and_tags_typed_tools(monkeypatch):
     from mealie_mcp.mcp_server import register_recipes_tools
 
     monkeypatch.setattr(
-        "agent_connector_sdk.mcp.tool_surface.setting", lambda key, default=None: default
+        "agent_connector_sdk.mcp.tool_surface.setting",
+        lambda key, default=None: default,
     )
     server = FastMCP("surface contract")
     register_tool_surface(

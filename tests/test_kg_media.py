@@ -23,7 +23,9 @@ class _FakeTransport:
         self.blobs: list[bytes] = []
 
     async def source_status(self, _connector: str, _stream: str):
-        return SimpleNamespace(accepted_checkpoint=None)
+        return SimpleNamespace(
+            connector=_connector, stream=_stream, accepted_checkpoint=None
+        )
 
     async def submit(self, request):
         self.requests.append(request)
@@ -62,7 +64,11 @@ async def test_ingest_recipe_image_stores_bytes_and_metadata(ingest):
     assert asset_record.payload["mime_type"] == "image/webp"
     assert asset_record.payload["name"] == "Carbonara"
     edge_types = {
-        (rel.source.record_id, rel.target.record_id, rel.relation_reference.rsplit("/", 1)[-1])
+        (
+            rel.source.record_id,
+            rel.target.record_id,
+            rel.relation_reference.rsplit("/", 1)[-1],
+        )
         for rel in request.relationships
     }
     assert ("mealie:recipe:r-1", "mealie:asset:r-1", "hasImage") in edge_types

@@ -163,12 +163,12 @@ async def test_discovery_and_creation_dispatch(
 
 
 async def test_shared_surface_keeps_legacy_and_tags_typed_tools(monkeypatch):
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+    from scion_sdk.mcp.tool_surface import register_tool_surface
 
     from mealie_mcp.mcp_server import register_recipes_tools
 
     monkeypatch.setattr(
-        "agent_connector_sdk.mcp.tool_surface.setting",
+        "scion_sdk.mcp.tool_surface.setting",
         lambda key, default=None: default,
     )
     server = FastMCP("surface contract")
@@ -212,12 +212,12 @@ def test_generated_fields_track_pinned_models():
 
 
 async def test_disabled_recipes_domain_registers_no_typed_or_legacy_tools(monkeypatch):
-    from agent_connector_sdk.mcp.tool_surface import register_tool_surface
+    from scion_sdk.mcp.tool_surface import register_tool_surface
 
     from mealie_mcp.mcp_server import register_recipes_tools
 
     monkeypatch.setattr(
-        "agent_connector_sdk.mcp.tool_surface.setting",
+        "scion_sdk.mcp.tool_surface.setting",
         lambda key, default=None: False if key == "RECIPESTOOL" else default,
     )
     server = FastMCP("disabled recipes")
@@ -232,9 +232,9 @@ async def test_disabled_recipes_domain_registers_no_typed_or_legacy_tools(monkey
 
 # REMOVED (SCION-CONNECTOR-CONTROL-R009/R020 migration): this test asserted
 # mode_override="intent" deferred a typed tool's registration until the
-# multiplexer explicitly revealed it. agent_connector_sdk.mcp.tool_surface
+# multiplexer explicitly revealed it. scion_sdk.mcp.tool_surface
 # has no mode parameter at all — register_tool_surface always registers the
-# condensed, GATED_TAG-tagged surface (agent-connector-sdk#54's one condensed
+# condensed, GATED_TAG-tagged surface (scion-sdk#54's one condensed
 # intent contract); deferred-until-revealed registration is not a behavior
 # the SDK reproduces, so the premise this test checked no longer holds.
 # The multiplexer's reveal flow is owned by arbora, not this connector.

@@ -1,7 +1,7 @@
 """Native epistemic-graph typed-node ingestion — Wire-First coverage.
 
 Exercises the real ``ingest_entities`` / ``ingest_recipes`` seam with a fake
-transport one level below ``agent_connector_sdk.ingest.KnowledgeIngest`` (no
+transport one level below ``scion_sdk.ingest.KnowledgeIngest`` (no
 engine required), so the SDK's own request-building/validation contract runs
 unfaked, and asserts the Mealie recipe ->
 :Recipe/:Ingredient/:Food/:Unit/:RecipeCategory/:Tag mapping.
@@ -14,7 +14,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
+from scion_sdk.ingest import IngestError, KnowledgeIngest
 
 from mealie_mcp.kg_ingest import ingest_entities, ingest_recipes, map_recipe
 

@@ -1,11 +1,11 @@
 #!/usr/bin/python
 import warnings
 
-from agent_connector_sdk.mcp.action_dispatch import resolve_action
-from agent_connector_sdk.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
+from scion_sdk.mcp.action_dispatch import resolve_action
+from scion_sdk.mcp.concurrency import run_blocking
 
 # Filter RequestsDependencyWarning early to prevent log spam
 with warnings.catch_warnings():

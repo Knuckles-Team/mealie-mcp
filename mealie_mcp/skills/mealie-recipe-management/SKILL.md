@@ -13,7 +13,7 @@ description: >-
 license: MIT
 tags: [mealie, recipes, cooking, import, rest-api, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Mealie Recipe Management

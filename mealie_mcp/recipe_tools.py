@@ -2,10 +2,10 @@
 
 from typing import Annotated, Any
 
-from agent_connector_sdk.mcp.concurrency import run_blocking
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import AfterValidator, BaseModel, Field
+from scion_sdk.mcp.concurrency import run_blocking
 
 from mealie_mcp.api.path_parameters import validate_recipe_slug
 from mealie_mcp.auth import get_client

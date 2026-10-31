@@ -1,4 +1,4 @@
-from agent_connector_sdk.connector import Connector
+from scion_sdk.connector import Connector
 
 from mealie_mcp.api_client import Api
 from mealie_mcp.auth import get_client

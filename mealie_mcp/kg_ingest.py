@@ -5,7 +5,7 @@ pushes its data into the ONE epistemic-graph knowledge graph as **typed OWL node
 (``:Recipe``, ``:Ingredient``, ``:Food``, ``:Unit``, ``:RecipeCategory``, ``:Tag``,
 ``:RecipeTool``) + links, matching the classes federated by ``mealie_mcp.ontology``.
 
-This is a thin mapper over the ``agent_connector_sdk.ingest`` knowledge-ingest
+This is a thin mapper over the ``scion_sdk.ingest`` knowledge-ingest
 facade (the generated EG client). Engine failures are explicit, and partial
 writes are never acknowledged. Node ids follow ``mealie:<class>:<externalId>``.
 """
@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     ChangeSet,
     Document,
     Entity,
@@ -74,7 +74,7 @@ async def ingest_entities(
 
     Nodes use ``node_type`` and relationships use ``relationship``. ``ingest``
     may be injected (tests) with a fake transport; otherwise the process-global
-    service from :func:`agent_connector_sdk.ingest.current_ingest` is used.
+    service from :func:`scion_sdk.ingest.current_ingest` is used.
     """
     if not entities:
         raise IngestError("ingest_entities needs at least one entity")

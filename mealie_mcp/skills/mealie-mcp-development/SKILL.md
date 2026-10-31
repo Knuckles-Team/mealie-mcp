@@ -28,7 +28,7 @@ the central Pages renderer, or generated container/Compose output.
   `mealie_mcp/skills/` are packaged connector content. `pyproject.toml` keeps
   their `skills/**`, `ontology/**`, `prompts/**`, and `mcp_config.json` data.
 - The only declared console script is `mealie-mcp`, provided by
-  `agent_connector_sdk.cli:serve`. `python -m mealie_mcp` delegates to the SDK
+  `scion_sdk.cli:serve`. `python -m mealie_mcp` delegates to the SDK
   runner through `mealie_mcp/__main__.py`. Do not invent a second agent entry
   point: the current `pyproject.toml` declares no `mealie-agent` script.
 

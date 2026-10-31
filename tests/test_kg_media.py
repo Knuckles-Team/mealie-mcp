@@ -1,7 +1,7 @@
 """Native epistemic-graph media ingestion — Wire-First live-path coverage.
 
 Exercises the real ``ingest_recipe_image`` / ``fetch_recipe_image_bytes`` seam with
-a fake transport one level below ``agent_connector_sdk.ingest.KnowledgeIngest``
+a fake transport one level below ``scion_sdk.ingest.KnowledgeIngest``
 and a fake HTTP session (no engine required).
 CONCEPT:AU-KG.ingest.list-durable-media.
 """
@@ -12,7 +12,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from agent_connector_sdk.ingest import KnowledgeIngest
+from scion_sdk.ingest import KnowledgeIngest
 
 from mealie_mcp.kg_media import fetch_recipe_image_bytes, ingest_recipe_image
 

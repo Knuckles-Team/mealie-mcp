@@ -12,7 +12,7 @@ description: >-
 license: MIT
 tags: [mealie, taxonomy, categories, tags, foods, units, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Mealie Organizer Catalog

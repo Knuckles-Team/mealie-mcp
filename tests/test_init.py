@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from fastmcp import FastMCP
 
-from agent_connector_sdk.connector import build_server
+from scion_sdk.connector import build_server
 
 
 def test_mcp_instance_creation():

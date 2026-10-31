@@ -3,7 +3,7 @@
 CONCEPT:AU-KG.ingest.list-durable-media. A recipe's image is stored as a
 content-addressed **blob** with an ``:AssetOccurrence`` graph node (carrying the
 recipe id + slug), in ONE cross-modal ACID commit, via the
-``agent_connector_sdk.ingest`` knowledge-ingest facade's ``MediaAsset`` on a
+``scion_sdk.ingest`` knowledge-ingest facade's ``MediaAsset`` on a
 ``ChangeSet``. This makes the raw image bytes — not just a URL — durable,
 deduped and queryable inside the knowledge graph.
 
@@ -19,7 +19,7 @@ import logging
 from typing import Any
 from urllib.parse import urljoin
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     ChangeSet,
     EntityRef,
     IngestBinding,

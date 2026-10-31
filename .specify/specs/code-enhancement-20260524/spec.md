@@ -16,7 +16,7 @@
 
 ## Functional Requirements
 
-- **FR-001**: Minor update: agent-connector-sdk 0.2.40 (installed) -> 0.16.0
+- **FR-001**: Minor update: scion-sdk 0.2.40 (installed) -> 0.16.0
 - **FR-002**: Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
 - **FR-003**: 32 functions exceed 50 lines
 - **FR-004**: Monolithic: mcp_server.py (895L) — 7 functions with high complexity (worst: register_households_tools at 155L, CC=68); Low cohesion: 13 distinct concepts in one file
@@ -47,7 +47,7 @@
 - **FR-029**: Only 25% of env vars documented in README.md
 - **FR-030**: Undocumented env vars: ADMINTOOL, APPTOOL, AUTH_TYPE, DEFAULT_AGENT_NAME, EUNOMIA_POLICY_FILE, EUNOMIA_TYPE, EXPLORETOOL, GROUPSTOOL, HOUSEHOLDSTOOL, MEALIE_BASE_URL
 - **FR-031**: Runtime connection configuration must document DEFAULT_AGENT_NAME, MEALIE_BASE_URL, MEALIE_TOKEN, and the AgentConfig TLS profile references.
-- **FR-032**: Analysis error: No module named 'agent_connector_sdk.knowledge_graph'
+- **FR-032**: Analysis error: No module named 'scion_sdk.knowledge_graph'
 
 ## Success Criteria
 

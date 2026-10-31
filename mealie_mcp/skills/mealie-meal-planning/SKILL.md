@@ -13,7 +13,7 @@ description: >-
 license: MIT
 tags: [mealie, meal-plan, cookbook, shopping-list, household, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Mealie Meal Planning

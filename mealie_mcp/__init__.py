@@ -7,5 +7,5 @@ connector = Connector(
     api=Api,
     get_client=get_client,
     tools="mealie_mcp.mcp_server",
-    instructions="mealie-mcp MCP Server — Condensed Action-Routed Tools.",
+    instructions="mealie-mcp MCP Server — Mealie recipes, meal plans, shopping lists and household administration as typed per-operation tools.",
 )

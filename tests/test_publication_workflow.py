@@ -41,7 +41,7 @@ def test_development_skill_and_runtime_entrypoints_match_source_tree():
         "mealie_mcp/__init__.py",
         "mealie_mcp/auth.py",
         "mealie_mcp/mcp_server.py",
-        "tests/test_action_discovery.py",
+        "tests/test_kg_ingest.py",
         "tests/test_recipe_tools.py",
     ):
         assert (ROOT / path).exists(), path

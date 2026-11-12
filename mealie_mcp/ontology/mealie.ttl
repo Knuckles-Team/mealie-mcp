@@ -1,7 +1,8 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dc: <http://purl.org/dc/terms/> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/mealie#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -16,6 +17,7 @@
 # --- classes (owl:Class) ---
 
 :Recipe a owl:Class ;
+    rdfs:subClassOf core:Recipe ;
     rdfs:label "Recipe" ;
     rdfs:comment "A Mealie recipe: name, yield, timings, ingredients and instructions (mealie_recipes)." .
 
@@ -23,7 +25,8 @@
     rdfs:label "Ingredient" ;
     rdfs:comment "One line item of a recipe — a quantity of a Food in a Unit, with an optional note." .
 
-:Food a owl:Class .
+:Food a owl:Class ;
+    rdfs:subClassOf core:Food .
 
 
 :Unit a owl:Class ;
@@ -34,7 +37,8 @@
     rdfs:label "Recipe Category" ;
     rdfs:comment "An organizer category grouping recipes (mealie_organizer categories)." .
 
-:Tag a owl:Class .
+:Tag a owl:Class ;
+    rdfs:subClassOf core:Tag .
 
 
 :RecipeTool a owl:Class ;
@@ -99,7 +103,7 @@
     rdfs:label "has image" ;
     rdfs:comment "Links a Recipe to its stored :AssetOccurrence image blob." ;
     rdfs:domain :Recipe ;
-    rdfs:range :AssetOccurrence .
+    rdfs:range core:AssetOccurrence .
 
 :plansRecipe a owl:ObjectProperty ;
     rdfs:label "plans recipe" ;
@@ -122,7 +126,7 @@
     rdfs:label "created by" ;
     rdfs:comment "Links a Recipe to the Person (Mealie user) who authored it." ;
     rdfs:domain :Recipe ;
-    rdfs:range :Person .
+    rdfs:range core:Person .
 
 # --- fields (owl:DatatypeProperty) ---
 
@@ -166,7 +170,7 @@
     rdfs:comment "External Mealie identifier (UUID) of the resource." ;
     rdfs:range xsd:string .
 
-<http://knuckles.team/kg/mealie> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/mealie> a owl:Ontology ;
     rdfs:label "Mealie Recipe Ontology" ;
     rdfs:comment """Mealie recipe-management model — recipes, ingredients (food + unit),
     the organizer catalog (categories, tags, tools), cookbooks, meal plans and shopping
@@ -174,11 +178,11 @@
     hub. Reuses the shared :Person, :AssetOccurrence, :Blob and :Document classes.""" .
 
 # ontology-codemod R3
-<http://knuckles.team/kg#RecipeCategory> rdfs:subClassOf <http://knuckles.team/kg#Category> .
-<http://knuckles.team/kg#Cookbook> rdfs:subClassOf <http://knuckles.team/kg#Collection> .
-<http://knuckles.team/kg#Household> rdfs:subClassOf <http://knuckles.team/kg#Organization> .
-<http://knuckles.team/kg#Ingredient> rdfs:subClassOf <http://knuckles.team/kg#Resource> .
-<http://knuckles.team/kg#MealPlan> rdfs:subClassOf <http://knuckles.team/kg#Schedule> .
-<http://knuckles.team/kg#RecipeTool> rdfs:subClassOf <http://knuckles.team/kg#Tool> .
-<http://knuckles.team/kg#ShoppingList> rdfs:subClassOf <http://knuckles.team/kg#Collection> .
-<http://knuckles.team/kg#Unit> rdfs:subClassOf <http://knuckles.team/kg#Resource> .
+<https://knuckles-team.github.io/ontology/connector/mealie#RecipeCategory> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Category> .
+<https://knuckles-team.github.io/ontology/connector/mealie#Cookbook> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Collection> .
+<https://knuckles-team.github.io/ontology/connector/mealie#Household> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Organization> .
+<https://knuckles-team.github.io/ontology/connector/mealie#Ingredient> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Resource> .
+<https://knuckles-team.github.io/ontology/connector/mealie#MealPlan> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Schedule> .
+<https://knuckles-team.github.io/ontology/connector/mealie#RecipeTool> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Tool> .
+<https://knuckles-team.github.io/ontology/connector/mealie#ShoppingList> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Collection> .
+<https://knuckles-team.github.io/ontology/connector/mealie#Unit> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Resource> .

@@ -175,3 +175,10 @@
 
 # ontology-codemod R3
 <http://knuckles.team/kg#RecipeCategory> rdfs:subClassOf <http://knuckles.team/kg#Category> .
+<http://knuckles.team/kg#Cookbook> rdfs:subClassOf <http://knuckles.team/kg#Collection> .
+<http://knuckles.team/kg#Household> rdfs:subClassOf <http://knuckles.team/kg#Organization> .
+<http://knuckles.team/kg#Ingredient> rdfs:subClassOf <http://knuckles.team/kg#Resource> .
+<http://knuckles.team/kg#MealPlan> rdfs:subClassOf <http://knuckles.team/kg#Schedule> .
+<http://knuckles.team/kg#RecipeTool> rdfs:subClassOf <http://knuckles.team/kg#Tool> .
+<http://knuckles.team/kg#ShoppingList> rdfs:subClassOf <http://knuckles.team/kg#Collection> .
+<http://knuckles.team/kg#Unit> rdfs:subClassOf <http://knuckles.team/kg#Resource> .

@@ -17,10 +17,13 @@ the central Pages renderer, or generated container/Compose output.
 
 - `mealie_mcp/__init__.py` creates the SDK `Connector` with
   `mealie_mcp.mcp_server` as its tool module.
-- `mealie_mcp/mcp_server.py` registers the action-routed FastMCP tools for the
-  `app`, `users`, `households`, `groups`, `recipes`, `organizer`, `shared`,
-  `admin`, `explore`, `utils`, and `kg` domains. The `mealie_mcp/mcp/` modules
-  are retained source mirrors; the connector wiring above is the active import.
+- `Connector(api=Api, ...)` serves one typed tool per Mealie API operation from
+  the domain clients in `mealie_mcp/api/`. `mealie_mcp/mcp_server.py` registers
+  only the tools that are not client methods: the typed recipe write tools
+  (`recipes`) and the knowledge-graph ingest tool (`kg`).
+- `mealie_mcp/connector_contracts.py` declares the tool-use contracts, links,
+  data locations and business roles; every new tool needs a contract step and a
+  skill or prompt that names it.
 - `mealie_mcp/api_client.py` combines the domain clients in `mealie_mcp/api/`.
   `mealie_mcp/auth.py` creates the API client from runtime settings and resolves
   the SDK TLS profile named `mealie`.
@@ -65,7 +68,7 @@ uv sync --locked
   uv run --locked --extra test pytest -q \
     tests/test_init.py \
     tests/test_init_dynamics.py \
-    tests/test_action_discovery.py \
+    tests/test_kg_ingest.py \
     tests/test_recipe_paths.py \
     tests/test_recipe_tools.py \
     tests/test_publication_workflow.py

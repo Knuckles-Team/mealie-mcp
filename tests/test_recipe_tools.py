@@ -124,45 +124,8 @@ async def test_existing_records_and_uuid_roundtrip(recipe_server):
     api.put_recipes_slug.assert_called_once_with(slug="synthetic-soup", data=data)
 
 
-@pytest.mark.parametrize(
-    "tool,method,arguments,expected",
-    [
-        (
-            "foods",
-            "get_foods",
-            {"search": "carrot"},
-            {"search": "carrot", "page": 1, "per_page": 50},
-        ),
-        (
-            "units",
-            "get_units",
-            {"search": "cup", "page": 2},
-            {"search": "cup", "page": 2, "per_page": 50},
-        ),
-        (
-            "food_create",
-            "post_foods",
-            {"data": {"name": "Carrot"}},
-            {"data": {"name": "Carrot"}},
-        ),
-        (
-            "unit_create",
-            "post_units",
-            {"data": {"name": "cup"}},
-            {"data": {"name": "cup"}},
-        ),
-    ],
-)
-async def test_discovery_and_creation_dispatch(
-    recipe_server, tool, method, arguments, expected
-):
-    server, api = recipe_server
-    async with Client(server) as client:
-        await client.call_tool("mealie_recipe_" + tool, arguments)
-    getattr(api, method).assert_called_once_with(**expected)
-
-
-async def test_shared_surface_keeps_legacy_and_tags_typed_tools(monkeypatch):
+@pytest.mark.asyncio
+async def test_shared_surface_tags_typed_recipe_tools(monkeypatch):
     from scion_sdk.mcp.tool_surface import register_tool_surface
 
     from mealie_mcp.mcp_server import register_recipes_tools
@@ -178,12 +141,11 @@ async def test_shared_surface_keeps_legacy_and_tags_typed_tools(monkeypatch):
         registrars=[("recipes", "RECIPESTOOL", register_recipes_tools)],
     )
     assert server._condensed_tool_toggles["mealie_recipe_patch"] == "RECIPESTOOL"
-    assert server._condensed_tool_toggles["mealie_recipes"] == "RECIPESTOOL"
-    assert {"mealie_recipe_patch", "mealie_recipes"} <= server._intent_gated_tools
+    assert "mealie_recipe_patch" in server._intent_gated_tools
     async with Client(server) as client:
         tools = {tool.name: tool for tool in await client.list_tools()}
-    legacy = tools["mealie_recipes"].input_schema["properties"]
-    assert "action" in legacy and "params_json" in legacy
+    assert "mealie_recipes" not in tools
+    assert "action" not in tools["mealie_recipe_patch"].input_schema["properties"]
 
 
 def test_generated_fields_track_pinned_models():

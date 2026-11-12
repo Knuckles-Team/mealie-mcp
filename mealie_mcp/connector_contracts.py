@@ -19,24 +19,22 @@ CONTRACTS = (
                     "accept_language",
                     "id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_logged_in_user_favorites",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -46,24 +44,22 @@ CONTRACTS = (
                     "accept_language",
                     "recipe_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_logged_in_user_ratings",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -73,11 +69,11 @@ CONTRACTS = (
                     "accept_language",
                     "id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -88,12 +84,14 @@ CONTRACTS = (
                     "id",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -104,12 +102,14 @@ CONTRACTS = (
                     "id",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -120,13 +120,18 @@ CONTRACTS = (
                     "id",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -136,14 +141,12 @@ CONTRACTS = (
         (
             ToolStep(
                 "mealie_get_logged_in_user",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -153,11 +156,11 @@ CONTRACTS = (
                     "file_name",
                     "user_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -167,12 +170,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -181,12 +186,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -196,12 +203,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -211,12 +220,14 @@ CONTRACTS = (
                     "data",
                     "id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -226,13 +237,18 @@ CONTRACTS = (
                     "confirm",
                     "token_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -252,11 +268,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -266,11 +282,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -280,12 +296,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -295,12 +313,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -310,13 +330,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -326,14 +351,12 @@ CONTRACTS = (
         (
             ToolStep(
                 "mealie_get_token",
-                params=(
-                    "data",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("data",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -343,12 +366,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -357,58 +382,66 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_logout",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_oauth_callback",
                 params=(),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_oauth_login",
                 params=(),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_refresh_token",
                 params=(),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -417,26 +450,31 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_reset_password",
-                params=(
-                    "data",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("data",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -458,11 +496,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -473,11 +511,11 @@ CONTRACTS = (
                     "group_slug",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -495,11 +533,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -510,11 +548,11 @@ CONTRACTS = (
                     "group_slug",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -531,11 +569,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -558,11 +596,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -573,11 +611,11 @@ CONTRACTS = (
                     "group_slug",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -595,11 +633,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -610,11 +648,11 @@ CONTRACTS = (
                     "group_slug",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -632,11 +670,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -647,11 +685,11 @@ CONTRACTS = (
                     "group_slug",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -684,11 +722,11 @@ CONTRACTS = (
                     "tags",
                     "tools",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -710,11 +748,11 @@ CONTRACTS = (
                     "query_filter",
                     "tools",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -725,86 +763,78 @@ CONTRACTS = (
         (
             ToolStep(
                 "mealie_check_app_config",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_check_email_config",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_app_info",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_app_statistics",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_app_theme",
                 params=(),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_startup_info",
                 params=(),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_validation_text",
                 params=(),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -814,12 +844,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -828,12 +860,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
         ),
@@ -843,83 +877,86 @@ CONTRACTS = (
         (
             ToolStep(
                 "mealie_get_maintenance_summary",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_storage",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_storage_details",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_clean_images",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_clean_recipe_folders",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_clean_temp",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -929,14 +966,12 @@ CONTRACTS = (
         (
             ToolStep(
                 "mealie_get_admin_backups",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -946,24 +981,22 @@ CONTRACTS = (
                     "accept_language",
                     "file_name",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_exported_data",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -973,38 +1006,38 @@ CONTRACTS = (
                     "accept_language",
                     "export_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_post_admin_backups",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_download_file",
-                params=(
-                    "token",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("token",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1014,13 +1047,18 @@ CONTRACTS = (
                     "confirm",
                     "file_name",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -1029,13 +1067,18 @@ CONTRACTS = (
                     "accept_language",
                     "confirm",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -1055,11 +1098,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1069,11 +1112,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1089,11 +1132,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1103,11 +1146,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1123,11 +1166,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1137,12 +1180,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1151,12 +1196,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1166,12 +1213,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1181,12 +1230,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1196,13 +1247,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -1212,13 +1268,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -1239,11 +1300,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1253,11 +1314,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1267,11 +1328,11 @@ CONTRACTS = (
                     "accept_language",
                     "category_slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1281,12 +1342,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1296,12 +1359,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1311,13 +1376,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -1338,11 +1408,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1352,11 +1422,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1366,11 +1436,11 @@ CONTRACTS = (
                     "accept_language",
                     "tool_slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1380,12 +1450,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1395,12 +1467,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1410,13 +1484,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -1426,14 +1505,12 @@ CONTRACTS = (
         (
             ToolStep(
                 "mealie_get_empty_tags",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1450,11 +1527,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1464,11 +1541,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1478,11 +1555,11 @@ CONTRACTS = (
                     "accept_language",
                     "tag_slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1492,12 +1569,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1507,12 +1586,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1522,13 +1603,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -1538,14 +1624,12 @@ CONTRACTS = (
         (
             ToolStep(
                 "mealie_get_all_empty",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1556,27 +1640,23 @@ CONTRACTS = (
         (
             ToolStep(
                 "mealie_get_shared_recipe",
-                params=(
-                    "token_id",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("token_id",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_shared_recipe_as_zip",
-                params=(
-                    "token_id",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("token_id",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1586,11 +1666,11 @@ CONTRACTS = (
                     "accept_language",
                     "recipe_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1600,11 +1680,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1614,12 +1694,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1629,13 +1711,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -1655,11 +1742,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1669,11 +1756,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1689,11 +1776,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1703,11 +1790,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1718,12 +1805,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1734,12 +1823,14 @@ CONTRACTS = (
                     "item_id",
                     "recipe_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1748,12 +1839,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1762,12 +1855,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1776,12 +1871,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1790,12 +1887,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1805,12 +1904,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1820,12 +1921,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -1835,13 +1938,18 @@ CONTRACTS = (
                     "confirm",
                     "ids",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -1851,13 +1959,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -1867,13 +1980,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -1887,11 +2005,11 @@ CONTRACTS = (
                     "accept_language",
                     "username_or_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1907,24 +2025,22 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_group_preferences",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1935,11 +2051,11 @@ CONTRACTS = (
                     "group_slug",
                     "household_slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1955,24 +2071,22 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_household_preferences",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -1982,50 +2096,44 @@ CONTRACTS = (
                     "accept_language",
                     "recipe_slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_invite_tokens",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_logged_in_user_group",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_logged_in_user_household",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2035,24 +2143,22 @@ CONTRACTS = (
                     "accept_language",
                     "household_slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_statistics",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2062,12 +2168,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2076,12 +2184,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2090,12 +2200,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2104,12 +2216,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2118,12 +2232,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
         ),
@@ -2145,11 +2261,11 @@ CONTRACTS = (
                     "query_filter",
                     "start_date",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2159,11 +2275,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2179,11 +2295,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2193,24 +2309,22 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_todays_meals",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2220,12 +2334,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2234,12 +2350,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2248,12 +2366,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2263,12 +2383,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2278,12 +2400,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2293,13 +2417,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -2309,13 +2438,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -2336,11 +2470,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2350,11 +2484,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2364,12 +2498,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2379,12 +2515,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2393,12 +2531,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2408,12 +2548,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2423,13 +2565,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -2443,11 +2590,11 @@ CONTRACTS = (
                     "accept_language",
                     "report_type",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2457,11 +2604,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2472,13 +2619,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -2498,11 +2650,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2512,11 +2664,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2526,12 +2678,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2540,12 +2694,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2555,12 +2711,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2570,13 +2728,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -2596,11 +2759,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2610,11 +2773,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2630,11 +2793,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2644,11 +2807,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2664,11 +2827,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2678,11 +2841,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2692,12 +2855,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2706,12 +2871,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2720,12 +2887,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2735,12 +2904,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2750,12 +2921,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2765,25 +2938,27 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_rerun_webhooks",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2792,12 +2967,14 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2806,12 +2983,14 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2822,12 +3001,14 @@ CONTRACTS = (
                     "item_id",
                     "recipe_slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2837,13 +3018,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -2853,13 +3039,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -2869,13 +3060,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -2896,11 +3092,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2910,11 +3106,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -2924,25 +3120,27 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_recipe_food_create",
-                params=(
-                    "data",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("data",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2952,12 +3150,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2967,12 +3167,14 @@ CONTRACTS = (
                     "per_page",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2981,12 +3183,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -2996,13 +3200,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -3011,13 +3220,18 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -3038,11 +3252,11 @@ CONTRACTS = (
                     "query_filter",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3052,11 +3266,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3066,25 +3280,27 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_recipe_unit_create",
-                params=(
-                    "data",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("data",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3094,12 +3310,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3109,12 +3327,14 @@ CONTRACTS = (
                     "per_page",
                     "search",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3123,12 +3343,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3138,13 +3360,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -3153,13 +3380,18 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -3173,11 +3405,11 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3187,11 +3419,11 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3202,11 +3434,11 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3221,12 +3453,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3235,12 +3469,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3249,12 +3485,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3263,12 +3501,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3278,13 +3518,18 @@ CONTRACTS = (
                     "confirm",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -3298,11 +3543,11 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3312,11 +3557,11 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3326,11 +3571,11 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3340,12 +3585,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3355,12 +3602,14 @@ CONTRACTS = (
                     "data",
                     "translate_language",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3369,12 +3618,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3383,12 +3634,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3397,12 +3650,14 @@ CONTRACTS = (
                     "accept_language",
                     "file_name",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3411,12 +3666,14 @@ CONTRACTS = (
                     "ingest_images",
                     "params_json",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3426,12 +3683,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3440,13 +3699,18 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -3461,11 +3725,11 @@ CONTRACTS = (
                     "slug",
                     "template_name",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3475,24 +3739,22 @@ CONTRACTS = (
                     "file_name",
                     "recipe_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
             ToolStep(
                 "mealie_get_recipe_formats_and_templates",
-                params=(
-                    "accept_language",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("accept_language",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3502,11 +3764,11 @@ CONTRACTS = (
                     "file_name",
                     "recipe_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3517,11 +3779,11 @@ CONTRACTS = (
                     "recipe_id",
                     "timeline_event_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3532,12 +3794,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3547,12 +3811,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3562,12 +3828,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3577,13 +3845,18 @@ CONTRACTS = (
                     "confirm",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -3598,11 +3871,11 @@ CONTRACTS = (
                     "group_slug",
                     "recipe_slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3629,11 +3902,11 @@ CONTRACTS = (
                     "tags",
                     "tools",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3643,11 +3916,11 @@ CONTRACTS = (
                     "accept_language",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3668,11 +3941,11 @@ CONTRACTS = (
                     "query_filter",
                     "tools",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3682,25 +3955,27 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
                 "mealie_recipe_create",
-                params=(
-                    "data",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("data",),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3710,12 +3985,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3724,12 +4001,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3739,12 +4018,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3753,12 +4034,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3768,12 +4051,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3782,12 +4067,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3796,12 +4083,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3811,12 +4100,14 @@ CONTRACTS = (
                     "data",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3826,13 +4117,18 @@ CONTRACTS = (
                     "confirm",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -3844,13 +4140,18 @@ CONTRACTS = (
                     "item_id",
                     "recipe_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
             ToolStep(
@@ -3859,13 +4160,18 @@ CONTRACTS = (
                     "accept_language",
                     "force",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -3885,11 +4191,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3899,11 +4205,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3913,12 +4219,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3928,12 +4236,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -3943,13 +4253,18 @@ CONTRACTS = (
                     "confirm",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
-                    Refusal("CONFIRMATION_REQUIRED", "the caller has not confirmed the destructive call"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the caller has not confirmed the destructive call",
+                    ),
                 ),
             ),
         ),
@@ -3969,11 +4284,11 @@ CONTRACTS = (
                     "per_page",
                     "query_filter",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3983,11 +4298,11 @@ CONTRACTS = (
                     "accept_language",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -3997,11 +4312,11 @@ CONTRACTS = (
                     "accept_language",
                     "slug",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
                     Refusal("NOT_FOUND", "the requested record does not exist"),
                 ),
             ),
@@ -4011,12 +4326,14 @@ CONTRACTS = (
                     "accept_language",
                     "data",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
             ToolStep(
@@ -4026,12 +4343,14 @@ CONTRACTS = (
                     "data",
                     "item_id",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
-                    Refusal("ACCESS_DENIED", "the credential lacks access to the operation"),
-                    Refusal("INVALID_ARGUMENT", "the upstream system rejects the input"),
+                    Refusal(
+                        "ACCESS_DENIED", "the credential lacks access to the operation"
+                    ),
+                    Refusal(
+                        "INVALID_ARGUMENT", "the upstream system rejects the input"
+                    ),
                 ),
             ),
         ),
@@ -4055,9 +4374,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-household-administrator",
         ),
-        skills=(
-            "mealie-accounts",
-        ),
+        skills=("mealie-accounts",),
     ),
     SurfaceLink(
         "mealie-manage-profile",
@@ -4074,9 +4391,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-household-administrator",
         ),
-        skills=(
-            "mealie-accounts",
-        ),
+        skills=("mealie-accounts",),
     ),
     SurfaceLink(
         "mealie-manage-admin-user",
@@ -4091,9 +4406,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-household-administrator",
         ),
-        skills=(
-            "mealie-accounts",
-        ),
+        skills=("mealie-accounts",),
     ),
     SurfaceLink(
         "mealie-manage-auth",
@@ -4112,9 +4425,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-household-administrator",
         ),
-        skills=(
-            "mealie-accounts",
-        ),
+        skills=("mealie-accounts",),
     ),
     SurfaceLink(
         "mealie-inspect-explore-catalog",
@@ -4129,9 +4440,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-browser",
         ),
-        skills=(
-            "mealie-public-explore",
-        ),
+        skills=("mealie-public-explore",),
     ),
     SurfaceLink(
         "mealie-inspect-explore-organizer",
@@ -4147,9 +4456,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-browser",
         ),
-        skills=(
-            "mealie-public-explore",
-        ),
+        skills=("mealie-public-explore",),
     ),
     SurfaceLink(
         "mealie-inspect-explore-recipe",
@@ -4161,9 +4468,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-browser",
         ),
-        skills=(
-            "mealie-public-explore",
-        ),
+        skills=("mealie-public-explore",),
     ),
     SurfaceLink(
         "mealie-manage-app",
@@ -4182,9 +4487,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-household-administrator",
         ),
-        skills=(
-            "mealie-server-administration",
-        ),
+        skills=("mealie-server-administration",),
     ),
     SurfaceLink(
         "mealie-manage-maintenance",
@@ -4200,9 +4503,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-household-administrator",
         ),
-        skills=(
-            "mealie-server-administration",
-        ),
+        skills=("mealie-server-administration",),
     ),
     SurfaceLink(
         "mealie-manage-backup",
@@ -4220,9 +4521,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-household-administrator",
         ),
-        skills=(
-            "mealie-server-administration",
-        ),
+        skills=("mealie-server-administration",),
     ),
     SurfaceLink(
         "mealie-manage-group-admin",
@@ -4243,9 +4542,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-household-administrator",
         ),
-        skills=(
-            "mealie-server-administration",
-        ),
+        skills=("mealie-server-administration",),
     ),
     SurfaceLink(
         "mealie-manage-category",
@@ -4261,9 +4558,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-organizer-operations",
-        ),
+        skills=("mealie-organizer-operations",),
     ),
     SurfaceLink(
         "mealie-manage-tool",
@@ -4279,9 +4574,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-organizer-operations",
-        ),
+        skills=("mealie-organizer-operations",),
     ),
     SurfaceLink(
         "mealie-manage-tag",
@@ -4298,22 +4591,16 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-organizer-operations",
-        ),
+        skills=("mealie-organizer-operations",),
     ),
     SurfaceLink(
         "mealie-inspect-organizer",
-        tools=(
-            "mealie_get_all_empty",
-        ),
+        tools=("mealie_get_all_empty",),
         prompts=(
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-organizer-operations",
-        ),
+        skills=("mealie-organizer-operations",),
     ),
     SurfaceLink(
         "mealie-manage-shared-recipe",
@@ -4329,9 +4616,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-shared-recipes",
-        ),
+        skills=("mealie-shared-recipes",),
     ),
     SurfaceLink(
         "mealie-manage-shopping",
@@ -4356,9 +4641,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-meal-planner",
         ),
-        skills=(
-            "mealie-household-planning",
-        ),
+        skills=("mealie-household-planning",),
     ),
     SurfaceLink(
         "mealie-manage-household",
@@ -4385,9 +4668,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-meal-planner",
         ),
-        skills=(
-            "mealie-household-planning",
-        ),
+        skills=("mealie-household-planning",),
     ),
     SurfaceLink(
         "mealie-manage-mealplan",
@@ -4409,9 +4690,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-meal-planner",
         ),
-        skills=(
-            "mealie-household-planning",
-        ),
+        skills=("mealie-household-planning",),
     ),
     SurfaceLink(
         "mealie-manage-label",
@@ -4428,9 +4707,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-meal-planner",
         ),
-        skills=(
-            "mealie-household-planning",
-        ),
+        skills=("mealie-household-planning",),
     ),
     SurfaceLink(
         "mealie-manage-report",
@@ -4443,9 +4720,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-meal-planner",
         ),
-        skills=(
-            "mealie-household-planning",
-        ),
+        skills=("mealie-household-planning",),
     ),
     SurfaceLink(
         "mealie-manage-cookbook",
@@ -4461,9 +4736,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-meal-planner",
         ),
-        skills=(
-            "mealie-household-planning",
-        ),
+        skills=("mealie-household-planning",),
     ),
     SurfaceLink(
         "mealie-manage-automation",
@@ -4492,9 +4765,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-meal-planner",
         ),
-        skills=(
-            "mealie-household-planning",
-        ),
+        skills=("mealie-household-planning",),
     ),
     SurfaceLink(
         "mealie-manage-food",
@@ -4513,9 +4784,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-foods-and-units",
-        ),
+        skills=("mealie-foods-and-units",),
     ),
     SurfaceLink(
         "mealie-manage-unit",
@@ -4534,9 +4803,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-foods-and-units",
-        ),
+        skills=("mealie-foods-and-units",),
     ),
     SurfaceLink(
         "mealie-inspect-parser",
@@ -4549,9 +4816,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-foods-and-units",
-        ),
+        skills=("mealie-foods-and-units",),
     ),
     SurfaceLink(
         "mealie-manage-recipe-bulk",
@@ -4566,9 +4831,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-recipe-operations",
-        ),
+        skills=("mealie-recipe-operations",),
     ),
     SurfaceLink(
         "mealie-manage-recipe-import",
@@ -4589,9 +4852,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-recipe-operations",
-        ),
+        skills=("mealie-recipe-operations",),
     ),
     SurfaceLink(
         "mealie-manage-recipe-media",
@@ -4610,9 +4871,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-recipe-operations",
-        ),
+        skills=("mealie-recipe-operations",),
     ),
     SurfaceLink(
         "mealie-manage-recipe",
@@ -4639,9 +4898,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-recipe-operations",
-        ),
+        skills=("mealie-recipe-operations",),
     ),
     SurfaceLink(
         "mealie-manage-recipe-timeline",
@@ -4656,9 +4913,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-recipe-operations",
-        ),
+        skills=("mealie-recipe-operations",),
     ),
     SurfaceLink(
         "mealie-manage-recipe-comment",
@@ -4673,9 +4928,7 @@ LINKS = (
             "culinary_specialist",
             "mealie-recipe-curator",
         ),
-        skills=(
-            "mealie-recipe-operations",
-        ),
+        skills=("mealie-recipe-operations",),
     ),
     SurfaceLink(
         "mealie-mcp-operations",
@@ -4683,12 +4936,8 @@ LINKS = (
             "mealie_get_app_info",
             "mealie_get_recipes",
         ),
-        prompts=(
-            "culinary_specialist",
-        ),
-        skills=(
-            "mealie-mcp-operations",
-        ),
+        prompts=("culinary_specialist",),
+        skills=("mealie-mcp-operations",),
     ),
     SurfaceLink(
         "mealie-meal-planning",
@@ -4696,12 +4945,8 @@ LINKS = (
             "mealie_get_households_mealplans",
             "mealie_post_households_mealplans",
         ),
-        prompts=(
-            "culinary_specialist",
-        ),
-        skills=(
-            "mealie-meal-planning",
-        ),
+        prompts=("culinary_specialist",),
+        skills=("mealie-meal-planning",),
     ),
     SurfaceLink(
         "mealie-organizer-catalog",
@@ -4709,12 +4954,8 @@ LINKS = (
             "mealie_get_organizers_categories",
             "mealie_get_organizers_tags",
         ),
-        prompts=(
-            "culinary_specialist",
-        ),
-        skills=(
-            "mealie-organizer-catalog",
-        ),
+        prompts=("culinary_specialist",),
+        skills=("mealie-organizer-catalog",),
     ),
     SurfaceLink(
         "mealie-recipe-management",
@@ -4728,69 +4969,51 @@ LINKS = (
             "mealie_recipe_units",
             "mealie_recipe_update",
         ),
-        prompts=(
-            "culinary_specialist",
-        ),
-        skills=(
-            "mealie-recipe-management",
-        ),
+        prompts=("culinary_specialist",),
+        skills=("mealie-recipe-management",),
     ),
 )
 
 LOCATIONS = (
     DataLocation(
         "mealie-recipes",
-        (
-            "Recipe",
-        ),
+        ("Recipe",),
         "MEALIE_BASE_URL",
         "mealie_get_recipes",
     ),
     DataLocation(
         "mealie-mealplans",
-        (
-            "MealPlan",
-        ),
+        ("MealPlan",),
         "MEALIE_BASE_URL",
         "mealie_get_households_mealplans",
     ),
     DataLocation(
         "mealie-shopping",
-        (
-            "ShoppingList",
-        ),
+        ("ShoppingList",),
         "MEALIE_BASE_URL",
         "mealie_get_households_shopping_lists",
     ),
     DataLocation(
         "mealie-cookbooks",
-        (
-            "Cookbook",
-        ),
+        ("Cookbook",),
         "MEALIE_BASE_URL",
         "mealie_get_households_cookbooks",
     ),
     DataLocation(
         "mealie-categories",
-        (
-            "RecipeCategory",
-        ),
+        ("RecipeCategory",),
         "MEALIE_BASE_URL",
         "mealie_get_organizers_categories",
     ),
     DataLocation(
         "mealie-foods",
-        (
-            "Food",
-        ),
+        ("Food",),
         "MEALIE_BASE_URL",
         "mealie_get_foods",
     ),
     DataLocation(
         "mealie-households",
-        (
-            "Household",
-        ),
+        ("Household",),
         "MEALIE_BASE_URL",
         "mealie_get_all_households",
     ),

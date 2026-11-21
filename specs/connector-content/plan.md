@@ -16,7 +16,7 @@ This plan states how `mealie-mcp` delivers the rows of `CONN-MEALIE-MCP-CONNECTO
 - **Project Type**: connector
 - **Performance Goals**: N/A, the vendor service sets the latency
 - **Constraints**: vendor calls go through the SDK governed client; no connector-local transport
-- **Scale/Scope**: 1 active row(s) in this spec
+- **Scale/Scope**: 2 active row(s) in this spec
 
 ## Constitution Check
 
@@ -49,7 +49,7 @@ This plan states how `mealie-mcp` delivers the rows of `CONN-MEALIE-MCP-CONNECTO
 - **Project Type**: connector
 - **Performance Goals**: N/A, the vendor service sets the latency
 - **Constraints**: vendor calls go through the SDK governed client; no connector-local transport
-- **Scale/Scope**: 1 active row(s) in this spec
+- **Scale/Scope**: 2 active row(s) in this spec
 
 ### Constitution Check
 
@@ -82,7 +82,7 @@ This plan states how `mealie-mcp` delivers the rows of `CONN-MEALIE-MCP-CONNECTO
 - **Project Type**: connector
 - **Performance Goals**: N/A, the vendor service sets the latency
 - **Constraints**: vendor calls go through the SDK governed client; no connector-local transport
-- **Scale/Scope**: 1 active row(s) in this spec
+- **Scale/Scope**: 2 active row(s) in this spec
 
 ### Constitution Check
 
@@ -115,7 +115,7 @@ This plan states how `mealie-mcp` delivers the rows of `CONN-MEALIE-MCP-CONNECTO
 - **Project Type**: connector
 - **Performance Goals**: N/A, the vendor service sets the latency
 - **Constraints**: vendor calls go through the SDK governed client; no connector-local transport
-- **Scale/Scope**: 1 active row(s) in this spec
+- **Scale/Scope**: 2 active row(s) in this spec
 
 ### Constitution Check
 
@@ -221,6 +221,7 @@ None. The constitution check passed.
 ## Production caller chain
 
 - `CONN-MEALIE-MCP-CONNECTOR-CONTENT-R001`: `mealie-mcp` in `pyproject.toml` runs `scion_sdk.cli:serve`, which builds the server from the `scion_sdk.connector` entry point `mealie_mcp:connector` (`mealie_mcp/__init__.py:6`); the SDK `Connector` then lists the packaged skills, ontology and prompts.
+- `CONN-MEALIE-MCP-CONNECTOR-CONTENT-R002`: the ontology loader reads `mealie_mcp/ontology/` at server start; the engine imports the served pack and finds no redeclared core term.
 
 ## Cross-repo seams
 

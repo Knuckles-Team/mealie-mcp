@@ -16,18 +16,9 @@
 
 # --- classes (owl:Class) ---
 
-:Recipe a owl:Class ;
-    rdfs:subClassOf core:Recipe ;
-    rdfs:label "Recipe" ;
-    rdfs:comment "A Mealie recipe: name, yield, timings, ingredients and instructions (mealie_recipes)." .
-
 :Ingredient a owl:Class ;
     rdfs:label "Ingredient" ;
     rdfs:comment "One line item of a recipe — a quantity of a Food in a Unit, with an optional note." .
-
-:Food a owl:Class ;
-    rdfs:subClassOf core:Food .
-
 
 :Unit a owl:Class ;
     rdfs:label "Unit" ;
@@ -36,10 +27,6 @@
 :RecipeCategory a owl:Class ;
     rdfs:label "Recipe Category" ;
     rdfs:comment "An organizer category grouping recipes (mealie_organizer categories)." .
-
-:Tag a owl:Class ;
-    rdfs:subClassOf core:Tag .
-
 
 :RecipeTool a owl:Class ;
     rdfs:label "Recipe Tool" ;
@@ -66,14 +53,14 @@
 :hasIngredient a owl:ObjectProperty ;
     rdfs:label "has ingredient" ;
     rdfs:comment "Links a Recipe to one of its Ingredient line items." ;
-    rdfs:domain :Recipe ;
+    rdfs:domain core:Recipe ;
     rdfs:range :Ingredient .
 
 :usesFood a owl:ObjectProperty ;
     rdfs:label "uses food" ;
     rdfs:comment "Links an Ingredient to the Food it references." ;
     rdfs:domain :Ingredient ;
-    rdfs:range :Food .
+    rdfs:range core:Food .
 
 :measuredIn a owl:ObjectProperty ;
     rdfs:label "measured in" ;
@@ -84,49 +71,37 @@
 :hasCategory a owl:ObjectProperty ;
     rdfs:label "has category" ;
     rdfs:comment "Links a Recipe to a RecipeCategory it belongs to." ;
-    rdfs:domain :Recipe ;
+    rdfs:domain core:Recipe ;
     rdfs:range :RecipeCategory .
 
 :hasTag a owl:ObjectProperty ;
     rdfs:label "has tag" ;
     rdfs:comment "Links a Recipe to a Tag applied to it." ;
-    rdfs:domain :Recipe ;
-    rdfs:range :Tag .
-
-:usesTool a owl:ObjectProperty ;
-    rdfs:label "uses tool" ;
-    rdfs:comment "Links a Recipe to a RecipeTool it requires." ;
-    rdfs:domain :Recipe ;
-    rdfs:range :RecipeTool .
+    rdfs:domain core:Recipe ;
+    rdfs:range core:Tag .
 
 :hasImage a owl:ObjectProperty ;
     rdfs:label "has image" ;
     rdfs:comment "Links a Recipe to its stored :AssetOccurrence image blob." ;
-    rdfs:domain :Recipe ;
+    rdfs:domain core:Recipe ;
     rdfs:range core:AssetOccurrence .
 
 :plansRecipe a owl:ObjectProperty ;
     rdfs:label "plans recipe" ;
     rdfs:comment "Links a MealPlan entry to the Recipe scheduled for that date." ;
     rdfs:domain :MealPlan ;
-    rdfs:range :Recipe .
+    rdfs:range core:Recipe .
 
 :inCookbook a owl:ObjectProperty ;
     rdfs:label "in cookbook" ;
     rdfs:comment "Links a Recipe to a Cookbook that collects it." ;
-    rdfs:domain :Recipe ;
+    rdfs:domain core:Recipe ;
     rdfs:range :Cookbook .
 
 :inHousehold a owl:ObjectProperty ;
     rdfs:label "in household" ;
     rdfs:comment "Links a Recipe, Cookbook, MealPlan or ShoppingList to its owning Household." ;
     rdfs:range :Household .
-
-:createdBy a owl:ObjectProperty ;
-    rdfs:label "created by" ;
-    rdfs:comment "Links a Recipe to the Person (Mealie user) who authored it." ;
-    rdfs:domain :Recipe ;
-    rdfs:range core:Person .
 
 # --- fields (owl:DatatypeProperty) ---
 
